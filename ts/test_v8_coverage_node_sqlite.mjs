@@ -72,4 +72,7 @@ import {mergeProcessCovs} from "./lib/index.js";
     data1 = JSON.stringify(data1, undefined, 4) + "\n";
     await fs.promises.writeFile(".v8_coverage_node_sqlite_merged.json", data1);
     assert_or_throw(data1 === data2);
+
+    // coverage-hack
+    noop();
 }());
