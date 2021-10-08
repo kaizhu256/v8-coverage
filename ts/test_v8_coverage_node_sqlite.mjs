@@ -1,6 +1,6 @@
 /*jslint beta, node*/
 import fs from "fs";
-import {mergeProcessCovs} from "./lib/index.js";
+import {mergeProcessCovs} from "./merge.mjs";
 (async function () {
     let data1;
     let data2;
