@@ -1,5 +1,6 @@
 /*jslint beta, node*/
 import fs from "fs";
+// import {mergeProcessCovs} from "./lib/index.js";
 import {mergeProcessCovs} from "./merge.mjs";
 (async function () {
     let data1;
@@ -68,6 +69,7 @@ import {mergeProcessCovs} from "./merge.mjs";
     }));
     data2 = data1.shift();
     data1 = mergeProcessCovs(data1);
+    data1 = mergeProcessCovs([data1]);
     data1 = objectDeepCopyWithKeysSorted(data1);
     data1 = JSON.stringify(data1, undefined, 4) + "\n";
     await fs.promises.writeFile(".v8_coverage_node_sqlite_merged.json", data1);

@@ -3,11 +3,11 @@
  *
  * The result corresponds to the comparison of their `url` value (alphabetical sort).
  */
-function compareScriptCovs(a, b) {
-    if (a.url === b.url) {
+function compareScriptCovs(aa, bb) {
+    if (aa.url === bb.url) {
         return 0;
     }
-    else if (a.url < b.url) {
+    else if (aa.url < bb.url) {
         return -1;
     }
     else {
@@ -20,8 +20,8 @@ function compareScriptCovs(a, b) {
  *
  * The result corresponds to the comparison of the root ranges.
  */
-function compareFunctionCovs(a, b) {
-    return compareRangeCovs(a.ranges[0], b.ranges[0]);
+function compareFunctionCovs(aa, bb) {
+    return compareRangeCovs(aa.ranges[0], bb.ranges[0]);
 }
 
 /**
@@ -31,12 +31,12 @@ function compareFunctionCovs(a, b) {
  * descending `endOffset`.
  * This corresponds to a pre-order tree traversal.
  */
-function compareRangeCovs(a, b) {
-    if (a.startOffset !== b.startOffset) {
-        return a.startOffset - b.startOffset;
+function compareRangeCovs(aa, bb) {
+    if (aa.startOffset !== bb.startOffset) {
+        return aa.startOffset - bb.startOffset;
     }
     else {
-        return b.endOffset - a.endOffset;
+        return bb.endOffset - aa.endOffset;
     }
 }
 
@@ -214,15 +214,15 @@ class RangeTree {
         let leftChildLen = this.children.length;
         let mid;
         // TODO(perf): Binary search (check overhead)
-        for (let i = 0; i < this.children.length; i++) {
-            const child = this.children[i];
+        for (let ii = 0; ii < this.children.length; ii += 1) {
+            const child = this.children[ii];
             if (child.start < value && value < child.end) {
                 mid = child.split(value);
-                leftChildLen = i + 1;
+                leftChildLen = ii + 1;
                 break;
             }
             else if (child.start >= value) {
-                leftChildLen = i;
+                leftChildLen = ii;
                 break;
             }
         }
@@ -248,8 +248,8 @@ class RangeTree {
             const [cur, parentCount] = stack.pop();
             const count = parentCount + cur.delta;
             ranges.push({ startOffset: cur.start, endOffset: cur.end, count });
-            for (let i = cur.children.length - 1; i >= 0; i--) {
-                stack.push([cur.children[i], count]);
+            for (let ii = cur.children.length - 1; ii >= 0; ii--) {
+                stack.push([cur.children[ii], count]);
             }
         }
         return ranges;
@@ -443,8 +443,8 @@ class StartEvent {
         this.offset = offset;
         this.trees = trees;
     }
-    static compare(a, b) {
-        return a.offset - b.offset;
+    static compare(aa, bb) {
+        return aa.offset - bb.offset;
     }
 }
 
@@ -487,7 +487,7 @@ class StartEventQueue {
         const pendingTrees = this.pendingTrees;
         const nextEvent = this.queue[this.nextIndex];
         if (pendingTrees === undefined) {
-            this.nextIndex++;
+            this.nextIndex += 1;
             return nextEvent;
         }
         else if (nextEvent === undefined) {
@@ -506,7 +506,7 @@ class StartEventQueue {
                         nextEvent.trees.push(tree);
                     }
                 }
-                this.nextIndex++;
+                this.nextIndex += 1;
                 return nextEvent;
             }
         }
