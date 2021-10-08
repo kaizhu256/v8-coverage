@@ -31,10 +31,10 @@
     }
   },
   "scripts": {
-    "build": "tsc --build src/lib/tsconfig.json",
-    "prepack": "npm run build",
+    "build2": "tsc --build src/lib/tsconfig.json",
+    "prepack2": "npm run build",
     "test:build": "tsc --build src/test/tsconfig.json",
-    "test": "mocha \"test/**/*.spec.js\""
+    "test": "mocha \"test/**/*.spec.js\" && node --unhandled-rejections=strict test_v8_coverage_node_sqlite.mjs"
   },
   "engines": {
     "node": "^12.20.0 || >=14.13.1"

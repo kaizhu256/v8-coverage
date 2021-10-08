@@ -5,6 +5,19 @@ import {mergeProcessCovs} from "./lib/index.js";
     let data1;
     let data2;
 
+    function assert_or_throw(condition, message) {
+
+// This function will throw <message> if <condition> is falsy.
+
+        if (!condition) {
+            throw (
+                typeof message === "string"
+                ? new Error(message.slice(0, 2048))
+                : message
+            );
+        }
+    }
+
     function noop(val) {
 
 // this function will do nothing except return <val>
@@ -58,5 +71,5 @@ import {mergeProcessCovs} from "./lib/index.js";
     data1 = objectDeepCopyWithKeysSorted(data1);
     data1 = JSON.stringify(data1, undefined, 4) + "\n";
     await fs.promises.writeFile(".v8_coverage_node_sqlite_merged.json", data1);
-    console.assert(data1 === data2);
+    assert_or_throw(data1 === data2);
 }());
