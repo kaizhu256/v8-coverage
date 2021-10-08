@@ -1,6 +1,120 @@
-import { deepNormalizeProcessCov, deepNormalizeScriptCov, normalizeFunctionCov, normalizeProcessCov, normalizeRangeTree, normalizeScriptCov, } from "./lib/normalize.js";
+/**
+ * Compares two script coverages.
+ *
+ * The result corresponds to the comparison of their `url` value (alphabetical sort).
+ */
+export function compareScriptCovs(a, b) {
+    if (a.url === b.url) {
+        return 0;
+    }
+    else if (a.url < b.url) {
+        return -1;
+    }
+    else {
+        return 1;
+    }
+}
+/**
+ * Compares two function coverages.
+ *
+ * The result corresponds to the comparison of the root ranges.
+ */
+export function compareFunctionCovs(a, b) {
+    return compareRangeCovs(a.ranges[0], b.ranges[0]);
+}
+/**
+ * Compares two range coverages.
+ *
+ * The ranges are first ordered by ascending `startOffset` and then by
+ * descending `endOffset`.
+ * This corresponds to a pre-order tree traversal.
+ */
+export function compareRangeCovs(a, b) {
+    if (a.startOffset !== b.startOffset) {
+        return a.startOffset - b.startOffset;
+    }
+    else {
+        return b.endOffset - a.endOffset;
+    }
+}
 
-export class RangeTree {
+/**
+ * Normalizes a process coverage.
+ *
+ * Sorts the scripts alphabetically by `url`.
+ * Reassigns script ids: the script at index `0` receives `"0"`, the script at
+ * index `1` receives `"1"` etc.
+ * This does not normalize the script coverages.
+ *
+ * @param processCov Process coverage to normalize.
+ */
+export function normalizeProcessCov(processCov) {
+    processCov.result.sort(compareScriptCovs);
+    for (const [scriptId, scriptCov] of processCov.result.entries()) {
+        scriptCov.scriptId = scriptId.toString(10);
+    }
+}
+/**
+ * Normalizes a process coverage deeply.
+ *
+ * Normalizes the script coverages deeply, then normalizes the process coverage
+ * itself.
+ *
+ * @param processCov Process coverage to normalize.
+ */
+export function deepNormalizeProcessCov(processCov) {
+    for (const scriptCov of processCov.result) {
+        deepNormalizeScriptCov(scriptCov);
+    }
+    normalizeProcessCov(processCov);
+}
+/**
+ * Normalizes a script coverage.
+ *
+ * Sorts the function by root range (pre-order sort).
+ * This does not normalize the function coverages.
+ *
+ * @param scriptCov Script coverage to normalize.
+ */
+export function normalizeScriptCov(scriptCov) {
+    scriptCov.functions.sort(compareFunctionCovs);
+}
+/**
+ * Normalizes a script coverage deeply.
+ *
+ * Normalizes the function coverages deeply, then normalizes the script coverage
+ * itself.
+ *
+ * @param scriptCov Script coverage to normalize.
+ */
+export function deepNormalizeScriptCov(scriptCov) {
+    for (const funcCov of scriptCov.functions) {
+        normalizeFunctionCov(funcCov);
+    }
+    normalizeScriptCov(scriptCov);
+}
+/**
+ * Normalizes a function coverage.
+ *
+ * Sorts the ranges (pre-order sort).
+ * TODO: Tree-based normalization of the ranges.
+ *
+ * @param funcCov Function coverage to normalize.
+ */
+export function normalizeFunctionCov(funcCov) {
+    funcCov.ranges.sort(compareRangeCovs);
+    const tree = RangeTree.fromSortedRanges(funcCov.ranges);
+    normalizeRangeTree(tree);
+    funcCov.ranges = tree.toRanges();
+}
+/**
+ * @internal
+ */
+export function normalizeRangeTree(tree) {
+    tree.normalize();
+}
+
+class RangeTree {
     constructor(start, end, delta, children) {
         this.start = start;
         this.end = end;
@@ -188,7 +302,7 @@ export function mergeProcessCovs(processCovs) {
  * @param scriptCovs Process coverages to merge.
  * @return Merged script coverage, or `undefined` if the input list was empty.
  */
-export function mergeScriptCovs(scriptCovs) {
+function mergeScriptCovs(scriptCovs) {
     if (scriptCovs.length === 0) {
         return undefined;
     }
@@ -249,7 +363,7 @@ function stringifyFunctionRootRange(funcCov) {
  * @param funcCovs Function coverages to merge.
  * @return Merged function coverage, or `undefined` if the input list was empty.
  */
-export function mergeFunctionCovs(funcCovs) {
+function mergeFunctionCovs(funcCovs) {
     if (funcCovs.length === 0) {
         return undefined;
     }
