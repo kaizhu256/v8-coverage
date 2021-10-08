@@ -2,9 +2,9 @@ name: Check the TypeScript implementation
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, beta, alpha ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, beta, alpha ]
 
 jobs:
   build:
