@@ -3,9 +3,8 @@ import fs from "fs";
 import sysPath from "path";
 import path from "path";
 import url from "url";
-import { mergeFunctionCovs, mergeProcessCovs, mergeScriptCovs } from "../lib/index.js";
+import { mergeFunctionCovs, mergeProcessCovs, mergeScriptCovs } from "../merge.mjs";
 import { testImpl } from "@v8-coverage-tools/mocha";
-console.error(testImpl.toString());
 const REPO_ROOT = path.join(url.fileURLToPath(import.meta.url), "..", "..", "..");
 const MERGE_TESTS_DIR = path.join(REPO_ROOT, "tests", "merge");
 const MERGE_TIMEOUT = 30000; // 30sec
@@ -152,4 +151,5 @@ function* getMergeTests() {
         yield { name: testName, testPath };
     }
 }
-//# sourceMappingURL=merge.spec.js.map
+
+await import("../test_v8_coverage_node_sqlite.mjs");
