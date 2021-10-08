@@ -3,7 +3,7 @@
  *
  * The result corresponds to the comparison of their `url` value (alphabetical sort).
  */
-export function compareScriptCovs(a, b) {
+function compareScriptCovs(a, b) {
     if (a.url === b.url) {
         return 0;
     }
@@ -14,14 +14,16 @@ export function compareScriptCovs(a, b) {
         return 1;
     }
 }
+
 /**
  * Compares two function coverages.
  *
  * The result corresponds to the comparison of the root ranges.
  */
-export function compareFunctionCovs(a, b) {
+function compareFunctionCovs(a, b) {
     return compareRangeCovs(a.ranges[0], b.ranges[0]);
 }
+
 /**
  * Compares two range coverages.
  *
@@ -29,7 +31,7 @@ export function compareFunctionCovs(a, b) {
  * descending `endOffset`.
  * This corresponds to a pre-order tree traversal.
  */
-export function compareRangeCovs(a, b) {
+function compareRangeCovs(a, b) {
     if (a.startOffset !== b.startOffset) {
         return a.startOffset - b.startOffset;
     }
@@ -48,12 +50,13 @@ export function compareRangeCovs(a, b) {
  *
  * @param processCov Process coverage to normalize.
  */
-export function normalizeProcessCov(processCov) {
+function normalizeProcessCov(processCov) {
     processCov.result.sort(compareScriptCovs);
     for (const [scriptId, scriptCov] of processCov.result.entries()) {
         scriptCov.scriptId = scriptId.toString(10);
     }
 }
+
 /**
  * Normalizes a process coverage deeply.
  *
@@ -62,12 +65,13 @@ export function normalizeProcessCov(processCov) {
  *
  * @param processCov Process coverage to normalize.
  */
-export function deepNormalizeProcessCov(processCov) {
+function deepNormalizeProcessCov(processCov) {
     for (const scriptCov of processCov.result) {
         deepNormalizeScriptCov(scriptCov);
     }
     normalizeProcessCov(processCov);
 }
+
 /**
  * Normalizes a script coverage.
  *
@@ -76,9 +80,10 @@ export function deepNormalizeProcessCov(processCov) {
  *
  * @param scriptCov Script coverage to normalize.
  */
-export function normalizeScriptCov(scriptCov) {
+function normalizeScriptCov(scriptCov) {
     scriptCov.functions.sort(compareFunctionCovs);
 }
+
 /**
  * Normalizes a script coverage deeply.
  *
@@ -87,12 +92,13 @@ export function normalizeScriptCov(scriptCov) {
  *
  * @param scriptCov Script coverage to normalize.
  */
-export function deepNormalizeScriptCov(scriptCov) {
+function deepNormalizeScriptCov(scriptCov) {
     for (const funcCov of scriptCov.functions) {
         normalizeFunctionCov(funcCov);
     }
     normalizeScriptCov(scriptCov);
 }
+
 /**
  * Normalizes a function coverage.
  *
@@ -101,16 +107,17 @@ export function deepNormalizeScriptCov(scriptCov) {
  *
  * @param funcCov Function coverage to normalize.
  */
-export function normalizeFunctionCov(funcCov) {
+function normalizeFunctionCov(funcCov) {
     funcCov.ranges.sort(compareRangeCovs);
     const tree = RangeTree.fromSortedRanges(funcCov.ranges);
     normalizeRangeTree(tree);
     funcCov.ranges = tree.toRanges();
 }
+
 /**
  * @internal
  */
-export function normalizeRangeTree(tree) {
+function normalizeRangeTree(tree) {
     tree.normalize();
 }
 
@@ -335,6 +342,7 @@ function mergeScriptCovs(scriptCovs) {
     normalizeScriptCov(merged);
     return merged;
 }
+
 /**
  * Returns a string representation of the root range of the function.
  *
