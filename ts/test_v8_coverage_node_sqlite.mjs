@@ -6,6 +6,19 @@ import {mergeProcessCovs} from "./merge.mjs";
     let data1;
     let data2;
 
+    function assert_json_equal(aa, bb) {
+
+// this function will assert JSON.stringify(<aa>) === JSON.stringify(<bb>)
+
+        aa = JSON.stringify(objectDeepCopyWithKeysSorted(aa));
+        bb = JSON.stringify(objectDeepCopyWithKeysSorted(bb));
+        if (aa !== bb) {
+            throw new Error(
+                JSON.stringify(aa) + " !== " + JSON.stringify(bb)
+            );
+        }
+    }
+
     function assert_or_throw(condition, message) {
 
 // This function will throw <message> if <condition> is falsy.
@@ -74,6 +87,51 @@ import {mergeProcessCovs} from "./merge.mjs";
     data1 = JSON.stringify(data1, undefined, 4) + "\n";
     await fs.promises.writeFile(".v8_coverage_node_sqlite_merged.json", data1);
     assert_or_throw(data1 === data2);
+
+    (function () {
+        const inputs = [
+            {
+                result: [
+                    {
+                        scriptId: "123",
+                        url: "/lib.js",
+                        functions: [
+                            {
+                                functionName: "test",
+                                isBlockCoverage: true,
+                                ranges: [
+                                    { startOffset: 0, endOffset: 4, count: 2 },
+                                    { startOffset: 1, endOffset: 2, count: 1 },
+                                    { startOffset: 2, endOffset: 3, count: 1 },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
+        ];
+        const expected = {
+            result: [
+                {
+                    scriptId: "0",
+                    url: "/lib.js",
+                    functions: [
+                        {
+                            functionName: "test",
+                            isBlockCoverage: true,
+                            ranges: [
+                                { startOffset: 0, endOffset: 4, count: 2 },
+                                { startOffset: 1, endOffset: 3, count: 1 },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        };
+        const actual = mergeProcessCovs(inputs);
+        assert_json_equal(actual, expected);
+    }());
+
     console.error("finished test_v8_coverage_node_sqlite.mjs");
 
     // coverage-hack

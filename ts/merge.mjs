@@ -309,7 +309,7 @@ export function mergeProcessCovs(processCovs) {
  * @param scriptCovs Process coverages to merge.
  * @return Merged script coverage, or `undefined` if the input list was empty.
  */
-function mergeScriptCovs(scriptCovs) {
+export function mergeScriptCovs(scriptCovs) {
     if (scriptCovs.length === 0) {
         return undefined;
     }
@@ -371,7 +371,7 @@ function stringifyFunctionRootRange(funcCov) {
  * @param funcCovs Function coverages to merge.
  * @return Merged function coverage, or `undefined` if the input list was empty.
  */
-function mergeFunctionCovs(funcCovs) {
+export function mergeFunctionCovs(funcCovs) {
     if (funcCovs.length === 0) {
         return undefined;
     }

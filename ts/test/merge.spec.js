@@ -5,6 +5,7 @@ import path from "path";
 import url from "url";
 import { mergeFunctionCovs, mergeProcessCovs, mergeScriptCovs } from "../lib/index.js";
 import { testImpl } from "@v8-coverage-tools/mocha";
+console.error(testImpl.toString());
 const REPO_ROOT = path.join(url.fileURLToPath(import.meta.url), "..", "..", "..");
 const MERGE_TESTS_DIR = path.join(REPO_ROOT, "tests", "merge");
 const MERGE_TIMEOUT = 30000; // 30sec
