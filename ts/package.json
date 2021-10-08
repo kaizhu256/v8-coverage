@@ -31,8 +31,8 @@
     }
   },
   "scripts": {
-    "build": "tsc --build src/lib/tsconfig.json",
-    "prepack": "npm run build",
+    "build2": "tsc --build src/lib/tsconfig.json",
+    "prepack2": "npm run build",
     "test:build": "tsc --build src/test/tsconfig.json",
     "test": "mocha \"test/**/*.spec.js\""
   },
