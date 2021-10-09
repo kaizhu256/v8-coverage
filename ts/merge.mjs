@@ -567,7 +567,7 @@ function mergeRangeTreeChildren(parentTrees) {
                 insertChild(parentToNested, parentIndex, tree);
             });
             startEventQueue.setPendingOffset(openRangeEnd);
-            openRange = { start: event.offset, end: openRangeEnd };
+            openRange = { end: openRangeEnd, start: event.offset };
         } else {
             event.trees.forEach(function ({ parentIndex, tree }) {
                 if (tree.end > openRange.end) {
