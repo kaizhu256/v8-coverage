@@ -36,9 +36,7 @@ function compareRangeCovs(aa, bb) {
     if (aa.startOffset !== bb.startOffset) {
         return aa.startOffset - bb.startOffset;
     }
-    else {
-        return bb.endOffset - aa.endOffset;
-    }
+    return bb.endOffset - aa.endOffset;
 }
 
 function normalizeProcessCov(processCov) {
@@ -175,11 +173,9 @@ Object.assign(RangeTree.prototype, {
         this.children.forEach(function (child) {
             if (head === undefined) {
                 head = child;
-            }
-            else if (child.delta === head.delta && child.start === curEnd) {
+            } else if (child.delta === head.delta && child.start === curEnd) {
                 tail.push(child);
-            }
-            else {
+            } else {
                 endChain();
                 head = child;
             }
@@ -293,7 +289,9 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
  */
     let merged;
     if (processCovs.length === 0) {
-        return { result: [] };
+        return {
+            result: []
+        };
     }
     if (processCovs.length === 1) {
         merged = processCovs[0];
@@ -316,7 +314,9 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
         // assert: `scripts.length > 0`
         result.push(mergeScriptCovs(scripts));
     });
-    merged = { result };
+    merged = {
+        result
+    };
     normalizeProcessCov(merged);
     return merged;
 }
@@ -363,7 +363,9 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
         // assert: `funcCovs.length > 0`
         functions.push(mergeFunctionCovs(funcCovs));
     });
-    merged = { functions, scriptId, url };
+    merged = {
+        functions, scriptId, url
+    };
     normalizeScriptCov(merged);
     return merged;
 }
@@ -436,7 +438,9 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
         isBlockCoverage = false;
         ranges = [{ count, endOffset, startOffset }];
     }
-    merged = { functionName, isBlockCoverage, ranges };
+    merged = {
+        functionName, isBlockCoverage, ranges
+    };
     if (count !== ranges[0].count) {
         merged.count = count;
     }
@@ -562,14 +566,16 @@ function mergeRangeTreeChildren(parentTrees) {
         }
         if (openRange === undefined) {
             let openRangeEnd = event.offset + 1;
-            event.trees.forEach(function ({ parentIndex, tree }) {
+            event.trees.forEach(function ({ parentIndex, tree }) { //jslint-quiet
                 openRangeEnd = Math.max(openRangeEnd, tree.end);
                 insertChild(parentToNested, parentIndex, tree);
             });
             startEventQueue.setPendingOffset(openRangeEnd);
-            openRange = { end: openRangeEnd, start: event.offset };
+            openRange = {
+                end: openRangeEnd, start: event.offset
+            };
         } else {
-            event.trees.forEach(function ({ parentIndex, tree }) {
+            event.trees.forEach(function ({ parentIndex, tree }) { //jslint-quiet
                 if (tree.end > openRange.end) {
                     const right = tree.split(openRange.end);
                     startEventQueue.pushPendingTree({
