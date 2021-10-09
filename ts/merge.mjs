@@ -512,49 +512,46 @@ function StartEventQueue(queue) {
     delete this.pendingTrees;
 }
 
-Object.assign(StartEventQueue.prototype, {
-    next: function () {
-        const pendingTrees = this.pendingTrees;
-        const nextEvent = this.queue[this.nextIndex];
-        if (pendingTrees === undefined) {
-            this.nextIndex += 1;
-            return nextEvent;
-        } else if (nextEvent === undefined) {
-            delete this.pendingTrees;
-            return {
-                // new StartEvent
-                offset: this.pendingOffset,
-                trees: pendingTrees
-            };
-        } else {
-            if (this.pendingOffset < nextEvent.offset) {
-                delete this.pendingTrees;
-                return {
-                    // new StartEvent
-                    offset: this.pendingOffset,
-                    trees: pendingTrees
-                };
-            } else {
-                if (this.pendingOffset === nextEvent.offset) {
-                    delete this.pendingTrees;
-                    pendingTrees.forEach(function (tree) {
-                        nextEvent.trees.push(tree);
-                    });
-                }
-                this.nextIndex += 1;
-                return nextEvent;
-            }
-        }
-    }
-});
-
 function mergeRangeTreeChildren(parentTrees) {
     const result = [];
     const startEventQueue = startEventQueueFromParentTrees(parentTrees);
     const parentToNested = new Map();
     let openRange;
+    function next() {
+        const pendingTrees = startEventQueue.pendingTrees;
+        const nextEvent = startEventQueue.queue[startEventQueue.nextIndex];
+        if (pendingTrees === undefined) {
+            startEventQueue.nextIndex += 1;
+            return nextEvent;
+        } else if (nextEvent === undefined) {
+            delete startEventQueue.pendingTrees;
+            return {
+                // new StartEvent
+                offset: startEventQueue.pendingOffset,
+                trees: pendingTrees
+            };
+        } else {
+            if (startEventQueue.pendingOffset < nextEvent.offset) {
+                delete startEventQueue.pendingTrees;
+                return {
+                    // new StartEvent
+                    offset: startEventQueue.pendingOffset,
+                    trees: pendingTrees
+                };
+            } else {
+                if (startEventQueue.pendingOffset === nextEvent.offset) {
+                    delete startEventQueue.pendingTrees;
+                    pendingTrees.forEach(function (tree) {
+                        nextEvent.trees.push(tree);
+                    });
+                }
+                startEventQueue.nextIndex += 1;
+                return nextEvent;
+            }
+        }
+    }
     while (true) {
-        const event = startEventQueue.next();
+        const event = next();
         if (event === undefined) {
             break;
         }
