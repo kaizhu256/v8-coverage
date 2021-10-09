@@ -1,19 +1,5 @@
 /*jslint beta*/
 
-function compareRangeCovs(aa, bb) {
-
-// Compares two range coverages.
-//
-// The ranges are first ordered by ascending `startOffset` and then by
-// descending `endOffset`.
-// This corresponds to a pre-order tree traversal.
-
-    if (aa.startOffset !== bb.startOffset) {
-        return aa.startOffset - bb.startOffset;
-    }
-    return bb.endOffset - aa.endOffset;
-}
-
 function coverageFunctionNormalize(funcCov) {
 
 // Normalizes a function coverage.
@@ -25,10 +11,24 @@ function coverageFunctionNormalize(funcCov) {
 
     funcCov.ranges = rangeTreeToRanges(
         rangeTreeFromSortedRanges(
-            funcCov.ranges.sort(compareRangeCovs)
+            funcCov.ranges.sort(coverageRangeListCompare)
         )
     );
     return funcCov;
+}
+
+function coverageRangeListCompare(aa, bb) {
+
+// Compares two range coverages.
+//
+// The ranges are first ordered by ascending `startOffset` and then by
+// descending `endOffset`.
+// This corresponds to a pre-order tree traversal.
+
+    if (aa.startOffset !== bb.startOffset) {
+        return aa.startOffset - bb.startOffset;
+    }
+    return bb.endOffset - aa.endOffset;
 }
 
 function coverageScriptNormalize(scriptCov) {
@@ -46,7 +46,7 @@ function coverageScriptNormalize(scriptCov) {
 //
 // The result corresponds to the comparison of the root ranges.
 
-        return compareRangeCovs(aa.ranges[0], bb.ranges[0]);
+        return coverageRangeListCompare(aa.ranges[0], bb.ranges[0]);
     });
     return scriptCov;
 }
@@ -467,6 +467,14 @@ function rangeTreeChildrenMerge(parentTrees) {
     let result = [];
     let startEventQueue;
     let startToTrees = new Map();
+    function insertChild(parentToNested, parentIndex, tree) {
+        let nested = parentToNested.get(parentIndex);
+        if (nested === undefined) {
+            nested = [];
+            parentToNested.set(parentIndex, nested);
+        }
+        nested.push(tree);
+    }
     function next() {
         let nextEvent = startEventQueue.queue[startEventQueue.nextIndex];
         let pendingTrees = startEventQueue.pendingTrees;
@@ -503,6 +511,30 @@ function rangeTreeChildrenMerge(parentTrees) {
                 return nextEvent;
             }
         }
+    }
+    function nextChild(openRange, parentToNested) {
+        let matchingTrees = [];
+        parentToNested.forEach(function (nested) {
+            if (
+                nested.length === 1
+                && nested[0].start === openRange.start
+                && nested[0].end === openRange.end
+            ) {
+                matchingTrees.push(nested[0]);
+            } else {
+
+// new rangeTreeCreate().
+
+                matchingTrees.push({
+                    children: nested,
+                    delta: 0,
+                    end: openRange.end,
+                    start: openRange.start
+                });
+            }
+        });
+        parentToNested.clear();
+        return rangeTreeListMerge(matchingTrees);
     }
     parentTrees.forEach(function (parentTree, parentIndex) {
         parentTree.children.forEach(function (child) {
@@ -604,38 +636,4 @@ function rangeTreeListMerge(trees) {
             start: trees[0].start
         }
     );
-}
-
-function insertChild(parentToNested, parentIndex, tree) {
-    let nested = parentToNested.get(parentIndex);
-    if (nested === undefined) {
-        nested = [];
-        parentToNested.set(parentIndex, nested);
-    }
-    nested.push(tree);
-}
-
-function nextChild(openRange, parentToNested) {
-    let matchingTrees = [];
-    parentToNested.forEach(function (nested) {
-        if (
-            nested.length === 1
-            && nested[0].start === openRange.start
-            && nested[0].end === openRange.end
-        ) {
-            matchingTrees.push(nested[0]);
-        } else {
-
-// new rangeTreeCreate().
-
-            matchingTrees.push({
-                children: nested,
-                delta: 0,
-                end: openRange.end,
-                start: openRange.start
-            });
-        }
-    });
-    parentToNested.clear();
-    return rangeTreeListMerge(matchingTrees);
 }
