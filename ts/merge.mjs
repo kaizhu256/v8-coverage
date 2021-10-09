@@ -496,7 +496,7 @@ function StartEventQueue(queue) {
     this.queue = queue;
     this.nextIndex = 0;
     this.pendingOffset = 0;
-    this.pendingTrees = undefined;
+    delete this.pendingTrees;
 }
 
 Object.assign(StartEventQueue.prototype, {
@@ -518,7 +518,7 @@ Object.assign(StartEventQueue.prototype, {
             this.nextIndex += 1;
             return nextEvent;
         } else if (nextEvent === undefined) {
-            this.pendingTrees = undefined;
+            delete this.pendingTrees;
             return {
                 // new StartEvent
                 offset: this.pendingOffset,
@@ -526,7 +526,7 @@ Object.assign(StartEventQueue.prototype, {
             };
         } else {
             if (this.pendingOffset < nextEvent.offset) {
-                this.pendingTrees = undefined;
+                delete this.pendingTrees;
                 return {
                     // new StartEvent
                     offset: this.pendingOffset,
@@ -534,7 +534,7 @@ Object.assign(StartEventQueue.prototype, {
                 };
             } else {
                 if (this.pendingOffset === nextEvent.offset) {
-                    this.pendingTrees = undefined;
+                    delete this.pendingTrees;
                     pendingTrees.forEach(function (tree) {
                         nextEvent.trees.push(tree);
                     });
