@@ -334,11 +334,12 @@ export function mergeScriptCovs(scriptCovs) {
  * @param scriptCovs Process coverages to merge.
  * @return Merged script coverage, or `undefined` if the input list was empty.
  */
+    let merged;
     if (scriptCovs.length === 0) {
         return undefined;
     }
     else if (scriptCovs.length === 1) {
-        const merged = scriptCovs[0];
+        merged = scriptCovs[0];
         deepNormalizeScriptCov(merged);
         return merged;
     }
@@ -362,7 +363,7 @@ export function mergeScriptCovs(scriptCovs) {
         // assert: `funcCovs.length > 0`
         functions.push(mergeFunctionCovs(funcCovs));
     });
-    const merged = { scriptId, url, functions };
+    merged = { scriptId, url, functions };
     normalizeScriptCov(merged);
     return merged;
 }
