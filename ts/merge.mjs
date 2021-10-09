@@ -38,12 +38,12 @@ export function coverageFunctionListMerge(funcCovs) { //jslint-quiet
             : funcCov.ranges[0].count
         );
         if (funcCov.isBlockCoverage) {
-            trees.push(rangeTreeFromSortedRanges(funcCov.ranges));
+            trees.push(coverageRangeTreeFromSortedRanges(funcCov.ranges));
         }
     });
     if (trees.length > 0) {
         isBlockCoverage = true;
-        ranges = rangeTreeToRanges(rangeTreeListMerge(trees));
+        ranges = coverageRangeTreeToRanges(coverageRangeTreeListMerge(trees));
     } else {
         isBlockCoverage = false;
         ranges = [
@@ -77,8 +77,8 @@ function coverageFunctionNormalize(funcCov) {
 //
 // @param funcCov Function coverage to normalize.
 
-    funcCov.ranges = rangeTreeToRanges(
-        rangeTreeFromSortedRanges(
+    funcCov.ranges = coverageRangeTreeToRanges(
+        coverageRangeTreeFromSortedRanges(
             funcCov.ranges.sort(coverageRangeListCompare)
         )
     );
@@ -97,6 +97,374 @@ function coverageRangeListCompare(aa, bb) {
         return aa.startOffset - bb.startOffset;
     }
     return bb.endOffset - aa.endOffset;
+}
+
+function coverageRangeTreeChildrenMerge(parentTrees) {
+    let event;
+    let openRange;
+    let openRangeEnd;
+    let parentToNested = new Map();
+    let result = [];
+    let right;
+    let startEventQueue;
+    let startToTrees = new Map();
+    function insertChild(parentToNested, parentIndex, tree) {
+        let nested = parentToNested.get(parentIndex);
+        if (nested === undefined) {
+            nested = [];
+            parentToNested.set(parentIndex, nested);
+        }
+        nested.push(tree);
+    }
+    function next() {
+        let nextEvent = startEventQueue.queue[startEventQueue.nextIndex];
+        let pendingTrees = startEventQueue.pendingTrees;
+        if (pendingTrees === undefined) {
+            startEventQueue.nextIndex += 1;
+            return nextEvent;
+        } else if (nextEvent === undefined) {
+            delete startEventQueue.pendingTrees;
+
+// new StartEvent().
+
+            return {
+                offset: startEventQueue.pendingOffset,
+                trees: pendingTrees
+            };
+        } else {
+            if (startEventQueue.pendingOffset < nextEvent.offset) {
+                delete startEventQueue.pendingTrees;
+
+// new StartEvent().
+
+                return {
+                    offset: startEventQueue.pendingOffset,
+                    trees: pendingTrees
+                };
+            } else {
+                if (startEventQueue.pendingOffset === nextEvent.offset) {
+                    delete startEventQueue.pendingTrees;
+                    pendingTrees.forEach(function (tree) {
+                        nextEvent.trees.push(tree);
+                    });
+                }
+                startEventQueue.nextIndex += 1;
+                return nextEvent;
+            }
+        }
+    }
+    function nextChild(openRange, parentToNested) {
+        let matchingTrees = [];
+        parentToNested.forEach(function (nested) {
+            if (
+                nested.length === 1
+                && nested[0].start === openRange.start
+                && nested[0].end === openRange.end
+            ) {
+                matchingTrees.push(nested[0]);
+            } else {
+
+// new rangeTreeCreate().
+
+                matchingTrees.push({
+                    children: nested,
+                    delta: 0,
+                    end: openRange.end,
+                    start: openRange.start
+                });
+            }
+        });
+        parentToNested.clear();
+        return coverageRangeTreeListMerge(matchingTrees);
+    }
+    parentTrees.forEach(function (parentTree, parentIndex) {
+        parentTree.children.forEach(function (child) {
+            let trees = startToTrees.get(child.start);
+            if (trees === undefined) {
+                trees = [];
+                startToTrees.set(child.start, trees);
+            }
+
+// new RangeTreeWithParent().
+
+            trees.push({
+                parentIndex,
+                tree: child
+            });
+        });
+    });
+
+// new StartEventQueue().
+
+    startEventQueue = {
+        nextIndex: 0,
+        pendingIndex: 0,
+        queue: Array.from(startToTrees).map(function ([
+            startOffset, trees
+        ]) {
+
+// new StartEvent().
+
+            return {
+                offset: startOffset,
+                trees
+            };
+        }).sort(function (aa, bb) {
+            return aa.offset - bb.offset;
+        })
+    };
+    while (true) {
+        event = next();
+        if (event === undefined) {
+            break;
+        }
+        if (openRange !== undefined && openRange.end <= event.offset) {
+            result.push(nextChild(openRange, parentToNested));
+            openRange = undefined;
+        }
+        if (openRange === undefined) {
+            openRangeEnd = event.offset + 1;
+            event.trees.forEach(function ({ parentIndex, tree }) { //jslint-quiet
+                openRangeEnd = Math.max(openRangeEnd, tree.end);
+                insertChild(parentToNested, parentIndex, tree);
+            });
+            startEventQueue.pendingOffset = openRangeEnd;
+            openRange = {
+                end: openRangeEnd,
+                start: event.offset
+            };
+        } else {
+            event.trees.forEach(function ({ parentIndex, tree }) { //jslint-quiet
+                if (tree.end > openRange.end) {
+                    right = coverageRangeTreeSplit(tree, openRange.end);
+                    if (startEventQueue.pendingTrees === undefined) {
+                        startEventQueue.pendingTrees = [];
+                    }
+
+// new RangeTreeWithParent().
+
+                    startEventQueue.pendingTrees.push({
+                        parentIndex,
+                        tree: right
+                    });
+                }
+                insertChild(parentToNested, parentIndex, tree);
+            });
+        }
+    }
+    if (openRange !== undefined) {
+        result.push(nextChild(openRange, parentToNested));
+    }
+    return result;
+}
+
+function coverageRangeTreeFromSortedRanges(ranges) {
+
+// @precodition `ranges` are well-formed and pre-order sorted
+
+    let root;
+    let stack = [];             // Stack of parent trees and parent counts.
+    ranges.forEach(function (range) {
+
+// new rangeTreeCreate().
+
+        let node = {
+            children: [],
+            delta: range.count,
+            end: range.endOffset,
+            start: range.startOffset
+        };
+        let parent;
+        let parentCount;
+        if (root === undefined) {
+            root = node;
+            stack.push([
+                node, range.count
+            ]);
+            return;
+        }
+        while (true) {
+            [
+                parent, parentCount
+            ] = stack[stack.length - 1];
+
+// assert: `top !== undefined` (the ranges are sorted)
+
+            if (range.startOffset < parent.end) {
+                break;
+            }
+            stack.pop();
+        }
+        node.delta -= parentCount;
+        parent.children.push(node);
+        stack.push([
+            node, range.count
+        ]);
+    });
+    return root;
+}
+
+function coverageRangeTreeListMerge(trees) {
+
+// @precondition Same `start` and `end` for all the trees
+
+    return (
+        trees.length <= 1
+        ? trees[0]
+
+// new RangeTree().
+
+        : {
+            children: coverageRangeTreeChildrenMerge(trees),
+            delta: trees.reduce(function (aa, bb) {
+                return aa + bb.delta;
+            }, 0),
+            end: trees[0].end,
+            start: trees[0].start
+        }
+    );
+}
+
+function coverageRangeTreeSplit(tree, value) {
+
+// @precondition `tree.start < value && value < tree.end`
+// @return RangeTree Right part
+
+    let child;
+    let ii = 0;
+    let leftChildLen = tree.children.length;
+    let mid;
+    let result;
+    let rightChildren;
+
+// TODO(perf): Binary search (check overhead) //jslint-quiet
+
+    while (ii < tree.children.length) {
+        child = tree.children[ii];
+        if (child.start < value && value < child.end) {
+
+// Recurse coverageRangeTreeSplit().
+
+            mid = coverageRangeTreeSplit(child, value);
+            leftChildLen = ii + 1;
+            break;
+        }
+        if (child.start >= value) {
+            leftChildLen = ii;
+            break;
+        }
+        ii += 1;
+    }
+    rightChildren = tree.children.splice(
+        leftChildLen,
+        tree.children.length - leftChildLen
+    );
+    if (mid !== undefined) {
+        rightChildren.unshift(mid);
+    }
+
+// new rangeTreeCreate().
+
+    result = {
+        children: rightChildren,
+        delta: tree.delta,
+        end: tree.end,
+        start: value
+    };
+    tree.end = value;
+    return result;
+}
+
+function coverageRangeTreeToRanges(tree) {
+
+// Get the range coverages corresponding to the tree.
+//
+// The ranges are pre-order sorted.
+
+    let count;
+    let cur;
+    let ii;
+    let parentCount;
+    let ranges = [];
+    let stack = [               // Stack of parent trees and counts.
+        [
+            tree, 0
+        ]
+    ];
+    function coverageRangeTreeNormalize(tree) {
+
+// @internal
+
+        let children = [];
+        let curEnd;
+        let head;
+        let tail = [];
+        function endChain() {
+            if (tail.length !== 0) {
+                head.end = tail[tail.length - 1].end;
+                tail.forEach(function (tailTree) {
+                    tailTree.children.forEach(function (subChild) {
+                        subChild.delta += tailTree.delta - head.delta;
+                        head.children.push(subChild);
+                    });
+                });
+                tail.length = 0;
+            }
+
+// Recurse coverageRangeTreeNormalize().
+
+            coverageRangeTreeNormalize(head);
+            children.push(head);
+        }
+        tree.children.forEach(function (child) {
+            if (head === undefined) {
+                head = child;
+            } else if (child.delta === head.delta && child.start === curEnd) {
+                tail.push(child);
+            } else {
+                endChain();
+                head = child;
+            }
+            curEnd = child.end;
+        });
+        if (head !== undefined) {
+            endChain();
+        }
+        if (children.length === 1) {
+            if (
+                children[0].start === tree.start
+                && children[0].end === tree.end
+            ) {
+                tree.delta += children[0].delta;
+                tree.children = children[0].children;
+
+// `.lazyCount` is zero for both (both are after normalization)
+
+                return;
+            }
+        }
+        tree.children = children;
+    }
+    coverageRangeTreeNormalize(tree);
+    while (stack.length > 0) {
+        [
+            cur, parentCount
+        ] = stack.pop();
+        count = parentCount + cur.delta;
+        ranges.push({
+            count,
+            endOffset: cur.end,
+            startOffset: cur.start
+        });
+        ii = cur.children.length - 1;
+        while (ii >= 0) {
+            stack.push([
+                cur.children[ii], count
+            ]);
+            ii -= 1;
+        }
+    }
+    return ranges;
 }
 
 export function coverageProcessListMerge(processCovs) { //jslint-quiet
@@ -277,372 +645,4 @@ function coverageScriptNormalizeDeep(scriptCov) {
         coverageFunctionNormalize(funcCov);
     });
     return coverageScriptNormalize(scriptCov);
-}
-
-function rangeTreeChildrenMerge(parentTrees) {
-    let event;
-    let openRange;
-    let openRangeEnd;
-    let parentToNested = new Map();
-    let result = [];
-    let right;
-    let startEventQueue;
-    let startToTrees = new Map();
-    function insertChild(parentToNested, parentIndex, tree) {
-        let nested = parentToNested.get(parentIndex);
-        if (nested === undefined) {
-            nested = [];
-            parentToNested.set(parentIndex, nested);
-        }
-        nested.push(tree);
-    }
-    function next() {
-        let nextEvent = startEventQueue.queue[startEventQueue.nextIndex];
-        let pendingTrees = startEventQueue.pendingTrees;
-        if (pendingTrees === undefined) {
-            startEventQueue.nextIndex += 1;
-            return nextEvent;
-        } else if (nextEvent === undefined) {
-            delete startEventQueue.pendingTrees;
-
-// new StartEvent().
-
-            return {
-                offset: startEventQueue.pendingOffset,
-                trees: pendingTrees
-            };
-        } else {
-            if (startEventQueue.pendingOffset < nextEvent.offset) {
-                delete startEventQueue.pendingTrees;
-
-// new StartEvent().
-
-                return {
-                    offset: startEventQueue.pendingOffset,
-                    trees: pendingTrees
-                };
-            } else {
-                if (startEventQueue.pendingOffset === nextEvent.offset) {
-                    delete startEventQueue.pendingTrees;
-                    pendingTrees.forEach(function (tree) {
-                        nextEvent.trees.push(tree);
-                    });
-                }
-                startEventQueue.nextIndex += 1;
-                return nextEvent;
-            }
-        }
-    }
-    function nextChild(openRange, parentToNested) {
-        let matchingTrees = [];
-        parentToNested.forEach(function (nested) {
-            if (
-                nested.length === 1
-                && nested[0].start === openRange.start
-                && nested[0].end === openRange.end
-            ) {
-                matchingTrees.push(nested[0]);
-            } else {
-
-// new rangeTreeCreate().
-
-                matchingTrees.push({
-                    children: nested,
-                    delta: 0,
-                    end: openRange.end,
-                    start: openRange.start
-                });
-            }
-        });
-        parentToNested.clear();
-        return rangeTreeListMerge(matchingTrees);
-    }
-    parentTrees.forEach(function (parentTree, parentIndex) {
-        parentTree.children.forEach(function (child) {
-            let trees = startToTrees.get(child.start);
-            if (trees === undefined) {
-                trees = [];
-                startToTrees.set(child.start, trees);
-            }
-
-// new RangeTreeWithParent().
-
-            trees.push({
-                parentIndex,
-                tree: child
-            });
-        });
-    });
-
-// new StartEventQueue().
-
-    startEventQueue = {
-        nextIndex: 0,
-        pendingIndex: 0,
-        queue: Array.from(startToTrees).map(function ([
-            startOffset, trees
-        ]) {
-
-// new StartEvent().
-
-            return {
-                offset: startOffset,
-                trees
-            };
-        }).sort(function (aa, bb) {
-            return aa.offset - bb.offset;
-        })
-    };
-    while (true) {
-        event = next();
-        if (event === undefined) {
-            break;
-        }
-        if (openRange !== undefined && openRange.end <= event.offset) {
-            result.push(nextChild(openRange, parentToNested));
-            openRange = undefined;
-        }
-        if (openRange === undefined) {
-            openRangeEnd = event.offset + 1;
-            event.trees.forEach(function ({ parentIndex, tree }) { //jslint-quiet
-                openRangeEnd = Math.max(openRangeEnd, tree.end);
-                insertChild(parentToNested, parentIndex, tree);
-            });
-            startEventQueue.pendingOffset = openRangeEnd;
-            openRange = {
-                end: openRangeEnd,
-                start: event.offset
-            };
-        } else {
-            event.trees.forEach(function ({ parentIndex, tree }) { //jslint-quiet
-                if (tree.end > openRange.end) {
-                    right = rangeTreeSplit(tree, openRange.end);
-                    if (startEventQueue.pendingTrees === undefined) {
-                        startEventQueue.pendingTrees = [];
-                    }
-
-// new RangeTreeWithParent().
-
-                    startEventQueue.pendingTrees.push({
-                        parentIndex,
-                        tree: right
-                    });
-                }
-                insertChild(parentToNested, parentIndex, tree);
-            });
-        }
-    }
-    if (openRange !== undefined) {
-        result.push(nextChild(openRange, parentToNested));
-    }
-    return result;
-}
-
-function rangeTreeFromSortedRanges(ranges) {
-
-// @precodition `ranges` are well-formed and pre-order sorted
-
-    let root;
-    let stack = [];             // Stack of parent trees and parent counts.
-    ranges.forEach(function (range) {
-
-// new rangeTreeCreate().
-
-        let node = {
-            children: [],
-            delta: range.count,
-            end: range.endOffset,
-            start: range.startOffset
-        };
-        let parent;
-        let parentCount;
-        if (root === undefined) {
-            root = node;
-            stack.push([
-                node, range.count
-            ]);
-            return;
-        }
-        while (true) {
-            [
-                parent, parentCount
-            ] = stack[stack.length - 1];
-
-// assert: `top !== undefined` (the ranges are sorted)
-
-            if (range.startOffset < parent.end) {
-                break;
-            }
-            stack.pop();
-        }
-        node.delta -= parentCount;
-        parent.children.push(node);
-        stack.push([
-            node, range.count
-        ]);
-    });
-    return root;
-}
-
-function rangeTreeListMerge(trees) {
-
-// @precondition Same `start` and `end` for all the trees
-
-    return (
-        trees.length <= 1
-        ? trees[0]
-
-// new RangeTree().
-
-        : {
-            children: rangeTreeChildrenMerge(trees),
-            delta: trees.reduce(function (aa, bb) {
-                return aa + bb.delta;
-            }, 0),
-            end: trees[0].end,
-            start: trees[0].start
-        }
-    );
-}
-
-function rangeTreeSplit(tree, value) {
-
-// @precondition `tree.start < value && value < tree.end`
-// @return RangeTree Right part
-
-    let child;
-    let ii = 0;
-    let leftChildLen = tree.children.length;
-    let mid;
-    let result;
-    let rightChildren;
-
-// TODO(perf): Binary search (check overhead) //jslint-quiet
-
-    while (ii < tree.children.length) {
-        child = tree.children[ii];
-        if (child.start < value && value < child.end) {
-
-// Recurse rangeTreeSplit().
-
-            mid = rangeTreeSplit(child, value);
-            leftChildLen = ii + 1;
-            break;
-        }
-        if (child.start >= value) {
-            leftChildLen = ii;
-            break;
-        }
-        ii += 1;
-    }
-    rightChildren = tree.children.splice(
-        leftChildLen,
-        tree.children.length - leftChildLen
-    );
-    if (mid !== undefined) {
-        rightChildren.unshift(mid);
-    }
-
-// new rangeTreeCreate().
-
-    result = {
-        children: rightChildren,
-        delta: tree.delta,
-        end: tree.end,
-        start: value
-    };
-    tree.end = value;
-    return result;
-}
-
-function rangeTreeToRanges(tree) {
-
-// Get the range coverages corresponding to the tree.
-//
-// The ranges are pre-order sorted.
-
-    let count;
-    let cur;
-    let ii;
-    let parentCount;
-    let ranges = [];
-    let stack = [               // Stack of parent trees and counts.
-        [
-            tree, 0
-        ]
-    ];
-    function rangeTreeNormalize(tree) {
-
-// @internal
-
-        let children = [];
-        let curEnd;
-        let head;
-        let tail = [];
-        function endChain() {
-            if (tail.length !== 0) {
-                head.end = tail[tail.length - 1].end;
-                tail.forEach(function (tailTree) {
-                    tailTree.children.forEach(function (subChild) {
-                        subChild.delta += tailTree.delta - head.delta;
-                        head.children.push(subChild);
-                    });
-                });
-                tail.length = 0;
-            }
-
-// Recurse rangeTreeNormalize().
-
-            rangeTreeNormalize(head);
-            children.push(head);
-        }
-        tree.children.forEach(function (child) {
-            if (head === undefined) {
-                head = child;
-            } else if (child.delta === head.delta && child.start === curEnd) {
-                tail.push(child);
-            } else {
-                endChain();
-                head = child;
-            }
-            curEnd = child.end;
-        });
-        if (head !== undefined) {
-            endChain();
-        }
-        if (children.length === 1) {
-            if (
-                children[0].start === tree.start
-                && children[0].end === tree.end
-            ) {
-                tree.delta += children[0].delta;
-                tree.children = children[0].children;
-
-// `.lazyCount` is zero for both (both are after normalization)
-
-                return;
-            }
-        }
-        tree.children = children;
-    }
-    rangeTreeNormalize(tree);
-    while (stack.length > 0) {
-        [
-            cur, parentCount
-        ] = stack.pop();
-        count = parentCount + cur.delta;
-        ranges.push({
-            count,
-            endOffset: cur.end,
-            startOffset: cur.start
-        });
-        ii = cur.children.length - 1;
-        while (ii >= 0) {
-            stack.push([
-                cur.children[ii], count
-            ]);
-            ii -= 1;
-        }
-    }
-    return ranges;
 }
