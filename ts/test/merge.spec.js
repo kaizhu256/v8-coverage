@@ -1,3 +1,4 @@
+/*jslint node*/
 import moduleChai from "chai";
 import moduleFs from "fs";
 import moduleSysPath from "path";
@@ -11,49 +12,68 @@ let {
     coverageScriptListMerge
 } = coverageMerge;
 
-let testDescribeList = [];
+//!! let testDescribeList = [];
 let testItList;
 
 async function describe2(description, testDescribe) {
     testItList = [];
-    testDescribeList.push({
-        description,
-        testItList
-    });
     testDescribe();
-    await Promise.all(testItList);
+    testItList = await Promise.all(testItList);
+    console.error(description);
+    testItList.forEach(function ([
+        err, description
+    ]) {
+        console.error(
+            (
+                err
+                ? "\u2714 "
+                : "\u2718 "
+            ) + description
+        );
+        if (err) {
+            console.error(err);
+        }
+    });
 }
 
 function it2(description, testIt) {
-
+    testItList.push(new Promise(async function (resolve) {
+        let err;
+        try {
+            await testIt();
+        } catch (errCaught) {
+            err = errCaught;
+        }
+        return [
+            err, description
+        ];
+    }));
 }
 
 /**
  * Generate a Mocha test suite for the provided
  * implementation of `v8-coverage-tools`.
  */
-export function testImpl(lib) {
-    describe("merge", function () {
-        it("accepts empty arrays for `coverageProcessListMerge`", function () {
-            const inputs = [];
-            const expected = { result: [] };
-            const actual = lib.coverageProcessListMerge(inputs);
-            moduleChai.assert.deepEqual(actual, expected);
-        });
-        it("accepts empty arrays for `coverageScriptListMerge`", function () {
-            const inputs = [];
-            const expected = undefined;
-            const actual = lib.coverageScriptListMerge(inputs);
-            moduleChai.assert.deepEqual(actual, expected);
-        });
-        it("accepts empty arrays for `coverageFunctionListMerge`", function () {
-            const inputs = [];
-            const expected = undefined;
-            const actual = lib.coverageFunctionListMerge(inputs);
-            moduleChai.assert.deepEqual(actual, expected);
-        });
+describe("merge", function () {
+    it("accepts empty arrays for `coverageProcessListMerge`", function () {
+        const inputs = [];
+        const expected = { result: [] };
+        const actual = coverageProcessListMerge(inputs);
+        moduleChai.assert.deepEqual(actual, expected);
     });
-}
+    it("accepts empty arrays for `coverageScriptListMerge`", function () {
+        const inputs = [];
+        const expected = undefined;
+        const actual = coverageScriptListMerge(inputs);
+        moduleChai.assert.deepEqual(actual, expected);
+    });
+    it("accepts empty arrays for `coverageFunctionListMerge`", function () {
+        const inputs = [];
+        const expected = undefined;
+        const actual = coverageFunctionListMerge(inputs);
+        moduleChai.assert.deepEqual(actual, expected);
+    });
+});
 const REPO_ROOT = modulePath.join(moduleUrl.fileURLToPath(import.meta.url), "..", "..", "..");
 const MERGE_TESTS_DIR = modulePath.join(REPO_ROOT, "tests", "merge");
 const MERGE_TIMEOUT = 30000; // 30sec
@@ -66,7 +86,6 @@ const BLACKLIST = new Set([
 const WHITELIST = new Set([
 // "simple",
 ]);
-testImpl({ coverageProcessListMerge, coverageScriptListMerge, coverageFunctionListMerge });
 
 describe("merge", function () {
     function assertJsonEqual(aa, bb) {
@@ -127,7 +146,7 @@ describe("merge", function () {
     }
 
     it("accepts arrays with a single item for `coverageProcessListMerge`", function () {
-        const inputs = [
+        assertJsonEqual(coverageProcessListMerge([
             {
                 result: [
                     {
@@ -147,8 +166,7 @@ describe("merge", function () {
                     },
                 ],
             },
-        ];
-        const expected = {
+        ]), {
             result: [
                 {
                     scriptId: "0",
@@ -165,12 +183,10 @@ describe("merge", function () {
                     ],
                 },
             ],
-        };
-        const actual = coverageProcessListMerge(inputs);
-        moduleChai.assert.deepEqual(actual, expected);
+        });
     });
     it("accepts arrays with a single item for `coverageScriptListMerge`", function () {
-        const inputs = [
+        assertJsonEqual(coverageScriptListMerge([
             {
                 scriptId: "123",
                 moduleUrl: "/lib.js",
@@ -186,8 +202,7 @@ describe("merge", function () {
                     },
                 ],
             },
-        ];
-        const expected = {
+        ]), {
             scriptId: "123",
             moduleUrl: "/lib.js",
             functions: [
@@ -200,12 +215,10 @@ describe("merge", function () {
                     ],
                 },
             ],
-        };
-        const actual = coverageScriptListMerge(inputs);
-        moduleChai.assert.deepEqual(actual, expected);
+        });
     });
     it("accepts arrays with a single item for `coverageFunctionListMerge`", function () {
-        const inputs = [
+        assertJsonEqual(coverageFunctionListMerge([
             {
                 functionName: "test",
                 isBlockCoverage: true,
@@ -215,17 +228,14 @@ describe("merge", function () {
                     { startOffset: 2, endOffset: 3, count: 1 },
                 ],
             },
-        ];
-        const expected = {
+        ]), {
             functionName: "test",
             isBlockCoverage: true,
             ranges: [
                 { startOffset: 0, endOffset: 4, count: 2 },
                 { startOffset: 1, endOffset: 3, count: 1 },
             ],
-        };
-        const actual = coverageFunctionListMerge(inputs);
-        moduleChai.assert.deepEqual(actual, expected);
+        });
     });
     Promise.all([
         "test_merge_is_block_coverage_test.json",
