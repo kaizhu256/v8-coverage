@@ -460,13 +460,6 @@ function mergeRangeTrees(trees) {
     return new RangeTree(first.start, first.end, delta, children);
 }
 
-class StartEvent {
-    constructor(offset, trees) {
-        this.offset = offset;
-        this.trees = trees;
-    }
-}
-
 function startEventQueueFromParentTrees(parentTrees) {
     const startToTrees = new Map();
     parentTrees.forEach(function (parentTree, parentIndex) {
@@ -487,7 +480,11 @@ function startEventQueueFromParentTrees(parentTrees) {
     });
     const queue = [];
     startToTrees.forEach(function (trees, startOffset) {
-        queue.push(new StartEvent(startOffset, trees));
+        queue.push({
+            // new StartEvent
+            offset: startOffset,
+            trees
+        });
     });
     queue.sort(function (aa, bb) {
         return aa.offset - bb.offset;
@@ -519,11 +516,19 @@ class StartEventQueue {
             return nextEvent;
         } else if (nextEvent === undefined) {
             this.pendingTrees = undefined;
-            return new StartEvent(this.pendingOffset, pendingTrees);
+            return {
+                // new StartEvent
+                offset: this.pendingOffset,
+                trees: pendingTrees
+            };
         } else {
             if (this.pendingOffset < nextEvent.offset) {
                 this.pendingTrees = undefined;
-                return new StartEvent(this.pendingOffset, pendingTrees);
+                return {
+                    // new StartEvent
+                    offset: this.pendingOffset,
+                    trees: pendingTrees
+                };
             } else {
                 if (this.pendingOffset === nextEvent.offset) {
                     this.pendingTrees = undefined;
