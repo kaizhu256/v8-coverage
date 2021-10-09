@@ -66,15 +66,6 @@ function coverageScriptNormalizeDeep(scriptCov) {
     return coverageScriptNormalize(scriptCov);
 }
 
-function rangeTreeCreate(start, end, delta, children) {
-    return {
-        children,
-        delta,
-        end,
-        start
-    };
-}
-
 function rangeTreeFromSortedRanges(ranges) {
 
 // @precodition `ranges` are well-formed and pre-order sorted
