@@ -279,7 +279,7 @@ Object.assign(RangeTree.prototype, {
     }
 });
 
-export function mergeProcessCovs(processCovs) {
+export function mergeProcessCovs(processCovs) { //jslint-quiet
 /**
  * Merges a list of process coverages.
  *
@@ -291,11 +291,12 @@ export function mergeProcessCovs(processCovs) {
  * @param processCovs Process coverages to merge.
  * @return Merged process coverage.
  */
+    let merged;
     if (processCovs.length === 0) {
         return { result: [] };
     }
-    else if (processCovs.length === 1) {
-        const merged = processCovs[0];
+    if (processCovs.length === 1) {
+        merged = processCovs[0];
         deepNormalizeProcessCov(merged);
         return merged;
     }
@@ -315,7 +316,7 @@ export function mergeProcessCovs(processCovs) {
         // assert: `scripts.length > 0`
         result.push(mergeScriptCovs(scripts));
     });
-    const merged = { result };
+    merged = { result };
     normalizeProcessCov(merged);
     return merged;
 }
