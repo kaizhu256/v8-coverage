@@ -162,11 +162,13 @@ function normalizeRangeTree(tree) {
     }
 }
 
-function RangeTree(start, end, delta, children) {
-    this.start = start;
-    this.end = end;
-    this.delta = delta;
-    this.children = children;
+function rangeTreeCreate(start, end, delta, children) {
+    return {
+        children,
+        delta,
+        end,
+        start
+    };
 }
 
 function rangeTreeFromSortedRanges(ranges) {
@@ -177,7 +179,7 @@ function rangeTreeFromSortedRanges(ranges) {
     // Stack of parent trees and parent counts.
     const stack = [];
     ranges.forEach(function (range) {
-        const node = new RangeTree(
+        const node = rangeTreeCreate(
             range.startOffset,
             range.endOffset,
             range.count,
@@ -235,7 +237,7 @@ function rangeTreeSplit(tree, value) {
     if (mid !== undefined) {
         rightChildren.unshift(mid);
     }
-    const result = new RangeTree(
+    const result = rangeTreeCreate(
         value,
         tree.end,
         tree.delta,
@@ -468,7 +470,7 @@ function mergeRangeTrees(trees) {
         delta += tree.delta;
     });
     const children = mergeRangeTreeChildren(trees);
-    return new RangeTree(first.start, first.end, delta, children);
+    return rangeTreeCreate(first.start, first.end, delta, children);
 }
 
 function startEventQueueFromParentTrees(parentTrees) {
@@ -616,7 +618,7 @@ function nextChild(openRange, parentToNested) {
             matchingTrees.push(nested[0]);
         } else {
             matchingTrees.push(
-                new RangeTree(openRange.start, openRange.end, 0, nested)
+                rangeTreeCreate(openRange.start, openRange.end, 0, nested)
             );
         }
     });
