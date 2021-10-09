@@ -1,30 +1,5 @@
 /*jslint*/
 
-function compareScriptCovs(aa, bb) {
-
-// Compares two script coverages.
-//
-// The result corresponds to the comparison of their `url` value
-// (alphabetical sort).
-
-    return (
-        aa.url < bb.url
-        ? -1
-        : aa.url > bb.url
-        ? 1
-        : 0
-    );
-}
-
-function compareFunctionCovs(aa, bb) {
-
-// Compares two function coverages.
-//
-// The result corresponds to the comparison of the root ranges.
-
-    return compareRangeCovs(aa.ranges[0], bb.ranges[0]);
-}
-
 function compareRangeCovs(aa, bb) {
 
 // Compares two range coverages.
@@ -50,9 +25,21 @@ function normalizeProcessCov(processCov) {
 //
 // @param processCov Process coverage to normalize.
 
-    Object.entries(
-        processCov.result.sort(compareScriptCovs)
-    ).forEach(function ([scriptId, scriptCov]) {
+    Object.entries(processCov.result.sort(function (aa, bb) {
+
+// Compares two script coverages.
+//
+// The result corresponds to the comparison of their `url` value
+// (alphabetical sort).
+
+        return (
+            aa.url < bb.url
+            ? -1
+            : aa.url > bb.url
+            ? 1
+            : 0
+        );
+    })).forEach(function ([scriptId, scriptCov]) {
         scriptCov.scriptId = scriptId.toString(10);
     });
 }
@@ -81,7 +68,14 @@ function normalizeScriptCov(scriptCov) {
 //
 // @param scriptCov Script coverage to normalize.
 
-    scriptCov.functions.sort(compareFunctionCovs);
+    scriptCov.functions.sort(function (aa, bb) {
+
+// Compares two function coverages.
+//
+// The result corresponds to the comparison of the root ranges.
+
+        return compareRangeCovs(aa.ranges[0], bb.ranges[0]);
+    });
 }
 
 function deepNormalizeScriptCov(scriptCov) {
@@ -316,7 +310,7 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
     merged = {
         result
     };
-    normalizeProcessCov(merged);
+    deepNormalizeProcessCov(merged);
     return merged;
 }
 
