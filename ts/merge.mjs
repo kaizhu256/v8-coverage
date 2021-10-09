@@ -167,9 +167,16 @@ function rangeTreeToRanges(tree) {
 //
 // The ranges are pre-order sorted.
 
+    let count;
+    let cur;
+    let ii;
+    let parentCount;
     let ranges = [];
-    let stack = [[
-        tree, 0]];    // Stack of parent trees and counts.
+    let stack = [               // Stack of parent trees and counts.
+        [
+            tree, 0
+        ]
+    ];
     function rangeTreeNormalize(tree) {
 
 // @internal
@@ -226,10 +233,10 @@ function rangeTreeToRanges(tree) {
     }
     rangeTreeNormalize(tree);
     while (stack.length > 0) {
-        let ii;
-        let [
-            cur, parentCount] = stack.pop();
-        let count = parentCount + cur.delta;
+        [
+            cur, parentCount
+        ] = stack.pop();
+        count = parentCount + cur.delta;
         ranges.push({
             count,
             endOffset: cur.end,
