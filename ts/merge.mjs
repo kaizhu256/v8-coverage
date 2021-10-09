@@ -542,10 +542,6 @@ Object.assign(StartEventQueue.prototype, {
                 return nextEvent;
             }
         }
-    },
-
-    setPendingOffset: function (offset) {
-        this.pendingOffset = offset;
     }
 });
 
@@ -569,7 +565,7 @@ function mergeRangeTreeChildren(parentTrees) {
                 openRangeEnd = Math.max(openRangeEnd, tree.end);
                 insertChild(parentToNested, parentIndex, tree);
             });
-            startEventQueue.setPendingOffset(openRangeEnd);
+            startEventQueue.pendingOffset = openRangeEnd;
             openRange = {
                 end: openRangeEnd,
                 start: event.offset
