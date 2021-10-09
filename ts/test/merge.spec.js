@@ -3,7 +3,14 @@ import moduleFs from "fs";
 import moduleSysPath from "path";
 import modulePath from "path";
 import moduleUrl from "url";
-import { coverageFunctionListMerge, coverageProcessListMerge, coverageScriptListMerge } from "../merge.mjs";
+import coverageMerge from "../merge.mjs";
+
+let {
+    coverageFunctionListMerge,
+    coverageProcessListMerge,
+    coverageScriptListMerge
+} = coverageMerge;
+
 /**
  * Generate a Mocha test suite for the provided
  * implementation of `v8-coverage-tools`.

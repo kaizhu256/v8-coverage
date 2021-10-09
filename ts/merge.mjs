@@ -1,6 +1,6 @@
 /*jslint beta, node*/
 
-export function coverageFunctionListMerge(funcCovs) { //jslint-quiet
+function coverageFunctionListMerge(funcCovs) { //jslint-quiet
 
 // Merges a list of matching function coverages.
 //
@@ -467,7 +467,7 @@ function coverageRangeTreeToRanges(tree) {
     return ranges;
 }
 
-export function coverageProcessListMerge(processCovs) { //jslint-quiet
+function coverageProcessListMerge(processCovs) { //jslint-quiet
 
 // Merges a list of process coverages.
 //
@@ -557,7 +557,7 @@ export function coverageProcessListMerge(processCovs) { //jslint-quiet
     });
 }
 
-export function coverageScriptListMerge(scriptCovs) { //jslint-quiet
+function coverageScriptListMerge(scriptCovs) { //jslint-quiet
 
 // Merges a list of matching script coverages.
 //
@@ -646,3 +646,9 @@ function coverageScriptNormalizeDeep(scriptCov) {
     });
     return coverageScriptNormalize(scriptCov);
 }
+
+export default Object.freeze({
+    coverageFunctionListMerge,
+    coverageProcessListMerge,
+    coverageScriptListMerge
+});

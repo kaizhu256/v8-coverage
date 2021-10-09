@@ -1,9 +1,15 @@
-// NODE_OPTIONS="--unhandled-rejections=strict" shRunWithCoverage ./node_modules/.bin/mocha test/merge.spec.js
+/*
+NODE_OPTIONS="--unhandled-rejections=strict" shRunWithCoverage ./node_modules/.bin/mocha test/merge.spec.js
+*/
 /*jslint beta, node*/
 import fs from "fs";
-// import {coverageProcessListMerge} from "./lib/index.js";
-import {coverageProcessListMerge} from "./merge.mjs";
+import coverageMerge from "./merge.mjs";
 (async function () {
+    let {
+        coverageFunctionListMerge,
+        coverageProcessListMerge,
+        coverageScriptListMerge
+    } = coverageMerge;
     let data1;
     let data2;
 
