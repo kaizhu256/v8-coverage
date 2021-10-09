@@ -253,7 +253,7 @@ function rangeTreeToRanges(tree) {
     return ranges;
 }
 
-export function mergeProcessCovs(processCovs) { //jslint-quiet
+export function coverageProcessListMerge(processCovs) { //jslint-quiet
 
 // Merges a list of process coverages.
 //
@@ -337,14 +337,14 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
     });
     urlToScripts.forEach(function (scripts) {
         // assert: `scripts.length > 0`
-        result.push(mergeScriptCovs(scripts));
+        result.push(coverageScriptListMerge(scripts));
     });
     return coverageProcessNormalize({
         result
     });
 }
 
-export function mergeScriptCovs(scriptCovs) { //jslint-quiet
+export function coverageScriptListMerge(scriptCovs) { //jslint-quiet
 
 // Merges a list of matching script coverages.
 //
@@ -388,7 +388,7 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
     });
     rangeToFuncs.forEach(function (funcCovs) {
         // assert: `funcCovs.length > 0`
-        functions.push(mergeFunctionCovs(funcCovs));
+        functions.push(coverageFunctionListMerge(funcCovs));
     });
     return coverageScriptNormalize({
         functions,
@@ -397,7 +397,7 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
     });
 }
 
-export function mergeFunctionCovs(funcCovs) { //jslint-quiet
+export function coverageFunctionListMerge(funcCovs) { //jslint-quiet
 
 // Merges a list of matching function coverages.
 //
@@ -444,7 +444,7 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
     let ranges;
     if (trees.length > 0) {
         isBlockCoverage = true;
-        ranges = rangeTreeToRanges(mergeRangeTrees(trees));
+        ranges = rangeTreeToRanges(rangeTreeListMerge(trees));
     } else {
         isBlockCoverage = false;
         ranges = [
@@ -469,7 +469,7 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
     return merged;
 }
 
-function mergeRangeTrees(trees) {
+function rangeTreeListMerge(trees) {
 
 // @precondition Same `start` and `end` for all the trees
 
@@ -481,7 +481,7 @@ function mergeRangeTrees(trees) {
     trees.forEach(function (tree) {
         delta += tree.delta;
     });
-    let children = mergeRangeTreeChildren(trees);
+    let children = rangeTreeChildrenMerge(trees);
     return rangeTreeCreate(first.start, first.end, delta, children);
 }
 
@@ -524,7 +524,7 @@ function startEventQueueFromParentTrees(parentTrees) {
     };
 }
 
-function mergeRangeTreeChildren(parentTrees) {
+function rangeTreeChildrenMerge(parentTrees) {
     let result = [];
     let startEventQueue = startEventQueueFromParentTrees(parentTrees);
     let parentToNested = new Map();
@@ -632,5 +632,5 @@ function nextChild(openRange, parentToNested) {
         }
     });
     parentToNested.clear();
-    return mergeRangeTrees(matchingTrees);
+    return rangeTreeListMerge(matchingTrees);
 }

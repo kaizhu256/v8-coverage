@@ -3,29 +3,29 @@ import fs from "fs";
 import sysPath from "path";
 import path from "path";
 import url from "url";
-import { mergeFunctionCovs, mergeProcessCovs, mergeScriptCovs } from "../merge.mjs";
+import { coverageFunctionListMerge, coverageProcessListMerge, coverageScriptListMerge } from "../merge.mjs";
 /**
  * Generate a Mocha test suite for the provided
  * implementation of `v8-coverage-tools`.
  */
 export function testImpl(lib) {
     describe("merge", () => {
-        it("accepts empty arrays for `mergeProcessCovs`", () => {
+        it("accepts empty arrays for `coverageProcessListMerge`", () => {
             const inputs = [];
             const expected = { result: [] };
-            const actual = lib.mergeProcessCovs(inputs);
+            const actual = lib.coverageProcessListMerge(inputs);
             chai.assert.deepEqual(actual, expected);
         });
-        it("accepts empty arrays for `mergeScriptCovs`", () => {
+        it("accepts empty arrays for `coverageScriptListMerge`", () => {
             const inputs = [];
             const expected = undefined;
-            const actual = lib.mergeScriptCovs(inputs);
+            const actual = lib.coverageScriptListMerge(inputs);
             chai.assert.deepEqual(actual, expected);
         });
-        it("accepts empty arrays for `mergeFunctionCovs`", () => {
+        it("accepts empty arrays for `coverageFunctionListMerge`", () => {
             const inputs = [];
             const expected = undefined;
-            const actual = lib.mergeFunctionCovs(inputs);
+            const actual = lib.coverageFunctionListMerge(inputs);
             chai.assert.deepEqual(actual, expected);
         });
     });
@@ -42,10 +42,10 @@ const BLACKLIST = new Set([
 const WHITELIST = new Set([
 // "simple",
 ]);
-testImpl({ mergeProcessCovs, mergeScriptCovs, mergeFunctionCovs });
+testImpl({ coverageProcessListMerge, coverageScriptListMerge, coverageFunctionListMerge });
 describe("merge", () => {
     describe("custom", () => {
-        it("accepts arrays with a single item for `mergeProcessCovs`", () => {
+        it("accepts arrays with a single item for `coverageProcessListMerge`", () => {
             const inputs = [
                 {
                     result: [
@@ -85,10 +85,10 @@ describe("merge", () => {
                     },
                 ],
             };
-            const actual = mergeProcessCovs(inputs);
+            const actual = coverageProcessListMerge(inputs);
             chai.assert.deepEqual(actual, expected);
         });
-        it("accepts arrays with a single item for `mergeScriptCovs`", () => {
+        it("accepts arrays with a single item for `coverageScriptListMerge`", () => {
             const inputs = [
                 {
                     scriptId: "123",
@@ -120,10 +120,10 @@ describe("merge", () => {
                     },
                 ],
             };
-            const actual = mergeScriptCovs(inputs);
+            const actual = coverageScriptListMerge(inputs);
             chai.assert.deepEqual(actual, expected);
         });
-        it("accepts arrays with a single item for `mergeFunctionCovs`", () => {
+        it("accepts arrays with a single item for `coverageFunctionListMerge`", () => {
             const inputs = [
                 {
                     functionName: "test",
@@ -143,7 +143,7 @@ describe("merge", () => {
                     { startOffset: 1, endOffset: 3, count: 1 },
                 ],
             };
-            const actual = mergeFunctionCovs(inputs);
+            const actual = coverageFunctionListMerge(inputs);
             chai.assert.deepEqual(actual, expected);
         });
     });
@@ -153,7 +153,7 @@ describe("merge", () => {
             this.timeout(MERGE_TIMEOUT);
             const items = JSON.parse(fs.readFileSync(mergeTest.testPath, { encoding: "utf-8" }));
             for (const item of items) {
-                const actual = mergeProcessCovs(item.inputs);
+                const actual = coverageProcessListMerge(item.inputs);
                 chai.assert.deepEqual(actual, item.expected);
             }
         }

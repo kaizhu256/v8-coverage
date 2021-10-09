@@ -1,8 +1,8 @@
 // NODE_OPTIONS="--unhandled-rejections=strict" shRunWithCoverage ./node_modules/.bin/mocha test/merge.spec.js
 /*jslint beta, node*/
 import fs from "fs";
-// import {mergeProcessCovs} from "./lib/index.js";
-import {mergeProcessCovs} from "./merge.mjs";
+// import {coverageProcessListMerge} from "./lib/index.js";
+import {coverageProcessListMerge} from "./merge.mjs";
 (async function () {
     let data1;
     let data2;
@@ -82,8 +82,8 @@ import {mergeProcessCovs} from "./merge.mjs";
         return file;
     }));
     data2 = data1.shift();
-    data1 = mergeProcessCovs(data1);
-    data1 = mergeProcessCovs([data1]);
+    data1 = coverageProcessListMerge(data1);
+    data1 = coverageProcessListMerge([data1]);
     data1 = objectDeepCopyWithKeysSorted(data1);
     data1 = JSON.stringify(data1, undefined, 4) + "\n";
     await fs.promises.writeFile(".v8_coverage_node_sqlite_merged.json", data1);
@@ -174,7 +174,7 @@ import {mergeProcessCovs} from "./merge.mjs";
                 }
             ]
         };
-        const actual = mergeProcessCovs(inputs);
+        const actual = coverageProcessListMerge(inputs);
         assert_json_equal(actual, expected);
     }());
 
