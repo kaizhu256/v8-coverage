@@ -16,20 +16,20 @@ let {
  * implementation of `v8-coverage-tools`.
  */
 export function testImpl(lib) {
-    describe("merge", () => {
-        it("accepts empty arrays for `coverageProcessListMerge`", () => {
+    describe("merge", function () {
+        it("accepts empty arrays for `coverageProcessListMerge`", function () {
             const inputs = [];
             const expected = { result: [] };
             const actual = lib.coverageProcessListMerge(inputs);
             moduleChai.assert.deepEqual(actual, expected);
         });
-        it("accepts empty arrays for `coverageScriptListMerge`", () => {
+        it("accepts empty arrays for `coverageScriptListMerge`", function () {
             const inputs = [];
             const expected = undefined;
             const actual = lib.coverageScriptListMerge(inputs);
             moduleChai.assert.deepEqual(actual, expected);
         });
-        it("accepts empty arrays for `coverageFunctionListMerge`", () => {
+        it("accepts empty arrays for `coverageFunctionListMerge`", function () {
             const inputs = [];
             const expected = undefined;
             const actual = lib.coverageFunctionListMerge(inputs);
@@ -50,7 +50,7 @@ const WHITELIST = new Set([
 // "simple",
 ]);
 testImpl({ coverageProcessListMerge, coverageScriptListMerge, coverageFunctionListMerge });
-describe("merge", () => {
+describe("merge", function () {
     function assertJsonEqual(aa, bb) {
 
 // this function will assert JSON.stringify(<aa>) === JSON.stringify(<bb>)
@@ -108,7 +108,7 @@ describe("merge", () => {
         return sorted;
     }
 
-    it("accepts arrays with a single item for `coverageProcessListMerge`", () => {
+    it("accepts arrays with a single item for `coverageProcessListMerge`", function () {
         const inputs = [
             {
                 result: [
@@ -151,7 +151,7 @@ describe("merge", () => {
         const actual = coverageProcessListMerge(inputs);
         moduleChai.assert.deepEqual(actual, expected);
     });
-    it("accepts arrays with a single item for `coverageScriptListMerge`", () => {
+    it("accepts arrays with a single item for `coverageScriptListMerge`", function () {
         const inputs = [
             {
                 scriptId: "123",
@@ -186,7 +186,7 @@ describe("merge", () => {
         const actual = coverageScriptListMerge(inputs);
         moduleChai.assert.deepEqual(actual, expected);
     });
-    it("accepts arrays with a single item for `coverageFunctionListMerge`", () => {
+    it("accepts arrays with a single item for `coverageFunctionListMerge`", function () {
         const inputs = [
             {
                 functionName: "test",
