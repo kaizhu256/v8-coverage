@@ -471,13 +471,14 @@ function rangeTreeListMerge(trees) {
     if (trees.length <= 1) {
         return trees[0];
     }
-    let first = trees[0];
-    let delta = 0;
-    trees.forEach(function (tree) {
-        delta += tree.delta;
-    });
-    let children = rangeTreeChildrenMerge(trees);
-    return rangeTreeCreate(first.start, first.end, delta, children);
+    return rangeTreeCreate(
+        trees[0].start,
+        trees[0].end,
+        trees.reduce(function (aa, bb) {
+            return aa + bb.delta;
+        }, 0),
+        rangeTreeChildrenMerge(trees)
+    );
 }
 
 function startEventQueueFromParentTrees(parentTrees) {
