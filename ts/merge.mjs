@@ -111,7 +111,7 @@ function normalizeFunctionCov(funcCov) {
     funcCov.ranges.sort(compareRangeCovs);
     const tree = rangeTreeFromSortedRanges(funcCov.ranges);
     normalizeRangeTree(tree);
-    funcCov.ranges = tree.toRanges();
+    funcCov.ranges = rangeTreeToRanges(tree);
 }
 
 function normalizeRangeTree(tree) {
@@ -241,35 +241,35 @@ Object.assign(RangeTree.prototype, {
         );
         this.end = value;
         return result;
-    },
-
-    toRanges: function () {
-    /**
-     * Get the range coverages corresponding to the tree.
-     *
-     * The ranges are pre-order sorted.
-     */
-        const ranges = [];
-        // Stack of parent trees and counts.
-        const stack = [[this, 0]];
-        while (stack.length > 0) {
-            let ii;
-            const [cur, parentCount] = stack.pop();
-            const count = parentCount + cur.delta;
-            ranges.push({
-                count,
-                endOffset: cur.end,
-                startOffset: cur.start
-            });
-            ii = cur.children.length - 1;
-            while (ii >= 0) {
-                stack.push([cur.children[ii], count]);
-                ii -= 1;
-            }
-        }
-        return ranges;
     }
 });
+
+function rangeTreeToRanges(tree) {
+/**
+ * Get the range coverages corresponding to the tree.
+ *
+ * The ranges are pre-order sorted.
+ */
+    const ranges = [];
+    // Stack of parent trees and counts.
+    const stack = [[tree, 0]];
+    while (stack.length > 0) {
+        let ii;
+        const [cur, parentCount] = stack.pop();
+        const count = parentCount + cur.delta;
+        ranges.push({
+            count,
+            endOffset: cur.end,
+            startOffset: cur.start
+        });
+        ii = cur.children.length - 1;
+        while (ii >= 0) {
+            stack.push([cur.children[ii], count]);
+            ii -= 1;
+        }
+    }
+    return ranges;
+}
 
 export function mergeProcessCovs(processCovs) { //jslint-quiet
 
@@ -431,7 +431,7 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
         isBlockCoverage = true;
         const mergedTree = mergeRangeTrees(trees);
         normalizeRangeTree(mergedTree);
-        ranges = mergedTree.toRanges();
+        ranges = rangeTreeToRanges(mergedTree);
     } else {
         isBlockCoverage = false;
         ranges = [
