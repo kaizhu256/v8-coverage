@@ -24,10 +24,8 @@ function coverageFunctionNormalize(funcCov) {
 // @param funcCov Function coverage to normalize.
 
     funcCov.ranges = rangeTreeToRanges(
-        rangeTreeNormalize(
-            rangeTreeFromSortedRanges(
-                funcCov.ranges.sort(compareRangeCovs)
-            )
+        rangeTreeFromSortedRanges(
+            funcCov.ranges.sort(compareRangeCovs)
         )
     );
 }
@@ -64,56 +62,6 @@ function coverageScriptNormalizeDeep(scriptCov) {
         coverageFunctionNormalize(funcCov);
     });
     coverageScriptNormalize(scriptCov);
-}
-
-function rangeTreeNormalize(tree) {
-
-// @internal
-
-    let children = [];
-    let curEnd;
-    let head;
-    let tail = [];
-    function endChain() {
-        if (tail.length !== 0) {
-            head.end = tail[tail.length - 1].end;
-            tail.forEach(function (tailTree) {
-                tailTree.children.forEach(function (subChild) {
-                    subChild.delta += tailTree.delta - head.delta;
-                    head.children.push(subChild);
-                });
-            });
-            tail.length = 0;
-        }
-        rangeTreeNormalize(head);
-        children.push(head);
-    }
-    tree.children.forEach(function (child) {
-        if (head === undefined) {
-            head = child;
-        } else if (child.delta === head.delta && child.start === curEnd) {
-            tail.push(child);
-        } else {
-            endChain();
-            head = child;
-        }
-        curEnd = child.end;
-    });
-    if (head !== undefined) {
-        endChain();
-    }
-    if (children.length === 1) {
-        if (children[0].start === tree.start && children[0].end === tree.end) {
-            tree.delta += children[0].delta;
-            tree.children = children[0].children;
-
-// `.lazyCount` is zero for both (both are after normalization)
-
-            return tree;
-        }
-    }
-    tree.children = children;
-    return tree;
 }
 
 function rangeTreeCreate(start, end, delta, children) {
@@ -210,6 +158,58 @@ function rangeTreeToRanges(tree) {
 
     let ranges = [];
     let stack = [[tree, 0]];    // Stack of parent trees and counts.
+    function rangeTreeNormalize(tree) {
+
+// @internal
+
+        let children = [];
+        let curEnd;
+        let head;
+        let tail = [];
+        function endChain() {
+            if (tail.length !== 0) {
+                head.end = tail[tail.length - 1].end;
+                tail.forEach(function (tailTree) {
+                    tailTree.children.forEach(function (subChild) {
+                        subChild.delta += tailTree.delta - head.delta;
+                        head.children.push(subChild);
+                    });
+                });
+                tail.length = 0;
+            }
+
+// Recurse rangeTreeNormalize().
+
+            rangeTreeNormalize(head);
+            children.push(head);
+        }
+        tree.children.forEach(function (child) {
+            if (head === undefined) {
+                head = child;
+            } else if (child.delta === head.delta && child.start === curEnd) {
+                tail.push(child);
+            } else {
+                endChain();
+                head = child;
+            }
+            curEnd = child.end;
+        });
+        if (head !== undefined) {
+            endChain();
+        }
+        if (children.length === 1) {
+            if (children[0].start === tree.start && children[0].end === tree.end) {
+                tree.delta += children[0].delta;
+                tree.children = children[0].children;
+
+    // `.lazyCount` is zero for both (both are after normalization)
+
+                return;
+            }
+        }
+        tree.children = children;
+    }
+    rangeTreeNormalize(tree);
     while (stack.length > 0) {
         let ii;
         let [cur, parentCount] = stack.pop();
@@ -426,7 +426,7 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
     let ranges;
     if (trees.length > 0) {
         isBlockCoverage = true;
-        ranges = rangeTreeToRanges(rangeTreeNormalize(mergeRangeTrees(trees)));
+        ranges = rangeTreeToRanges(mergeRangeTrees(trees));
     } else {
         isBlockCoverage = false;
         ranges = [
