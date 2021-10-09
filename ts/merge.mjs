@@ -411,7 +411,11 @@ export function coverageFunctionListMerge(funcCovs) { //jslint-quiet
 // @param funcCovs Function coverages to merge.
 // @return Merged function coverage, or `undefined` if the input list was empty.
 
+    let count = 0;
+    let isBlockCoverage;
     let merged;
+    let ranges;
+    let trees = [];
     if (funcCovs.length === 0) {
         return undefined;
     }
@@ -421,8 +425,6 @@ export function coverageFunctionListMerge(funcCovs) { //jslint-quiet
 
 // assert: `funcCovs[0].ranges.length > 0`
 
-    let count = 0;
-    let trees = [];
     funcCovs.forEach(function (funcCov) {
         // assert: `funcCov.ranges.length > 0`
         // assert: `funcCov.ranges` is sorted
@@ -435,8 +437,6 @@ export function coverageFunctionListMerge(funcCovs) { //jslint-quiet
             trees.push(rangeTreeFromSortedRanges(funcCov.ranges));
         }
     });
-    let isBlockCoverage;
-    let ranges;
     if (trees.length > 0) {
         isBlockCoverage = true;
         ranges = rangeTreeToRanges(rangeTreeListMerge(trees));
