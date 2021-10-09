@@ -482,49 +482,11 @@ function rangeTreeListMerge(trees) {
     );
 }
 
-function startEventQueueFromParentTrees(parentTrees) {
-    let startToTrees = new Map();
-    parentTrees.forEach(function (parentTree, parentIndex) {
-        parentTree.children.forEach(function (child) {
-            let trees = startToTrees.get(child.start);
-            if (trees === undefined) {
-                trees = [];
-                startToTrees.set(child.start, trees);
-            }
-
-// new RangeTreeWithParent().
-
-            trees.push({
-                parentIndex,
-                tree: child
-            });
-        });
-    });
-
-// new StartEventQueue().
-
-    return {
-        nextIndex: 0,
-        pendingIndex: 0,
-        queue: Array.from(startToTrees).map(function ([
-            startOffset, trees
-        ]) {
-
-// new StartEvent().
-
-            return {
-                offset: startOffset,
-                trees
-            };
-        }).sort(function (aa, bb) {
-            return aa.offset - bb.offset;
-        })
-    };
-}
-
 function rangeTreeChildrenMerge(parentTrees) {
+    let startToTrees = new Map();
     let result = [];
-    let startEventQueue = startEventQueueFromParentTrees(parentTrees);
+    //!! let startEventQueue = startEventQueueFromParentTrees(parentTrees);
+    let startEventQueue;
     let parentToNested = new Map();
     let openRange;
     function next() {
@@ -564,6 +526,42 @@ function rangeTreeChildrenMerge(parentTrees) {
             }
         }
     }
+    parentTrees.forEach(function (parentTree, parentIndex) {
+        parentTree.children.forEach(function (child) {
+            let trees = startToTrees.get(child.start);
+            if (trees === undefined) {
+                trees = [];
+                startToTrees.set(child.start, trees);
+            }
+
+// new RangeTreeWithParent().
+
+            trees.push({
+                parentIndex,
+                tree: child
+            });
+        });
+    });
+
+// new StartEventQueue().
+
+    startEventQueue = {
+        nextIndex: 0,
+        pendingIndex: 0,
+        queue: Array.from(startToTrees).map(function ([
+            startOffset, trees
+        ]) {
+
+// new StartEvent().
+
+            return {
+                offset: startOffset,
+                trees
+            };
+        }).sort(function (aa, bb) {
+            return aa.offset - bb.offset;
+        })
+    };
     while (true) {
         let event = next();
         if (event === undefined) {
