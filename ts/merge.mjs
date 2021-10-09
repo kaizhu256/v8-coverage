@@ -28,8 +28,10 @@ export function coverageFunctionListMerge(funcCovs) { //jslint-quiet
 // assert: `funcCovs[0].ranges.length > 0`
 
     funcCovs.forEach(function (funcCov) {
-        // assert: `funcCov.ranges.length > 0`
-        // assert: `funcCov.ranges` is sorted
+
+// assert: `funcCov.ranges.length > 0`
+// assert: `funcCov.ranges` is sorted
+
         count += (
             funcCov.count !== undefined
             ? funcCov.count
@@ -153,9 +155,6 @@ export function coverageProcessListMerge(processCovs) { //jslint-quiet
 // @param processCov Process coverage to normalize.
 
         processCov.result.forEach(function (scriptCov) {
-
-// Recurse coverageScriptNormalizeDeep().
-
             coverageScriptNormalizeDeep(scriptCov);
         });
         return coverageProcessNormalize(processCov);
@@ -180,7 +179,9 @@ export function coverageProcessListMerge(processCovs) { //jslint-quiet
         });
     });
     urlToScripts.forEach(function (scripts) {
-        // assert: `scripts.length > 0`
+
+// assert: `scripts.length > 0`
+
         result.push(coverageScriptListMerge(scripts));
     });
     return coverageProcessNormalize({
@@ -231,7 +232,9 @@ export function coverageScriptListMerge(scriptCovs) { //jslint-quiet
         });
     });
     rangeToFuncs.forEach(function (funcCovs) {
-        // assert: `funcCovs.length > 0`
+
+// assert: `funcCovs.length > 0`
+
         functions.push(coverageFunctionListMerge(funcCovs));
     });
     return coverageScriptNormalize({
@@ -464,7 +467,9 @@ function rangeTreeFromSortedRanges(ranges) {
             [
                 parent, parentCount
             ] = stack[stack.length - 1];
-            // assert: `top !== undefined` (the ranges are sorted)
+
+// assert: `top !== undefined` (the ranges are sorted)
+
             if (range.startOffset < parent.end) {
                 break;
             }
