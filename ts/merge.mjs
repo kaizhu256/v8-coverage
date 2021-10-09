@@ -123,6 +123,7 @@ function rangeTreeSplit(tree, value) {
     let ii = 0;
     let leftChildLen = tree.children.length;
     let mid;
+    let result;
     let rightChildren;
 
 // TODO(perf): Binary search (check overhead) //jslint-quiet
@@ -150,7 +151,7 @@ function rangeTreeSplit(tree, value) {
     if (mid !== undefined) {
         rightChildren.unshift(mid);
     }
-    let result = rangeTreeCreate(
+    result = rangeTreeCreate(
         value,
         tree.end,
         tree.delta,
