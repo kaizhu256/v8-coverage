@@ -11,6 +11,23 @@ let {
     coverageScriptListMerge
 } = coverageMerge;
 
+let testDescribeList = [];
+let testItList;
+
+async function describe2(description, testDescribe) {
+    testItList = [];
+    testDescribeList.push({
+        description,
+        testItList
+    });
+    testDescribe();
+    await Promise.all(testItList);
+}
+
+function it2(description, testIt) {
+
+}
+
 /**
  * Generate a Mocha test suite for the provided
  * implementation of `v8-coverage-tools`.
@@ -50,6 +67,7 @@ const WHITELIST = new Set([
 // "simple",
 ]);
 testImpl({ coverageProcessListMerge, coverageScriptListMerge, coverageFunctionListMerge });
+
 describe("merge", function () {
     function assertJsonEqual(aa, bb) {
 
