@@ -1,5 +1,5 @@
+// NODE_OPTIONS="--unhandled-rejections=strict" shRunWithCoverage ./node_modules/.bin/mocha test/merge.spec.js
 /*jslint beta, node*/
-// shRunWithCoverage ./node_modules/.bin/mocha test/merge.spec.js
 import fs from "fs";
 // import {mergeProcessCovs} from "./lib/index.js";
 import {mergeProcessCovs} from "./merge.mjs";
@@ -108,26 +108,71 @@ import {mergeProcessCovs} from "./merge.mjs";
                             },
                         ],
                     },
+                    {
+                        scriptId: "123",
+                        url: "/lib.js",
+                        functions: [
+                            {
+                                functionName: "test",
+                                isBlockCoverage: true,
+                                ranges: [
+                                    { startOffset: 0, endOffset: 4, count: 2 },
+                                    { startOffset: 1, endOffset: 2, count: 1 },
+                                    { startOffset: 2, endOffset: 3, count: 1 },
+                                ],
+                            },
+                        ],
+                    },
                 ],
             },
         ];
         const expected = {
-            result: [
+            "result": [
                 {
-                    scriptId: "0",
-                    url: "/lib.js",
-                    functions: [
+                    "functions": [
                         {
-                            functionName: "test",
-                            isBlockCoverage: true,
-                            ranges: [
-                                { startOffset: 0, endOffset: 4, count: 2 },
-                                { startOffset: 1, endOffset: 3, count: 1 },
-                            ],
-                        },
+                            "functionName": "test",
+                            "isBlockCoverage": true,
+                            "ranges": [
+                                {
+                                    "count": 2,
+                                    "endOffset": 4,
+                                    "startOffset": 0
+                                },
+                                {
+                                    "count": 1,
+                                    "endOffset": 3,
+                                    "startOffset": 1
+                                }
+                            ]
+                        }
                     ],
+                    "scriptId": "0",
+                    "url": "/lib.js"
                 },
-            ],
+                {
+                    "functions": [
+                        {
+                            "functionName": "test",
+                            "isBlockCoverage": true,
+                            "ranges": [
+                                {
+                                    "count": 2,
+                                    "endOffset": 4,
+                                    "startOffset": 0
+                                },
+                                {
+                                    "count": 1,
+                                    "endOffset": 3,
+                                    "startOffset": 1
+                                }
+                            ]
+                        }
+                    ],
+                    "scriptId": "1",
+                    "url": "/lib.js"
+                }
+            ]
         };
         const actual = mergeProcessCovs(inputs);
         assert_json_equal(actual, expected);
