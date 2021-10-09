@@ -107,7 +107,7 @@ function normalizeFunctionCov(funcCov) {
 // @param funcCov Function coverage to normalize.
 
     funcCov.ranges.sort(compareRangeCovs);
-    const tree = rangeTreeFromSortedRanges(funcCov.ranges);
+    let tree = rangeTreeFromSortedRanges(funcCov.ranges);
     normalizeRangeTree(tree);
     funcCov.ranges = rangeTreeToRanges(tree);
 }
@@ -116,10 +116,10 @@ function normalizeRangeTree(tree) {
 
 // @internal
 
-    const children = [];
+    let children = [];
     let curEnd;
     let head;
-    const tail = [];
+    let tail = [];
     tree.children.forEach(function (child) {
         if (head === undefined) {
             head = child;
@@ -135,7 +135,7 @@ function normalizeRangeTree(tree) {
         endChain();
     }
     if (children.length === 1) {
-        const child = children[0];
+        let child = children[0];
         if (child.start === tree.start && child.end === tree.end) {
             tree.delta += child.delta;
             tree.children = child.children;
@@ -175,9 +175,9 @@ function rangeTreeFromSortedRanges(ranges) {
 
     let root;
     // Stack of parent trees and parent counts.
-    const stack = [];
+    let stack = [];
     ranges.forEach(function (range) {
-        const node = rangeTreeCreate(
+        let node = rangeTreeCreate(
             range.startOffset,
             range.endOffset,
             range.count,
@@ -215,7 +215,7 @@ function rangeTreeSplit(tree, value) {
     let mid;
     // TODO(perf): Binary search (check overhead) //jslint-quiet
     while (ii < tree.children.length) {
-        const child = tree.children[ii];
+        let child = tree.children[ii];
         if (child.start < value && value < child.end) {
 
 // Recurse rangeTreeSplit().
@@ -230,12 +230,12 @@ function rangeTreeSplit(tree, value) {
         }
         ii += 1;
     }
-    const rightLen = tree.children.length - leftChildLen;
-    const rightChildren = tree.children.splice(leftChildLen, rightLen);
+    let rightLen = tree.children.length - leftChildLen;
+    let rightChildren = tree.children.splice(leftChildLen, rightLen);
     if (mid !== undefined) {
         rightChildren.unshift(mid);
     }
-    const result = rangeTreeCreate(
+    let result = rangeTreeCreate(
         value,
         tree.end,
         tree.delta,
@@ -251,13 +251,13 @@ function rangeTreeToRanges(tree) {
  *
  * The ranges are pre-order sorted.
  */
-    const ranges = [];
+    let ranges = [];
     // Stack of parent trees and counts.
-    const stack = [[tree, 0]];
+    let stack = [[tree, 0]];
     while (stack.length > 0) {
         let ii;
-        const [cur, parentCount] = stack.pop();
-        const count = parentCount + cur.delta;
+        let [cur, parentCount] = stack.pop();
+        let count = parentCount + cur.delta;
         ranges.push({
             count,
             endOffset: cur.end,
@@ -295,7 +295,7 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
         deepNormalizeProcessCov(merged);
         return merged;
     }
-    const urlToScripts = new Map();
+    let urlToScripts = new Map();
     processCovs.forEach(function (processCov) {
         processCov.result.forEach(function (scriptCov) {
             let scriptCovs = urlToScripts.get(scriptCov.url);
@@ -306,7 +306,7 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
             scriptCovs.push(scriptCov);
         });
     });
-    const result = [];
+    let result = [];
     urlToScripts.forEach(function (scripts) {
         // assert: `scripts.length > 0`
         result.push(mergeScriptCovs(scripts));
@@ -340,10 +340,10 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
         deepNormalizeScriptCov(merged);
         return merged;
     }
-    const first = scriptCovs[0];
-    const scriptId = first.scriptId;
-    const url = first.url;
-    const rangeToFuncs = new Map();
+    let first = scriptCovs[0];
+    let scriptId = first.scriptId;
+    let url = first.url;
+    let rangeToFuncs = new Map();
     scriptCovs.forEach(function (scriptCov) {
         scriptCov.functions.forEach(function (funcCov) {
 
@@ -364,7 +364,7 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
             funcCovs.push(funcCov);
         });
     });
-    const functions = [];
+    let functions = [];
     rangeToFuncs.forEach(function (funcCovs) {
         // assert: `funcCovs.length > 0`
         functions.push(mergeFunctionCovs(funcCovs));
@@ -400,13 +400,13 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
         normalizeFunctionCov(merged);
         return merged;
     }
-    const first = funcCovs[0];
-    const functionName = first.functionName;
+    let first = funcCovs[0];
+    let functionName = first.functionName;
     // assert: `first.ranges.length > 0`
-    const startOffset = first.ranges[0].startOffset;
-    const endOffset = first.ranges[0].endOffset;
+    let startOffset = first.ranges[0].startOffset;
+    let endOffset = first.ranges[0].endOffset;
     let count = 0;
-    const trees = [];
+    let trees = [];
     funcCovs.forEach(function (funcCov) {
         // assert: `funcCov.ranges.length > 0`
         // assert: `funcCov.ranges` is sorted
@@ -423,7 +423,7 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
     let ranges;
     if (trees.length > 0) {
         isBlockCoverage = true;
-        const mergedTree = mergeRangeTrees(trees);
+        let mergedTree = mergeRangeTrees(trees);
         normalizeRangeTree(mergedTree);
         ranges = rangeTreeToRanges(mergedTree);
     } else {
@@ -455,17 +455,17 @@ function mergeRangeTrees(trees) {
     if (trees.length <= 1) {
         return trees[0];
     }
-    const first = trees[0];
+    let first = trees[0];
     let delta = 0;
     trees.forEach(function (tree) {
         delta += tree.delta;
     });
-    const children = mergeRangeTreeChildren(trees);
+    let children = mergeRangeTreeChildren(trees);
     return rangeTreeCreate(first.start, first.end, delta, children);
 }
 
 function startEventQueueFromParentTrees(parentTrees) {
-    const startToTrees = new Map();
+    let startToTrees = new Map();
     parentTrees.forEach(function (parentTree, parentIndex) {
         parentTree.children.forEach(function (child) {
             let trees = startToTrees.get(child.start);
@@ -482,7 +482,7 @@ function startEventQueueFromParentTrees(parentTrees) {
             });
         });
     });
-    const queue = [];
+    let queue = [];
     startToTrees.forEach(function (trees, startOffset) {
         queue.push({
             // new StartEvent().
@@ -504,13 +504,13 @@ function startEventQueueFromParentTrees(parentTrees) {
 }
 
 function mergeRangeTreeChildren(parentTrees) {
-    const result = [];
-    const startEventQueue = startEventQueueFromParentTrees(parentTrees);
-    const parentToNested = new Map();
+    let result = [];
+    let startEventQueue = startEventQueueFromParentTrees(parentTrees);
+    let parentToNested = new Map();
     let openRange;
     function next() {
-        const pendingTrees = startEventQueue.pendingTrees;
-        const nextEvent = startEventQueue.queue[startEventQueue.nextIndex];
+        let pendingTrees = startEventQueue.pendingTrees;
+        let nextEvent = startEventQueue.queue[startEventQueue.nextIndex];
         if (pendingTrees === undefined) {
             startEventQueue.nextIndex += 1;
             return nextEvent;
@@ -542,7 +542,7 @@ function mergeRangeTreeChildren(parentTrees) {
         }
     }
     while (true) {
-        const event = next();
+        let event = next();
         if (event === undefined) {
             break;
         }
@@ -564,7 +564,7 @@ function mergeRangeTreeChildren(parentTrees) {
         } else {
             event.trees.forEach(function ({ parentIndex, tree }) { //jslint-quiet
                 if (tree.end > openRange.end) {
-                    const right = rangeTreeSplit(tree, openRange.end);
+                    let right = rangeTreeSplit(tree, openRange.end);
                     if (startEventQueue.pendingTrees === undefined) {
                         startEventQueue.pendingTrees = [];
                     }
@@ -596,7 +596,7 @@ function insertChild(parentToNested, parentIndex, tree) {
 }
 
 function nextChild(openRange, parentToNested) {
-    const matchingTrees = [];
+    let matchingTrees = [];
     parentToNested.forEach(function (nested) {
         if (
             nested.length === 1
