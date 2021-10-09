@@ -202,7 +202,7 @@ function rangeTreeToRanges(tree) {
                 tree.delta += children[0].delta;
                 tree.children = children[0].children;
 
-    // `.lazyCount` is zero for both (both are after normalization)
+// `.lazyCount` is zero for both (both are after normalization)
 
                 return;
             }
