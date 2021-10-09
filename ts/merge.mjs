@@ -14,51 +14,6 @@ function compareRangeCovs(aa, bb) {
     return bb.endOffset - aa.endOffset;
 }
 
-function normalizeProcessCov(processCov) {
-
-// Normalizes a process coverage.
-//
-// Sorts the scripts alphabetically by `url`.
-// Reassigns script ids: the script at index `0` receives `"0"`, the script at
-// index `1` receives `"1"` etc.
-// This does not normalize the script coverages.
-//
-// @param processCov Process coverage to normalize.
-
-    Object.entries(processCov.result.sort(function (aa, bb) {
-
-// Compares two script coverages.
-//
-// The result corresponds to the comparison of their `url` value
-// (alphabetical sort).
-
-        return (
-            aa.url < bb.url
-            ? -1
-            : aa.url > bb.url
-            ? 1
-            : 0
-        );
-    })).forEach(function ([scriptId, scriptCov]) {
-        scriptCov.scriptId = scriptId.toString(10);
-    });
-}
-
-function deepNormalizeProcessCov(processCov) {
-
-// Normalizes a process coverage deeply.
-//
-// Normalizes the script coverages deeply, then normalizes the process coverage
-// itself.
-//
-// @param processCov Process coverage to normalize.
-
-    processCov.result.forEach(function (scriptCov) {
-        deepNormalizeScriptCov(scriptCov);
-    });
-    normalizeProcessCov(processCov);
-}
-
 function normalizeScriptCov(scriptCov) {
 
 // Normalizes a script coverage.
@@ -281,6 +236,43 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
 // @return Merged process coverage.
 
     let merged;
+    function normalizeProcessCov(processCov) {
+
+// Normalizes a process coverage.
+//
+// Sorts the scripts alphabetically by `url`.
+// Reassigns script ids: the script at index `0` receives `"0"`, the script at
+// index `1` receives `"1"` etc.
+// This does not normalize the script coverages.
+//
+// @param processCov Process coverage to normalize.
+
+
+        processCov.result.forEach(function (scriptCov) {
+
+// Recurse deepNormalizeScriptCov().
+
+            deepNormalizeScriptCov(scriptCov);
+        });
+
+        Object.entries(processCov.result.sort(function (aa, bb) {
+
+// Compares two script coverages.
+//
+// The result corresponds to the comparison of their `url` value
+// (alphabetical sort).
+
+            return (
+                aa.url < bb.url
+                ? -1
+                : aa.url > bb.url
+                ? 1
+                : 0
+            );
+        })).forEach(function ([scriptId, scriptCov]) {
+            scriptCov.scriptId = scriptId.toString(10);
+        });
+    }
     if (processCovs.length === 0) {
         return {
             result: []
@@ -288,7 +280,7 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
     }
     if (processCovs.length === 1) {
         merged = processCovs[0];
-        deepNormalizeProcessCov(merged);
+        normalizeProcessCov(merged);
         return merged;
     }
     const urlToScripts = new Map();
@@ -310,7 +302,7 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
     merged = {
         result
     };
-    deepNormalizeProcessCov(merged);
+    normalizeProcessCov(merged);
     return merged;
 }
 
