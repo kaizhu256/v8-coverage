@@ -49,10 +49,11 @@ function normalizeProcessCov(processCov) {
  *
  * @param processCov Process coverage to normalize.
  */
-    processCov.result.sort(compareScriptCovs);
-    for (const [scriptId, scriptCov] of processCov.result.entries()) {
+    Object.entries(
+        processCov.result.sort(compareScriptCovs)
+    ).forEach(function ([scriptId, scriptCov]) {
         scriptCov.scriptId = scriptId.toString(10);
-    }
+    });
 }
 
 function deepNormalizeProcessCov(processCov) {
@@ -64,9 +65,9 @@ function deepNormalizeProcessCov(processCov) {
  *
  * @param processCov Process coverage to normalize.
  */
-    for (const scriptCov of processCov.result) {
+    processCov.result.forEach(function (scriptCov) {
         deepNormalizeScriptCov(scriptCov);
-    }
+    });
     normalizeProcessCov(processCov);
 }
 
@@ -91,9 +92,9 @@ function deepNormalizeScriptCov(scriptCov) {
  *
  * @param scriptCov Script coverage to normalize.
  */
-    for (const funcCov of scriptCov.functions) {
+    scriptCov.functions.forEach(function (funcCov) {
         normalizeFunctionCov(funcCov);
-    }
+    });
     normalizeScriptCov(scriptCov);
 }
 
@@ -133,12 +134,12 @@ class RangeTree {
         let root;
         // Stack of parent trees and parent counts.
         const stack = [];
-        for (const range of ranges) {
+        ranges.forEach(function (range) {
             const node = new RangeTree(range.startOffset, range.endOffset, range.count, []);
             if (root === undefined) {
                 root = node;
                 stack.push([node, range.count]);
-                continue;
+                return;
             }
             let parent;
             let parentCount;
@@ -155,7 +156,7 @@ class RangeTree {
             node.delta -= parentCount;
             parent.children.push(node);
             stack.push([node, range.count]);
-        }
+        });
         return root;
     }
     normalize() {
@@ -163,7 +164,7 @@ class RangeTree {
         let curEnd;
         let head;
         const tail = [];
-        for (const child of this.children) {
+        this.children.forEach(function (child) {
             if (head === undefined) {
                 head = child;
             }
@@ -175,7 +176,7 @@ class RangeTree {
                 head = child;
             }
             curEnd = child.end;
-        }
+        });
         if (head !== undefined) {
             endChain();
         }
@@ -192,12 +193,12 @@ class RangeTree {
         function endChain() {
             if (tail.length !== 0) {
                 head.end = tail[tail.length - 1].end;
-                for (const tailTree of tail) {
-                    for (const subChild of tailTree.children) {
+                tail.forEach(function (tailTree) {
+                    tailTree.children.forEach(function (subChild) {
                         subChild.delta += tailTree.delta - head.delta;
                         head.children.push(subChild);
-                    }
-                }
+                    });
+                });
                 tail.length = 0;
             }
             head.normalize();
@@ -275,21 +276,21 @@ export function mergeProcessCovs(processCovs) {
         return merged;
     }
     const urlToScripts = new Map();
-    for (const processCov of processCovs) {
-        for (const scriptCov of processCov.result) {
+    processCovs.forEach(function (processCov) {
+        processCov.result.forEach(function (scriptCov) {
             let scriptCovs = urlToScripts.get(scriptCov.url);
             if (scriptCovs === undefined) {
                 scriptCovs = [];
                 urlToScripts.set(scriptCov.url, scriptCovs);
             }
             scriptCovs.push(scriptCov);
-        }
-    }
+        });
+    });
     const result = [];
-    for (const scripts of urlToScripts.values()) {
+    urlToScripts.forEach(function (scripts) {
         // assert: `scripts.length > 0`
         result.push(mergeScriptCovs(scripts));
-    }
+    });
     const merged = { result };
     normalizeProcessCov(merged);
     return merged;
@@ -320,8 +321,8 @@ export function mergeScriptCovs(scriptCovs) {
     const scriptId = first.scriptId;
     const url = first.url;
     const rangeToFuncs = new Map();
-    for (const scriptCov of scriptCovs) {
-        for (const funcCov of scriptCov.functions) {
+    scriptCovs.forEach(function (scriptCov) {
+        scriptCov.functions.forEach(function (funcCov) {
             const rootRange = stringifyFunctionRootRange(funcCov);
             let funcCovs = rangeToFuncs.get(rootRange);
             if (funcCovs === undefined) {
@@ -329,13 +330,13 @@ export function mergeScriptCovs(scriptCovs) {
                 rangeToFuncs.set(rootRange, funcCovs);
             }
             funcCovs.push(funcCov);
-        }
-    }
+        });
+    });
     const functions = [];
-    for (const funcCovs of rangeToFuncs.values()) {
+    rangeToFuncs.forEach(function (funcCovs) {
         // assert: `funcCovs.length > 0`
         functions.push(mergeFunctionCovs(funcCovs));
-    }
+    });
     const merged = { scriptId, url, functions };
     normalizeScriptCov(merged);
     return merged;
@@ -385,14 +386,14 @@ export function mergeFunctionCovs(funcCovs) {
     const endOffset = first.ranges[0].endOffset;
     let count = 0;
     const trees = [];
-    for (const funcCov of funcCovs) {
+    funcCovs.forEach(function (funcCov) {
         // assert: `funcCov.ranges.length > 0`
         // assert: `funcCov.ranges` is sorted
         count += funcCov.count !== undefined ? funcCov.count : funcCov.ranges[0].count;
         if (funcCov.isBlockCoverage) {
             trees.push(RangeTree.fromSortedRanges(funcCov.ranges));
         }
-    }
+    });
     let isBlockCoverage;
     let ranges;
     if (trees.length > 0) {
@@ -422,9 +423,9 @@ function mergeRangeTrees(trees) {
     }
     const first = trees[0];
     let delta = 0;
-    for (const tree of trees) {
+    trees.forEach(function (tree) {
         delta += tree.delta;
-    }
+    });
     const children = mergeRangeTreeChildren(trees);
     return new RangeTree(first.start, first.end, delta, children);
 }
@@ -455,16 +456,16 @@ class StartEventQueue {
     }
     static fromParentTrees(parentTrees) {
         const startToTrees = new Map();
-        for (const [parentIndex, parentTree] of parentTrees.entries()) {
-            for (const child of parentTree.children) {
+        parentTrees.forEach(function (parentTree, parentIndex) {
+            parentTree.children.forEach(function (child) {
                 let trees = startToTrees.get(child.start);
                 if (trees === undefined) {
                     trees = [];
                     startToTrees.set(child.start, trees);
                 }
                 trees.push(new RangeTreeWithParent(parentIndex, child));
-            }
-        }
+            });
+        });
         const queue = [];
         for (const [startOffset, trees] of startToTrees) {
             queue.push(new StartEvent(startOffset, trees));
