@@ -474,33 +474,34 @@ class StartEvent {
     }
 }
 
+function startEventQueueFromParentTrees(parentTrees) {
+    const startToTrees = new Map();
+    parentTrees.forEach(function (parentTree, parentIndex) {
+        parentTree.children.forEach(function (child) {
+            let trees = startToTrees.get(child.start);
+            if (trees === undefined) {
+                trees = [];
+                startToTrees.set(child.start, trees);
+            }
+            trees.push(new RangeTreeWithParent(parentIndex, child));
+        });
+    });
+    const queue = [];
+    startToTrees.forEach(function (trees, startOffset) {
+        queue.push(new StartEvent(startOffset, trees));
+    });
+    queue.sort(function (aa, bb) {
+        return aa.offset - bb.offset;
+    });
+    return new StartEventQueue(queue);
+}
+
 class StartEventQueue {
     constructor(queue) {
         this.queue = queue;
         this.nextIndex = 0;
         this.pendingOffset = 0;
         this.pendingTrees = undefined;
-    }
-    static fromParentTrees(parentTrees) {
-        const startToTrees = new Map();
-        parentTrees.forEach(function (parentTree, parentIndex) {
-            parentTree.children.forEach(function (child) {
-                let trees = startToTrees.get(child.start);
-                if (trees === undefined) {
-                    trees = [];
-                    startToTrees.set(child.start, trees);
-                }
-                trees.push(new RangeTreeWithParent(parentIndex, child));
-            });
-        });
-        const queue = [];
-        startToTrees.forEach(function (trees, startOffset) {
-            queue.push(new StartEvent(startOffset, trees));
-        });
-        queue.sort(function (aa, bb) {
-            return aa.offset - bb.offset;
-        });
-        return new StartEventQueue(queue);
     }
     setPendingOffset(offset) {
         this.pendingOffset = offset;
@@ -540,7 +541,7 @@ class StartEventQueue {
 
 function mergeRangeTreeChildren(parentTrees) {
     const result = [];
-    const startEventQueue = StartEventQueue.fromParentTrees(parentTrees);
+    const startEventQueue = startEventQueueFromParentTrees(parentTrees);
     const parentToNested = new Map();
     let openRange;
     while (true) {
