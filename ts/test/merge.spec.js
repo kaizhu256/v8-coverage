@@ -257,4 +257,4 @@ describe("merge", function () {
         });
     }));
 });
-await import("../test.mjs");
+await import("../test_v8_coverage_node_sqlite.mjs");
