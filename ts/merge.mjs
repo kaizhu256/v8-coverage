@@ -468,16 +468,17 @@ function rangeTreeListMerge(trees) {
 
 // @precondition Same `start` and `end` for all the trees
 
-    if (trees.length <= 1) {
-        return trees[0];
-    }
-    return rangeTreeCreate(
-        trees[0].start,
-        trees[0].end,
-        trees.reduce(function (aa, bb) {
-            return aa + bb.delta;
-        }, 0),
-        rangeTreeChildrenMerge(trees)
+    return (
+        trees.length <= 1
+        ? trees[0]
+        : rangeTreeCreate(
+            trees[0].start,
+            trees[0].end,
+            trees.reduce(function (aa, bb) {
+                return aa + bb.delta;
+            }, 0),
+            rangeTreeChildrenMerge(trees)
+        )
     );
 }
 
@@ -490,10 +491,10 @@ function startEventQueueFromParentTrees(parentTrees) {
                 trees = [];
                 startToTrees.set(child.start, trees);
             }
-            trees.push({
 
 // new RangeTreeWithParent().
 
+            trees.push({
                 parentIndex,
                 tree: child
             });
@@ -501,8 +502,10 @@ function startEventQueueFromParentTrees(parentTrees) {
     });
     let queue = [];
     startToTrees.forEach(function (trees, startOffset) {
+
+// new StartEvent().
+
         queue.push({
-            // new StartEvent().
             offset: startOffset,
             trees
         });
@@ -510,10 +513,10 @@ function startEventQueueFromParentTrees(parentTrees) {
     queue.sort(function (aa, bb) {
         return aa.offset - bb.offset;
     });
-    return {
 
 // new StartEventQueue().
 
+    return {
         nextIndex: 0,
         pendingIndex: 0,
         queue
@@ -533,16 +536,20 @@ function rangeTreeChildrenMerge(parentTrees) {
             return nextEvent;
         } else if (nextEvent === undefined) {
             delete startEventQueue.pendingTrees;
+
+// new StartEvent().
+
             return {
-                // new StartEvent().
                 offset: startEventQueue.pendingOffset,
                 trees: pendingTrees
             };
         } else {
             if (startEventQueue.pendingOffset < nextEvent.offset) {
                 delete startEventQueue.pendingTrees;
+
+// new StartEvent().
+
                 return {
-                    // new StartEvent().
                     offset: startEventQueue.pendingOffset,
                     trees: pendingTrees
                 };
@@ -585,10 +592,10 @@ function rangeTreeChildrenMerge(parentTrees) {
                     if (startEventQueue.pendingTrees === undefined) {
                         startEventQueue.pendingTrees = [];
                     }
-                    startEventQueue.pendingTrees.push({
 
 // new RangeTreeWithParent().
 
+                    startEventQueue.pendingTrees.push({
                         parentIndex,
                         tree: right
                     });
