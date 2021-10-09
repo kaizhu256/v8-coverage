@@ -261,11 +261,18 @@ Object.assign(RangeTree.prototype, {
         // Stack of parent trees and counts.
         const stack = [[this, 0]];
         while (stack.length > 0) {
+            let ii;
             const [cur, parentCount] = stack.pop();
             const count = parentCount + cur.delta;
-            ranges.push({ startOffset: cur.start, endOffset: cur.end, count });
-            for (let ii = cur.children.length - 1; ii >= 0; ii--) {
+            ranges.push({
+                count,
+                endOffset: cur.end,
+                startOffset: cur.start
+            });
+            ii = cur.children.length - 1;
+            while (ii >= 0) {
                 stack.push([cur.children[ii], count]);
+                ii -= 1;
             }
         }
         return ranges;
