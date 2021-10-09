@@ -113,35 +113,16 @@ import moduleFs from "fs";
      * Generate a Mocha test suite for the provided
      * implementation of `v8-coverage-tools`.
      */
-        //!! it("accepts empty arrays for `coverageProcessListMerge`", function () {
-            //!! assertJsonEqual(coverageProcessListMerge([]), {
-                //!! result: []
-            //!! });
-        //!! });
-        //!! it("accepts empty arrays for `coverageScriptListMerge`", function () {
-            //!! assertJsonEqual(coverageScriptListMerge([]), undefined);
-        //!! });
-        //!! it("accepts empty arrays for `coverageFunctionListMerge`", function () {
-            //!! assertJsonEqual(coverageFunctionListMerge([]), undefined);
-        //!! });
-
         it("accepts empty arrays for `coverageProcessListMerge`", function () {
-            const inputs = [];
-            const expected = { result: [] };
-            const actual = coverageProcessListMerge(inputs);
-            assertJsonEqual(actual, expected);
+            assertJsonEqual(coverageProcessListMerge([]), {
+                result: []
+            });
         });
         it("accepts empty arrays for `coverageScriptListMerge`", function () {
-            const inputs = [];
-            const expected = undefined;
-            const actual = coverageScriptListMerge(inputs);
-            assertJsonEqual(actual, expected);
+            assertJsonEqual(coverageScriptListMerge([]), undefined);
         });
         it("accepts empty arrays for `coverageFunctionListMerge`", function () {
-            const inputs = [];
-            const expected = undefined;
-            const actual = coverageFunctionListMerge(inputs);
-            assertJsonEqual(actual, expected);
+            assertJsonEqual(coverageFunctionListMerge([]), undefined);
         });
     });
 
@@ -229,7 +210,9 @@ import moduleFs from "fs";
             "accepts arrays with a single item for `coverageFunctionListMerge`"
         ), function () {
             assertJsonEqual(
-                coverageFunctionListMerge(JSON.parse(functionsInput)),
+                [
+                    coverageFunctionListMerge(JSON.parse(functionsInput))
+                ],
                 JSON.parse(functionsExpected)
             );
         });
