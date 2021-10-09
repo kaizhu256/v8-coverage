@@ -82,12 +82,15 @@ function rangeTreeFromSortedRanges(ranges) {
     let root;
     let stack = [];             // Stack of parent trees and parent counts.
     ranges.forEach(function (range) {
-        let node = rangeTreeCreate(
-            range.startOffset,
-            range.endOffset,
-            range.count,
-            []
-        );
+
+// new rangeTreeCreate().
+
+        let node = {
+            children: [],
+            delta: range.count,
+            end: range.endOffset,
+            start: range.startOffset
+        };
         let parent;
         let parentCount;
         if (root === undefined) {
