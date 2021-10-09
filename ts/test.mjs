@@ -192,6 +192,39 @@ import moduleFs from "fs";
             });
         });
         it((
+            "accepts arrays with two identical items for"
+            + " `coverageProcessListMerge`"
+        ), function () {
+            assertJsonEqual(coverageProcessListMerge([
+                {
+                    result: [
+                        {
+                            functions: JSON.parse(functionsInput),
+                            scriptId: "123",
+                            url: "/lib.js"
+                        }, {
+                            functions: JSON.parse(functionsInput),
+                            scriptId: "123",
+                            url: "/lib.js"
+                        }
+                    ]
+                }
+            ]), {
+                result: [
+                    {
+                        functions: JSON.parse(functionsExpected),
+                        scriptId: "0",
+                        url: "/lib.js"
+                    },
+                    {
+                        functions: JSON.parse(functionsExpected),
+                        scriptId: "1",
+                        url: "/lib.js"
+                    }
+                ]
+            });
+        });
+        it((
             "accepts arrays with a single item for `coverageScriptListMerge`"
         ), function () {
             assertJsonEqual(coverageScriptListMerge([
