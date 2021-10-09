@@ -364,7 +364,9 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
         functions.push(mergeFunctionCovs(funcCovs));
     });
     merged = {
-        functions, scriptId, url
+        functions,
+        scriptId,
+        url
     };
     normalizeScriptCov(merged);
     return merged;
@@ -436,10 +438,18 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
         ranges = mergedTree.toRanges();
     } else {
         isBlockCoverage = false;
-        ranges = [{ count, endOffset, startOffset }];
+        ranges = [
+            {
+                count,
+                endOffset,
+                startOffset
+            }
+        ];
     }
     merged = {
-        functionName, isBlockCoverage, ranges
+        functionName,
+        isBlockCoverage,
+        ranges
     };
     if (count !== ranges[0].count) {
         merged.count = count;
@@ -572,7 +582,8 @@ function mergeRangeTreeChildren(parentTrees) {
             });
             startEventQueue.setPendingOffset(openRangeEnd);
             openRange = {
-                end: openRangeEnd, start: event.offset
+                end: openRangeEnd,
+                start: event.offset
             };
         } else {
             event.trees.forEach(function ({ parentIndex, tree }) { //jslint-quiet
