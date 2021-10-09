@@ -28,6 +28,7 @@ function coverageFunctionNormalize(funcCov) {
             funcCov.ranges.sort(compareRangeCovs)
         )
     );
+    return funcCov;
 }
 
 function coverageScriptNormalize(scriptCov) {
@@ -415,17 +416,11 @@ export function coverageFunctionListMerge(funcCovs) { //jslint-quiet
         return undefined;
     }
     if (funcCovs.length === 1) {
-        merged = funcCovs[0];
-        coverageFunctionNormalize(merged);
-        return merged;
+        return coverageFunctionNormalize(funcCovs[0]);
     }
-    let first = funcCovs[0];
-    let functionName = first.functionName;
 
-// assert: `first.ranges.length > 0`
+// assert: `funcCovs[0].ranges.length > 0`
 
-    let startOffset = first.ranges[0].startOffset;
-    let endOffset = first.ranges[0].endOffset;
     let count = 0;
     let trees = [];
     funcCovs.forEach(function (funcCov) {
@@ -450,13 +445,13 @@ export function coverageFunctionListMerge(funcCovs) { //jslint-quiet
         ranges = [
             {
                 count,
-                endOffset,
-                startOffset
+                endOffset: funcCovs[0].ranges[0].endOffset,
+                startOffset: funcCovs[0].ranges[0].startOffset
             }
         ];
     }
     merged = {
-        functionName,
+        functionName: funcCovs[0].functionName,
         isBlockCoverage,
         ranges
     };
