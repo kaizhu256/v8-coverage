@@ -1,4 +1,4 @@
-/*jslint beta*/
+/*jslint beta, node*/
 
 export function coverageFunctionListMerge(funcCovs) { //jslint-quiet
 
@@ -104,10 +104,60 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
     let openRange;
     let openRangeEnd;
     let parentToNested = new Map();
-    let result = [];
+    let resultChildren = [];
     let right;
     let startEventQueue;
     let startToTrees = new Map();
+    function coverageRangeTreeSplit(tree, value) {
+
+// @precondition `tree.start < value && value < tree.end`
+// @return RangeTree Right part
+
+        let child;
+        let ii = 0;
+        let leftChildLen = tree.children.length;
+        let mid;
+        let resultTree;
+        let rightChildren;
+
+// TODO(perf): Binary search (check overhead) //jslint-quiet
+
+        while (ii < tree.children.length) {
+            child = tree.children[ii];
+            if (child.start < value && value < child.end) {
+
+// Recurse coverageRangeTreeSplit().
+
+                mid = coverageRangeTreeSplit(child, value);
+                leftChildLen = ii + 1;
+                break;
+            }
+            if (child.start >= value) {
+                leftChildLen = ii;
+                break;
+            }
+            ii += 1;
+        }
+        rightChildren = tree.children.splice(
+            leftChildLen,
+            tree.children.length - leftChildLen
+        );
+        if (mid !== undefined) {
+            rightChildren.unshift(mid);
+        }
+
+// new rangeTreeCreate().
+
+        resultTree = {
+            children: rightChildren,
+            delta: tree.delta,
+            end: tree.end,
+            start: value
+        };
+        tree.end = value;
+        return resultTree;
+    }
+
     function insertChild(parentToNested, parentIndex, tree) {
         let nested = parentToNested.get(parentIndex);
         if (nested === undefined) {
@@ -219,7 +269,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
             break;
         }
         if (openRange !== undefined && openRange.end <= event.offset) {
-            result.push(nextChild(openRange, parentToNested));
+            resultChildren.push(nextChild(openRange, parentToNested));
             openRange = undefined;
         }
         if (openRange === undefined) {
@@ -253,9 +303,9 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         }
     }
     if (openRange !== undefined) {
-        result.push(nextChild(openRange, parentToNested));
+        resultChildren.push(nextChild(openRange, parentToNested));
     }
-    return result;
+    return resultChildren;
 }
 
 function coverageRangeTreeFromSortedRanges(ranges) {
@@ -304,75 +354,25 @@ function coverageRangeTreeFromSortedRanges(ranges) {
     return root;
 }
 
-function coverageRangeTreeListMerge(trees) {
+function coverageRangeTreeListMerge(parentTrees) {
 
-// @precondition Same `start` and `end` for all the trees
+// @precondition Same `start` and `end` for all the parentTrees
 
     return (
-        trees.length <= 1
-        ? trees[0]
+        parentTrees.length <= 1
+        ? parentTrees[0]
 
 // new RangeTree().
 
         : {
-            children: coverageRangeTreeChildrenMerge(trees),
-            delta: trees.reduce(function (aa, bb) {
+            children: coverageRangeTreeChildrenMerge(parentTrees),
+            delta: parentTrees.reduce(function (aa, bb) {
                 return aa + bb.delta;
             }, 0),
-            end: trees[0].end,
-            start: trees[0].start
+            end: parentTrees[0].end,
+            start: parentTrees[0].start
         }
     );
-}
-
-function coverageRangeTreeSplit(tree, value) {
-
-// @precondition `tree.start < value && value < tree.end`
-// @return RangeTree Right part
-
-    let child;
-    let ii = 0;
-    let leftChildLen = tree.children.length;
-    let mid;
-    let result;
-    let rightChildren;
-
-// TODO(perf): Binary search (check overhead) //jslint-quiet
-
-    while (ii < tree.children.length) {
-        child = tree.children[ii];
-        if (child.start < value && value < child.end) {
-
-// Recurse coverageRangeTreeSplit().
-
-            mid = coverageRangeTreeSplit(child, value);
-            leftChildLen = ii + 1;
-            break;
-        }
-        if (child.start >= value) {
-            leftChildLen = ii;
-            break;
-        }
-        ii += 1;
-    }
-    rightChildren = tree.children.splice(
-        leftChildLen,
-        tree.children.length - leftChildLen
-    );
-    if (mid !== undefined) {
-        rightChildren.unshift(mid);
-    }
-
-// new rangeTreeCreate().
-
-    result = {
-        children: rightChildren,
-        delta: tree.delta,
-        end: tree.end,
-        start: value
-    };
-    tree.end = value;
-    return result;
 }
 
 function coverageRangeTreeToRanges(tree) {
