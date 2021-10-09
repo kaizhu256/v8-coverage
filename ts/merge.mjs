@@ -434,9 +434,9 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
         ranges = mergedTree.toRanges();
     } else {
         isBlockCoverage = false;
-        ranges = [{ startOffset, endOffset, count }];
+        ranges = [{ count, endOffset, startOffset }];
     }
-    merged = { functionName, ranges, isBlockCoverage };
+    merged = { functionName, isBlockCoverage, ranges };
     if (count !== ranges[0].count) {
         merged.count = count;
     }
