@@ -357,14 +357,14 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
 // @param scriptCovs Process coverages to merge.
 // @return Merged script coverage, or `undefined` if the input list was empty.
 
-    let merged;
+    let functions = [];
+    let rangeToFuncs = new Map();
     if (scriptCovs.length === 0) {
         return undefined;
     }
     if (scriptCovs.length === 1) {
         return coverageScriptNormalizeDeep(scriptCovs[0]);
     }
-    let rangeToFuncs = new Map();
     scriptCovs.forEach(function (scriptCov) {
         scriptCov.functions.forEach(function (funcCov) {
 
@@ -373,11 +373,12 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
 // the function.
 // This assumes that `ranges` is non-empty (true for valid function coverages).
 
+            let funcCovs;
             let rootRange = (
                 funcCov.ranges[0].startOffset
                 + ";" + funcCov.ranges[0].endOffset
             );
-            let funcCovs = rangeToFuncs.get(rootRange);
+            funcCovs = rangeToFuncs.get(rootRange);
             if (funcCovs === undefined) {
                 funcCovs = [];
                 rangeToFuncs.set(rootRange, funcCovs);
@@ -385,18 +386,15 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
             funcCovs.push(funcCov);
         });
     });
-    let functions = [];
     rangeToFuncs.forEach(function (funcCovs) {
         // assert: `funcCovs.length > 0`
         functions.push(mergeFunctionCovs(funcCovs));
     });
-    merged = {
+    return coverageScriptNormalize({
         functions,
         scriptId: scriptCovs[0].scriptId,
         url: scriptCovs[0].url
-    };
-    coverageScriptNormalize(merged);
-    return merged;
+    });
 }
 
 export function mergeFunctionCovs(funcCovs) { //jslint-quiet
