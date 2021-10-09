@@ -71,15 +71,15 @@ import coverageMerge from "./merge.mjs";
     }
 
     data1 = await Promise.all([
-        "v8-coverage-node-sqlite-merged.json",
-        "v8-coverage-node-sqlite-10880-1633662346331-0.json",
-        "v8-coverage-node-sqlite-11656-1633662282219-0.json",
-        "v8-coverage-node-sqlite-12292-1633662282282-0.json",
-        "v8-coverage-node-sqlite-13216-1633662333140-0.json",
-        "v8-coverage-node-sqlite-14020-1633662282250-0.json",
-        "v8-coverage-node-sqlite-2084-1633662269154-0.json",
-        "v8-coverage-node-sqlite-9620-1633662346393-0.json",
-        "v8-coverage-node-sqlite-9884-1633662346346-0.json"
+        "test_v8_coverage_node_sqlite_merged.json",
+        "test_v8_coverage_node_sqlite_10880_1633662346331_0.json",
+        "test_v8_coverage_node_sqlite_11656_1633662282219_0.json",
+        "test_v8_coverage_node_sqlite_12292_1633662282282_0.json",
+        "test_v8_coverage_node_sqlite_13216_1633662333140_0.json",
+        "test_v8_coverage_node_sqlite_14020_1633662282250_0.json",
+        "test_v8_coverage_node_sqlite_2084_1633662269154_0.json",
+        "test_v8_coverage_node_sqlite_9620_1633662346393_0.json",
+        "test_v8_coverage_node_sqlite_9884_1633662346346_0.json"
     ].map(async function (file, ii) {
         file = await fs.promises.readFile(file, "utf8");
         if (ii > 0) {
