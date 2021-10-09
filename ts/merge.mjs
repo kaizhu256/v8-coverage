@@ -492,23 +492,26 @@ function startEventQueueFromParentTrees(parentTrees) {
     return new StartEventQueue(queue);
 }
 
-class StartEventQueue {
-    constructor(queue) {
-        this.queue = queue;
-        this.nextIndex = 0;
-        this.pendingOffset = 0;
-        this.pendingTrees = undefined;
-    }
-    setPendingOffset(offset) {
+function StartEventQueue(queue) {
+    this.queue = queue;
+    this.nextIndex = 0;
+    this.pendingOffset = 0;
+    this.pendingTrees = undefined;
+}
+
+Object.assign(StartEventQueue.prototype, {
+    setPendingOffset: function (offset) {
         this.pendingOffset = offset;
-    }
-    pushPendingTree(tree) {
+    },
+
+    pushPendingTree: function (tree) {
         if (this.pendingTrees === undefined) {
             this.pendingTrees = [];
         }
         this.pendingTrees.push(tree);
-    }
-    next() {
+    },
+
+    next: function () {
         const pendingTrees = this.pendingTrees;
         const nextEvent = this.queue[this.nextIndex];
         if (pendingTrees === undefined) {
@@ -541,7 +544,7 @@ class StartEventQueue {
             }
         }
     }
-}
+});
 
 function mergeRangeTreeChildren(parentTrees) {
     const result = [];
