@@ -44,109 +44,109 @@ const WHITELIST = new Set([
 ]);
 testImpl({ coverageProcessListMerge, coverageScriptListMerge, coverageFunctionListMerge });
 describe("merge", () => {
-    describe("custom", () => {
-        it("accepts arrays with a single item for `coverageProcessListMerge`", () => {
-            const inputs = [
-                {
-                    result: [
-                        {
-                            scriptId: "123",
-                            url: "/lib.js",
-                            functions: [
-                                {
-                                    functionName: "test",
-                                    isBlockCoverage: true,
-                                    ranges: [
-                                        { startOffset: 0, endOffset: 4, count: 2 },
-                                        { startOffset: 1, endOffset: 2, count: 1 },
-                                        { startOffset: 2, endOffset: 3, count: 1 },
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ];
-            const expected = {
-                result: [
-                    {
-                        scriptId: "0",
-                        url: "/lib.js",
-                        functions: [
-                            {
-                                functionName: "test",
-                                isBlockCoverage: true,
-                                ranges: [
-                                    { startOffset: 0, endOffset: 4, count: 2 },
-                                    { startOffset: 1, endOffset: 3, count: 1 },
-                                ],
-                            },
-                        ],
-                    },
-                ],
-            };
-            const actual = coverageProcessListMerge(inputs);
-            chai.assert.deepEqual(actual, expected);
-        });
-        it("accepts arrays with a single item for `coverageScriptListMerge`", () => {
-            const inputs = [
-                {
-                    scriptId: "123",
-                    url: "/lib.js",
-                    functions: [
-                        {
-                            functionName: "test",
-                            isBlockCoverage: true,
-                            ranges: [
-                                { startOffset: 0, endOffset: 4, count: 2 },
-                                { startOffset: 1, endOffset: 2, count: 1 },
-                                { startOffset: 2, endOffset: 3, count: 1 },
-                            ],
-                        },
-                    ],
-                },
-            ];
-            const expected = {
-                scriptId: "123",
-                url: "/lib.js",
-                functions: [
-                    {
-                        functionName: "test",
-                        isBlockCoverage: true,
-                        ranges: [
-                            { startOffset: 0, endOffset: 4, count: 2 },
-                            { startOffset: 1, endOffset: 3, count: 1 },
-                        ],
-                    },
-                ],
-            };
-            const actual = coverageScriptListMerge(inputs);
-            chai.assert.deepEqual(actual, expected);
-        });
-        it("accepts arrays with a single item for `coverageFunctionListMerge`", () => {
-            const inputs = [
-                {
-                    functionName: "test",
-                    isBlockCoverage: true,
-                    ranges: [
-                        { startOffset: 0, endOffset: 4, count: 2 },
-                        { startOffset: 1, endOffset: 2, count: 1 },
-                        { startOffset: 2, endOffset: 3, count: 1 },
-                    ],
-                },
-            ];
-            const expected = {
-                functionName: "test",
-                isBlockCoverage: true,
-                ranges: [
-                    { startOffset: 0, endOffset: 4, count: 2 },
-                    { startOffset: 1, endOffset: 3, count: 1 },
-                ],
-            };
-            const actual = coverageFunctionListMerge(inputs);
-            chai.assert.deepEqual(actual, expected);
-        });
-    });
+    //!! describe("custom", () => {
+        //!! it("accepts arrays with a single item for `coverageProcessListMerge`", () => {
+            //!! const inputs = [
+                //!! {
+                    //!! result: [
+                        //!! {
+                            //!! scriptId: "123",
+                            //!! url: "/lib.js",
+                            //!! functions: [
+                                //!! {
+                                    //!! functionName: "test",
+                                    //!! isBlockCoverage: true,
+                                    //!! ranges: [
+                                        //!! { startOffset: 0, endOffset: 4, count: 2 },
+                                        //!! { startOffset: 1, endOffset: 2, count: 1 },
+                                        //!! { startOffset: 2, endOffset: 3, count: 1 },
+                                    //!! ],
+                                //!! },
+                            //!! ],
+                        //!! },
+                    //!! ],
+                //!! },
+            //!! ];
+            //!! const expected = {
+                //!! result: [
+                    //!! {
+                        //!! scriptId: "0",
+                        //!! url: "/lib.js",
+                        //!! functions: [
+                            //!! {
+                                //!! functionName: "test",
+                                //!! isBlockCoverage: true,
+                                //!! ranges: [
+                                    //!! { startOffset: 0, endOffset: 4, count: 2 },
+                                    //!! { startOffset: 1, endOffset: 3, count: 1 },
+                                //!! ],
+                            //!! },
+                        //!! ],
+                    //!! },
+                //!! ],
+            //!! };
+            //!! const actual = coverageProcessListMerge(inputs);
+            //!! chai.assert.deepEqual(actual, expected);
+        //!! });
+        //!! it("accepts arrays with a single item for `coverageScriptListMerge`", () => {
+            //!! const inputs = [
+                //!! {
+                    //!! scriptId: "123",
+                    //!! url: "/lib.js",
+                    //!! functions: [
+                        //!! {
+                            //!! functionName: "test",
+                            //!! isBlockCoverage: true,
+                            //!! ranges: [
+                                //!! { startOffset: 0, endOffset: 4, count: 2 },
+                                //!! { startOffset: 1, endOffset: 2, count: 1 },
+                                //!! { startOffset: 2, endOffset: 3, count: 1 },
+                            //!! ],
+                        //!! },
+                    //!! ],
+                //!! },
+            //!! ];
+            //!! const expected = {
+                //!! scriptId: "123",
+                //!! url: "/lib.js",
+                //!! functions: [
+                    //!! {
+                        //!! functionName: "test",
+                        //!! isBlockCoverage: true,
+                        //!! ranges: [
+                            //!! { startOffset: 0, endOffset: 4, count: 2 },
+                            //!! { startOffset: 1, endOffset: 3, count: 1 },
+                        //!! ],
+                    //!! },
+                //!! ],
+            //!! };
+            //!! const actual = coverageScriptListMerge(inputs);
+            //!! chai.assert.deepEqual(actual, expected);
+        //!! });
+        //!! it("accepts arrays with a single item for `coverageFunctionListMerge`", () => {
+            //!! const inputs = [
+                //!! {
+                    //!! functionName: "test",
+                    //!! isBlockCoverage: true,
+                    //!! ranges: [
+                        //!! { startOffset: 0, endOffset: 4, count: 2 },
+                        //!! { startOffset: 1, endOffset: 2, count: 1 },
+                        //!! { startOffset: 2, endOffset: 3, count: 1 },
+                    //!! ],
+                //!! },
+            //!! ];
+            //!! const expected = {
+                //!! functionName: "test",
+                //!! isBlockCoverage: true,
+                //!! ranges: [
+                    //!! { startOffset: 0, endOffset: 4, count: 2 },
+                    //!! { startOffset: 1, endOffset: 3, count: 1 },
+                //!! ],
+            //!! };
+            //!! const actual = coverageFunctionListMerge(inputs);
+            //!! chai.assert.deepEqual(actual, expected);
+        //!! });
+    //!! });
     for (const mergeTest of getMergeTests()) {
         it(mergeTest.name, test);
         function test() {
