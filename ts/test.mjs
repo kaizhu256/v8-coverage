@@ -1,9 +1,6 @@
 /*jslint node*/
-import moduleFs from "fs";
-import moduleSysPath from "path";
-import modulePath from "path";
-import moduleUrl from "url";
 import coverageMerge from "./merge.mjs";
+import moduleFs from "fs";
 
 (function () {
     let {
@@ -44,19 +41,6 @@ import coverageMerge from "./merge.mjs";
         }
     }
 
-    function assertOrThrow(condition, message) {
-
-// This function will throw <message> if <condition> is falsy.
-
-        if (!condition) {
-            throw (
-                typeof message === "string"
-                ? new Error(message.slice(0, 2048))
-                : message
-            );
-        }
-    }
-
     function noop(val) {
 
 // this function will do nothing except return <val>
@@ -93,7 +77,7 @@ import coverageMerge from "./merge.mjs";
         testItList = [];
         testDescribe();
         resultItList = await Promise.all(testItList);
-        console.error(description);
+        console.error("describe " + description);
         resultItList.forEach(function ([
             err, description
         ]) {
@@ -124,11 +108,23 @@ import coverageMerge from "./merge.mjs";
         }));
     }
 
+    describe("merge", function () {
     /**
      * Generate a Mocha test suite for the provided
      * implementation of `v8-coverage-tools`.
      */
-    describe("merge", function () {
+        //!! it("accepts empty arrays for `coverageProcessListMerge`", function () {
+            //!! assertJsonEqual(coverageProcessListMerge([]), {
+                //!! result: []
+            //!! });
+        //!! });
+        //!! it("accepts empty arrays for `coverageScriptListMerge`", function () {
+            //!! assertJsonEqual(coverageScriptListMerge([]), undefined);
+        //!! });
+        //!! it("accepts empty arrays for `coverageFunctionListMerge`", function () {
+            //!! assertJsonEqual(coverageFunctionListMerge([]), undefined);
+        //!! });
+
         it("accepts empty arrays for `coverageProcessListMerge`", function () {
             const inputs = [];
             const expected = { result: [] };
@@ -150,98 +146,92 @@ import coverageMerge from "./merge.mjs";
     });
 
     describe("merge", function () {
-
-        it("accepts arrays with a single item for `coverageProcessListMerge`", function () {
+        let functionsExpected = JSON.stringify([
+            {
+                functionName: "test",
+                isBlockCoverage: true,
+                ranges: [
+                    {
+                        count: 2,
+                        endOffset: 4,
+                        startOffset: 0
+                    },
+                    {
+                        count: 1,
+                        endOffset: 3,
+                        startOffset: 1
+                    }
+                ]
+            }
+        ]);
+        let functionsInput = JSON.stringify([
+            {
+                functionName: "test",
+                isBlockCoverage: true,
+                ranges: [
+                    {
+                        count: 2,
+                        endOffset: 4,
+                        startOffset: 0
+                    },
+                    {
+                        count: 1,
+                        endOffset: 2,
+                        startOffset: 1
+                    },
+                    {
+                        count: 1,
+                        endOffset: 3,
+                        startOffset: 2
+                    }
+                ]
+            }
+        ]);
+        it((
+            "accepts arrays with a single item for `coverageProcessListMerge`"
+        ), function () {
             assertJsonEqual(coverageProcessListMerge([
                 {
                     result: [
                         {
-                            scriptId: "123",
+                            functions: JSON.parse(functionsInput),
                             moduleUrl: "/lib.js",
-                            functions: [
-                                {
-                                    functionName: "test",
-                                    isBlockCoverage: true,
-                                    ranges: [
-                                        { startOffset: 0, endOffset: 4, count: 2 },
-                                        { startOffset: 1, endOffset: 2, count: 1 },
-                                        { startOffset: 2, endOffset: 3, count: 1 },
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                },
+                            scriptId: "123"
+                        }
+                    ]
+                }
             ]), {
                 result: [
                     {
-                        scriptId: "0",
+                        functions: JSON.parse(functionsExpected),
                         moduleUrl: "/lib.js",
-                        functions: [
-                            {
-                                functionName: "test",
-                                isBlockCoverage: true,
-                                ranges: [
-                                    { startOffset: 0, endOffset: 4, count: 2 },
-                                    { startOffset: 1, endOffset: 3, count: 1 },
-                                ],
-                            },
-                        ],
-                    },
-                ],
+                        scriptId: "0"
+                    }
+                ]
             });
         });
-        it("accepts arrays with a single item for `coverageScriptListMerge`", function () {
+        it((
+            "accepts arrays with a single item for `coverageScriptListMerge`"
+        ), function () {
             assertJsonEqual(coverageScriptListMerge([
                 {
-                    scriptId: "123",
+                    functions: JSON.parse(functionsInput),
                     moduleUrl: "/lib.js",
-                    functions: [
-                        {
-                            functionName: "test",
-                            isBlockCoverage: true,
-                            ranges: [
-                                { startOffset: 0, endOffset: 4, count: 2 },
-                                { startOffset: 1, endOffset: 2, count: 1 },
-                                { startOffset: 2, endOffset: 3, count: 1 },
-                            ],
-                        },
-                    ],
-                },
+                    scriptId: "123"
+                }
             ]), {
-                scriptId: "123",
+                functions: JSON.parse(functionsExpected),
                 moduleUrl: "/lib.js",
-                functions: [
-                    {
-                        functionName: "test",
-                        isBlockCoverage: true,
-                        ranges: [
-                            { startOffset: 0, endOffset: 4, count: 2 },
-                            { startOffset: 1, endOffset: 3, count: 1 },
-                        ],
-                    },
-                ],
+                scriptId: "123"
             });
         });
-        it("accepts arrays with a single item for `coverageFunctionListMerge`", function () {
-            assertJsonEqual(coverageFunctionListMerge([
-                {
-                    functionName: "test",
-                    isBlockCoverage: true,
-                    ranges: [
-                        { startOffset: 0, endOffset: 4, count: 2 },
-                        { startOffset: 1, endOffset: 2, count: 1 },
-                        { startOffset: 2, endOffset: 3, count: 1 },
-                    ],
-                },
-            ]), {
-                functionName: "test",
-                isBlockCoverage: true,
-                ranges: [
-                    { startOffset: 0, endOffset: 4, count: 2 },
-                    { startOffset: 1, endOffset: 3, count: 1 },
-                ],
-            });
+        it((
+            "accepts arrays with a single item for `coverageFunctionListMerge`"
+        ), function () {
+            assertJsonEqual(
+                coverageFunctionListMerge(JSON.parse(functionsInput)),
+                JSON.parse(functionsExpected)
+            );
         });
         Promise.all([
             "test_merge_is_block_coverage_test.json",
