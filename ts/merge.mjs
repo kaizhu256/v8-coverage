@@ -210,7 +210,10 @@ function rangeTreeToRanges(tree) {
             endChain();
         }
         if (children.length === 1) {
-            if (children[0].start === tree.start && children[0].end === tree.end) {
+            if (
+                children[0].start === tree.start
+                && children[0].end === tree.end
+            ) {
                 tree.delta += children[0].delta;
                 tree.children = children[0].children;
 
