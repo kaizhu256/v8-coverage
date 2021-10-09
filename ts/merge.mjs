@@ -14,7 +14,25 @@ function compareRangeCovs(aa, bb) {
     return bb.endOffset - aa.endOffset;
 }
 
-function normalizeScriptCov(scriptCov) {
+function coverageFunctionNormalize(funcCov) {
+
+// Normalizes a function coverage.
+//
+// Sorts the ranges (pre-order sort).
+// TODO: Tree-based normalization of the ranges. //jslint-quiet
+//
+// @param funcCov Function coverage to normalize.
+
+    funcCov.ranges = rangeTreeToRanges(
+        rangeTreeNormalize(
+            rangeTreeFromSortedRanges(
+                funcCov.ranges.sort(compareRangeCovs)
+            )
+        )
+    );
+}
+
+function coverageScriptNormalize(scriptCov) {
 
 // Normalizes a script coverage.
 //
@@ -33,7 +51,7 @@ function normalizeScriptCov(scriptCov) {
     });
 }
 
-function deepNormalizeScriptCov(scriptCov) {
+function coverageScriptNormalizeDeep(scriptCov) {
 
 // Normalizes a script coverage deeply.
 //
@@ -43,27 +61,12 @@ function deepNormalizeScriptCov(scriptCov) {
 // @param scriptCov Script coverage to normalize.
 
     scriptCov.functions.forEach(function (funcCov) {
-        normalizeFunctionCov(funcCov);
+        coverageFunctionNormalize(funcCov);
     });
-    normalizeScriptCov(scriptCov);
+    coverageScriptNormalize(scriptCov);
 }
 
-function normalizeFunctionCov(funcCov) {
-
-// Normalizes a function coverage.
-//
-// Sorts the ranges (pre-order sort).
-// TODO: Tree-based normalization of the ranges. //jslint-quiet
-//
-// @param funcCov Function coverage to normalize.
-
-    funcCov.ranges.sort(compareRangeCovs);
-    let tree = rangeTreeFromSortedRanges(funcCov.ranges);
-    normalizeRangeTree(tree);
-    funcCov.ranges = rangeTreeToRanges(tree);
-}
-
-function normalizeRangeTree(tree) {
+function rangeTreeNormalize(tree) {
 
 // @internal
 
@@ -71,6 +74,20 @@ function normalizeRangeTree(tree) {
     let curEnd;
     let head;
     let tail = [];
+    function endChain() {
+        if (tail.length !== 0) {
+            head.end = tail[tail.length - 1].end;
+            tail.forEach(function (tailTree) {
+                tailTree.children.forEach(function (subChild) {
+                    subChild.delta += tailTree.delta - head.delta;
+                    head.children.push(subChild);
+                });
+            });
+            tail.length = 0;
+        }
+        rangeTreeNormalize(head);
+        children.push(head);
+    }
     tree.children.forEach(function (child) {
         if (head === undefined) {
             head = child;
@@ -86,29 +103,17 @@ function normalizeRangeTree(tree) {
         endChain();
     }
     if (children.length === 1) {
-        let child = children[0];
-        if (child.start === tree.start && child.end === tree.end) {
-            tree.delta += child.delta;
-            tree.children = child.children;
-            // `.lazyCount` is zero for both (both are after normalization)
-            return;
+        if (children[0].start === tree.start && children[0].end === tree.end) {
+            tree.delta += children[0].delta;
+            tree.children = children[0].children;
+
+// `.lazyCount` is zero for both (both are after normalization)
+
+            return tree;
         }
     }
     tree.children = children;
-    function endChain() {
-        if (tail.length !== 0) {
-            head.end = tail[tail.length - 1].end;
-            tail.forEach(function (tailTree) {
-                tailTree.children.forEach(function (subChild) {
-                    subChild.delta += tailTree.delta - head.delta;
-                    head.children.push(subChild);
-                });
-            });
-            tail.length = 0;
-        }
-        normalizeRangeTree(head);
-        children.push(head);
-    }
+    return tree;
 }
 
 function rangeTreeCreate(start, end, delta, children) {
@@ -236,7 +241,7 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
 // @return Merged process coverage.
 
     let merged;
-    function normalizeProcessCov(processCov) {
+    function coverageProcessNormalize(processCov) {
 
 // Normalizes a process coverage.
 //
@@ -266,7 +271,7 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
         });
     }
 
-    function deepNormalizeProcessCov(processCov) {
+    function coverageProcessNormalizeDeep(processCov) {
 
 // Normalizes a process coverage deeply.
 //
@@ -276,9 +281,9 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
 // @param processCov Process coverage to normalize.
 
         processCov.result.forEach(function (scriptCov) {
-            deepNormalizeScriptCov(scriptCov);
+            coverageScriptNormalizeDeep(scriptCov);
         });
-        normalizeProcessCov(processCov);
+        coverageProcessNormalize(processCov);
     }
 
     if (processCovs.length === 0) {
@@ -288,7 +293,7 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
     }
     if (processCovs.length === 1) {
         merged = processCovs[0];
-        deepNormalizeProcessCov(merged);
+        coverageProcessNormalizeDeep(merged);
         return merged;
     }
     let urlToScripts = new Map();
@@ -310,7 +315,7 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
     merged = {
         result
     };
-    normalizeProcessCov(merged);
+    coverageProcessNormalize(merged);
     return merged;
 }
 
@@ -333,7 +338,7 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
     }
     if (scriptCovs.length === 1) {
         merged = scriptCovs[0];
-        deepNormalizeScriptCov(merged);
+        coverageScriptNormalizeDeep(merged);
         return merged;
     }
     let first = scriptCovs[0];
@@ -370,7 +375,7 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
         scriptId,
         url
     };
-    normalizeScriptCov(merged);
+    coverageScriptNormalize(merged);
     return merged;
 }
 
@@ -393,7 +398,7 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
     }
     if (funcCovs.length === 1) {
         merged = funcCovs[0];
-        normalizeFunctionCov(merged);
+        coverageFunctionNormalize(merged);
         return merged;
     }
     let first = funcCovs[0];
@@ -422,7 +427,7 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
     if (trees.length > 0) {
         isBlockCoverage = true;
         let mergedTree = mergeRangeTrees(trees);
-        normalizeRangeTree(mergedTree);
+        rangeTreeNormalize(mergedTree);
         ranges = rangeTreeToRanges(mergedTree);
     } else {
         isBlockCoverage = false;
