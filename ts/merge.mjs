@@ -426,9 +426,7 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
     let ranges;
     if (trees.length > 0) {
         isBlockCoverage = true;
-        let mergedTree = mergeRangeTrees(trees);
-        rangeTreeNormalize(mergedTree);
-        ranges = rangeTreeToRanges(mergedTree);
+        ranges = rangeTreeToRanges(rangeTreeNormalize(mergeRangeTrees(trees)));
     } else {
         isBlockCoverage = false;
         ranges = [
