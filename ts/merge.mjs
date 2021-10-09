@@ -461,37 +461,15 @@ export function coverageFunctionListMerge(funcCovs) { //jslint-quiet
     return merged;
 }
 
-function rangeTreeListMerge(trees) {
-
-// @precondition Same `start` and `end` for all the trees
-
-    return (
-        trees.length <= 1
-        ? trees[0]
-
-// new RangeTree().
-
-        : {
-            children: rangeTreeChildrenMerge(trees),
-            delta: trees.reduce(function (aa, bb) {
-                return aa + bb.delta;
-            }, 0),
-            end: trees[0].end,
-            start: trees[0].start
-        }
-    );
-}
-
 function rangeTreeChildrenMerge(parentTrees) {
-    let startToTrees = new Map();
-    let result = [];
-    //!! let startEventQueue = startEventQueueFromParentTrees(parentTrees);
-    let startEventQueue;
-    let parentToNested = new Map();
     let openRange;
+    let parentToNested = new Map();
+    let result = [];
+    let startEventQueue;
+    let startToTrees = new Map();
     function next() {
-        let pendingTrees = startEventQueue.pendingTrees;
         let nextEvent = startEventQueue.queue[startEventQueue.nextIndex];
+        let pendingTrees = startEventQueue.pendingTrees;
         if (pendingTrees === undefined) {
             startEventQueue.nextIndex += 1;
             return nextEvent;
@@ -605,6 +583,27 @@ function rangeTreeChildrenMerge(parentTrees) {
         result.push(nextChild(openRange, parentToNested));
     }
     return result;
+}
+
+function rangeTreeListMerge(trees) {
+
+// @precondition Same `start` and `end` for all the trees
+
+    return (
+        trees.length <= 1
+        ? trees[0]
+
+// new RangeTree().
+
+        : {
+            children: rangeTreeChildrenMerge(trees),
+            delta: trees.reduce(function (aa, bb) {
+                return aa + bb.delta;
+            }, 0),
+            end: trees[0].end,
+            start: trees[0].start
+        }
+    );
 }
 
 function insertChild(parentToNested, parentIndex, tree) {
