@@ -86,15 +86,19 @@ function rangeTreeFromSortedRanges(ranges) {
             range.count,
             []
         );
-        if (root === undefined) {
-            root = node;
-            stack.push([node, range.count]);
-            return;
-        }
         let parent;
         let parentCount;
+        if (root === undefined) {
+            root = node;
+            stack.push([
+                node, range.count
+            ]);
+            return;
+        }
         while (true) {
-            [parent, parentCount] = stack[stack.length - 1];
+            [
+                parent, parentCount
+            ] = stack[stack.length - 1];
             // assert: `top !== undefined` (the ranges are sorted)
             if (range.startOffset < parent.end) {
                 break;
@@ -103,7 +107,9 @@ function rangeTreeFromSortedRanges(ranges) {
         }
         node.delta -= parentCount;
         parent.children.push(node);
-        stack.push([node, range.count]);
+        stack.push([
+            node, range.count
+        ]);
     });
     return root;
 }
@@ -113,14 +119,16 @@ function rangeTreeSplit(tree, value) {
 // @precondition `tree.start < value && value < tree.end`
 // @return RangeTree Right part
 
+    let child;
     let ii = 0;
     let leftChildLen = tree.children.length;
     let mid;
+    let rightChildren;
 
 // TODO(perf): Binary search (check overhead) //jslint-quiet
 
     while (ii < tree.children.length) {
-        let child = tree.children[ii];
+        child = tree.children[ii];
         if (child.start < value && value < child.end) {
 
 // Recurse rangeTreeSplit().
@@ -135,8 +143,10 @@ function rangeTreeSplit(tree, value) {
         }
         ii += 1;
     }
-    let rightLen = tree.children.length - leftChildLen;
-    let rightChildren = tree.children.splice(leftChildLen, rightLen);
+    rightChildren = tree.children.splice(
+        leftChildLen,
+        tree.children.length - leftChildLen
+    );
     if (mid !== undefined) {
         rightChildren.unshift(mid);
     }
@@ -157,7 +167,8 @@ function rangeTreeToRanges(tree) {
 // The ranges are pre-order sorted.
 
     let ranges = [];
-    let stack = [[tree, 0]];    // Stack of parent trees and counts.
+    let stack = [[
+        tree, 0]];    // Stack of parent trees and counts.
     function rangeTreeNormalize(tree) {
 
 // @internal
@@ -212,7 +223,8 @@ function rangeTreeToRanges(tree) {
     rangeTreeNormalize(tree);
     while (stack.length > 0) {
         let ii;
-        let [cur, parentCount] = stack.pop();
+        let [
+            cur, parentCount] = stack.pop();
         let count = parentCount + cur.delta;
         ranges.push({
             count,
@@ -221,7 +233,8 @@ function rangeTreeToRanges(tree) {
         });
         ii = cur.children.length - 1;
         while (ii >= 0) {
-            stack.push([cur.children[ii], count]);
+            stack.push([cur.children[
+                ii], count]);
             ii -= 1;
         }
     }
@@ -266,7 +279,8 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
                 ? 1
                 : 0
             );
-        })).forEach(function ([scriptId, scriptCov]) {
+        })).forEach(function ([
+            scriptId, scriptCov]) {
             scriptCov.scriptId = scriptId.toString(10);
         });
     }
