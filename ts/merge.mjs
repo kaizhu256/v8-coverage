@@ -364,9 +364,6 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
     if (scriptCovs.length === 1) {
         return coverageScriptNormalizeDeep(scriptCovs[0]);
     }
-    let first = scriptCovs[0];
-    let scriptId = first.scriptId;
-    let url = first.url;
     let rangeToFuncs = new Map();
     scriptCovs.forEach(function (scriptCov) {
         scriptCov.functions.forEach(function (funcCov) {
@@ -395,8 +392,8 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
     });
     merged = {
         functions,
-        scriptId,
-        url
+        scriptId: scriptCovs[0].scriptId,
+        url: scriptCovs[0].url
     };
     coverageScriptNormalize(merged);
     return merged;
