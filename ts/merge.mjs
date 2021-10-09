@@ -1,12 +1,12 @@
 /*jslint this*/
 
 function compareScriptCovs(aa, bb) {
-/**
+
 // Compares two script coverages.
 //
 // The result corresponds to the comparison of their `url` value
 // (alphabetical sort).
- */
+
     return (
         aa.url < bb.url
         ? -1
@@ -17,22 +17,22 @@ function compareScriptCovs(aa, bb) {
 }
 
 function compareFunctionCovs(aa, bb) {
-/**
+
 // Compares two function coverages.
 //
 // The result corresponds to the comparison of the root ranges.
- */
+
     return compareRangeCovs(aa.ranges[0], bb.ranges[0]);
 }
 
 function compareRangeCovs(aa, bb) {
-/**
+
 // Compares two range coverages.
 //
 // The ranges are first ordered by ascending `startOffset` and then by
 // descending `endOffset`.
 // This corresponds to a pre-order tree traversal.
- */
+
     if (aa.startOffset !== bb.startOffset) {
         return aa.startOffset - bb.startOffset;
     }
@@ -40,7 +40,7 @@ function compareRangeCovs(aa, bb) {
 }
 
 function normalizeProcessCov(processCov) {
-/**
+
 // Normalizes a process coverage.
 //
 // Sorts the scripts alphabetically by `url`.
@@ -49,7 +49,7 @@ function normalizeProcessCov(processCov) {
 // This does not normalize the script coverages.
 //
 // @param processCov Process coverage to normalize.
- */
+
     Object.entries(
         processCov.result.sort(compareScriptCovs)
     ).forEach(function ([scriptId, scriptCov]) {
@@ -58,14 +58,14 @@ function normalizeProcessCov(processCov) {
 }
 
 function deepNormalizeProcessCov(processCov) {
-/**
+
 // Normalizes a process coverage deeply.
 //
 // Normalizes the script coverages deeply, then normalizes the process coverage
 // itself.
 //
 // @param processCov Process coverage to normalize.
- */
+
     processCov.result.forEach(function (scriptCov) {
         deepNormalizeScriptCov(scriptCov);
     });
@@ -73,26 +73,26 @@ function deepNormalizeProcessCov(processCov) {
 }
 
 function normalizeScriptCov(scriptCov) {
-/**
+
 // Normalizes a script coverage.
 //
 // Sorts the function by root range (pre-order sort).
 // This does not normalize the function coverages.
 //
 // @param scriptCov Script coverage to normalize.
- */
+
     scriptCov.functions.sort(compareFunctionCovs);
 }
 
 function deepNormalizeScriptCov(scriptCov) {
-/**
+
 // Normalizes a script coverage deeply.
 //
 // Normalizes the function coverages deeply, then normalizes the script coverage
 // itself.
 //
 // @param scriptCov Script coverage to normalize.
- */
+
     scriptCov.functions.forEach(function (funcCov) {
         normalizeFunctionCov(funcCov);
     });
@@ -100,14 +100,14 @@ function deepNormalizeScriptCov(scriptCov) {
 }
 
 function normalizeFunctionCov(funcCov) {
-/**
+
 // Normalizes a function coverage.
 //
 // Sorts the ranges (pre-order sort).
 // TODO: Tree-based normalization of the ranges. //jslint-quiet
 //
 // @param funcCov Function coverage to normalize.
- */ //jslint-quiet
+
     funcCov.ranges.sort(compareRangeCovs);
     const tree = rangeTreeFromSortedRanges(funcCov.ranges);
     normalizeRangeTree(tree);
@@ -115,9 +115,9 @@ function normalizeFunctionCov(funcCov) {
 }
 
 function normalizeRangeTree(tree) {
-/**
+
 // @internal
- */
+
     tree.normalize();
 }
 
@@ -129,9 +129,9 @@ function RangeTree(start, end, delta, children) {
 }
 
 function rangeTreeFromSortedRanges(ranges) {
-/**
+
 // @precodition `ranges` are well-formed and pre-order sorted
- */
+
     let root;
     // Stack of parent trees and parent counts.
     const stack = [];
@@ -276,7 +276,7 @@ Object.assign(RangeTree.prototype, {
 });
 
 export function mergeProcessCovs(processCovs) { //jslint-quiet
-/**
+
 // Merges a list of process coverages.
 //
 // The result is normalized.
@@ -286,7 +286,7 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
 //
 // @param processCovs Process coverages to merge.
 // @return Merged process coverage.
- */
+
     let merged;
     if (processCovs.length === 0) {
         return {
@@ -322,7 +322,7 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
 }
 
 export function mergeScriptCovs(scriptCovs) { //jslint-quiet
-/**
+
 // Merges a list of matching script coverages.
 //
 // Scripts are matching if they have the same `url`.
@@ -333,7 +333,7 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
 //
 // @param scriptCovs Process coverages to merge.
 // @return Merged script coverage, or `undefined` if the input list was empty.
- */
+
     let merged;
     if (scriptCovs.length === 0) {
         return undefined;
@@ -373,7 +373,7 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
 }
 
 function stringifyFunctionRootRange(funcCov) {
-/**
+
 // Returns a string representation of the root range of the function.
 //
 // This string can be used to match function with same root range.
@@ -383,13 +383,13 @@ function stringifyFunctionRootRange(funcCov) {
 //
 // @param funcCov Function coverage with the range to stringify
 // @internal
- */
+
     const rootRange = funcCov.ranges[0];
     return `${rootRange.startOffset.toString(10)};${rootRange.endOffset.toString(10)}`; //jslint-quiet
 }
 
 export function mergeFunctionCovs(funcCovs) { //jslint-quiet
-/**
+
 // Merges a list of matching function coverages.
 //
 // Functions are matching if their root ranges have the same span.
@@ -400,7 +400,7 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
 //
 // @param funcCovs Function coverages to merge.
 // @return Merged function coverage, or `undefined` if the input list was empty.
- */
+
     let merged;
     if (funcCovs.length === 0) {
         return undefined;
@@ -459,9 +459,9 @@ export function mergeFunctionCovs(funcCovs) { //jslint-quiet
 }
 
 function mergeRangeTrees(trees) {
-/**
+
 // @precondition Same `start` and `end` for all the trees
- */
+
     if (trees.length <= 1) {
         return trees[0];
     }
