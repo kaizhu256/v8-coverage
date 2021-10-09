@@ -460,13 +460,6 @@ function mergeRangeTrees(trees) {
     return new RangeTree(first.start, first.end, delta, children);
 }
 
-class RangeTreeWithParent {
-    constructor(parentIndex, tree) {
-        this.parentIndex = parentIndex;
-        this.tree = tree;
-    }
-}
-
 class StartEvent {
     constructor(offset, trees) {
         this.offset = offset;
@@ -483,7 +476,13 @@ function startEventQueueFromParentTrees(parentTrees) {
                 trees = [];
                 startToTrees.set(child.start, trees);
             }
-            trees.push(new RangeTreeWithParent(parentIndex, child));
+            trees.push({
+
+// new RangeTreeWithParent
+
+                parentIndex,
+                tree: child
+            });
         });
     });
     const queue = [];
@@ -565,7 +564,13 @@ function mergeRangeTreeChildren(parentTrees) {
             event.trees.forEach(function ({ parentIndex, tree }) {
                 if (tree.end > openRange.end) {
                     const right = tree.split(openRange.end);
-                    startEventQueue.pushPendingTree(new RangeTreeWithParent(parentIndex, right));
+                    startEventQueue.pushPendingTree({
+
+// new RangeTreeWithParent
+
+                        parentIndex,
+                        tree: right
+                    });
                 }
                 insertChild(parentToNested, parentIndex, tree);
             });
