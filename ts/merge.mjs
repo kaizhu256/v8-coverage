@@ -467,9 +467,9 @@ class StartEventQueue {
             });
         });
         const queue = [];
-        for (const [startOffset, trees] of startToTrees) {
+        startToTrees.forEach(function (trees, startOffset) {
             queue.push(new StartEvent(startOffset, trees));
-        }
+        });
         queue.sort(StartEvent.compare);
         return new StartEventQueue(queue);
     }
@@ -501,9 +501,9 @@ class StartEventQueue {
             else {
                 if (this.pendingOffset === nextEvent.offset) {
                     this.pendingTrees = undefined;
-                    for (const tree of pendingTrees) {
+                    pendingTrees.forEach(function (tree) {
                         nextEvent.trees.push(tree);
-                    }
+                    });
                 }
                 this.nextIndex += 1;
                 return nextEvent;
@@ -528,21 +528,21 @@ function mergeRangeTreeChildren(parentTrees) {
         }
         if (openRange === undefined) {
             let openRangeEnd = event.offset + 1;
-            for (const { parentIndex, tree } of event.trees) {
+            event.trees.forEach(function ({ parentIndex, tree }) {
                 openRangeEnd = Math.max(openRangeEnd, tree.end);
                 insertChild(parentToNested, parentIndex, tree);
-            }
+            });
             startEventQueue.setPendingOffset(openRangeEnd);
             openRange = { start: event.offset, end: openRangeEnd };
         }
         else {
-            for (const { parentIndex, tree } of event.trees) {
+            event.trees.forEach(function ({ parentIndex, tree }) {
                 if (tree.end > openRange.end) {
                     const right = tree.split(openRange.end);
                     startEventQueue.pushPendingTree(new RangeTreeWithParent(parentIndex, right));
                 }
                 insertChild(parentToNested, parentIndex, tree);
-            }
+            });
         }
     }
     if (openRange !== undefined) {
@@ -562,14 +562,14 @@ function insertChild(parentToNested, parentIndex, tree) {
 
 function nextChild(openRange, parentToNested) {
     const matchingTrees = [];
-    for (const nested of parentToNested.values()) {
+    parentToNested.forEach(function (nested) {
         if (nested.length === 1 && nested[0].start === openRange.start && nested[0].end === openRange.end) {
             matchingTrees.push(nested[0]);
         }
         else {
             matchingTrees.push(new RangeTree(openRange.start, openRange.end, 0, nested));
         }
-    }
+    });
     parentToNested.clear();
     return mergeRangeTrees(matchingTrees);
 }
