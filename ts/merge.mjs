@@ -471,14 +471,17 @@ function rangeTreeListMerge(trees) {
     return (
         trees.length <= 1
         ? trees[0]
-        : rangeTreeCreate(
-            trees[0].start,
-            trees[0].end,
-            trees.reduce(function (aa, bb) {
+
+// new RangeTree().
+
+        : {
+            children: rangeTreeChildrenMerge(trees),
+            delta: trees.reduce(function (aa, bb) {
                 return aa + bb.delta;
             }, 0),
-            rangeTreeChildrenMerge(trees)
-        )
+            end: trees[0].end,
+            start: trees[0].start
+        }
     );
 }
 
