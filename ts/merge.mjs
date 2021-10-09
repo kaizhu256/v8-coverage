@@ -205,44 +205,45 @@ function rangeTreeFromSortedRanges(ranges) {
     return root;
 }
 
-Object.assign(RangeTree.prototype, {
-    split: function (value) {
-    /**
-     * @precondition `tree.start < value && value < tree.end`
-     * @return RangeTree Right part
-     */
-        let ii = 0;
-        let leftChildLen = this.children.length;
-        let mid;
-        // TODO(perf): Binary search (check overhead) //jslint-quiet
-        while (ii < this.children.length) {
-            const child = this.children[ii];
-            if (child.start < value && value < child.end) {
-                mid = child.split(value);
-                leftChildLen = ii + 1;
-                break;
-            }
-            if (child.start >= value) {
-                leftChildLen = ii;
-                break;
-            }
-            ii += 1;
+function rangeTreeSplit(tree, value) {
+/**
+ * @precondition `tree.start < value && value < tree.end`
+ * @return RangeTree Right part
+ */
+    let ii = 0;
+    let leftChildLen = tree.children.length;
+    let mid;
+    // TODO(perf): Binary search (check overhead) //jslint-quiet
+    while (ii < tree.children.length) {
+        const child = tree.children[ii];
+        if (child.start < value && value < child.end) {
+
+// Recurse rangeTreeSplit().
+
+            mid = rangeTreeSplit(child, value);
+            leftChildLen = ii + 1;
+            break;
         }
-        const rightLen = this.children.length - leftChildLen;
-        const rightChildren = this.children.splice(leftChildLen, rightLen);
-        if (mid !== undefined) {
-            rightChildren.unshift(mid);
+        if (child.start >= value) {
+            leftChildLen = ii;
+            break;
         }
-        const result = new RangeTree(
-            value,
-            this.end,
-            this.delta,
-            rightChildren
-        );
-        this.end = value;
-        return result;
+        ii += 1;
     }
-});
+    const rightLen = tree.children.length - leftChildLen;
+    const rightChildren = tree.children.splice(leftChildLen, rightLen);
+    if (mid !== undefined) {
+        rightChildren.unshift(mid);
+    }
+    const result = new RangeTree(
+        value,
+        tree.end,
+        tree.delta,
+        rightChildren
+    );
+    tree.end = value;
+    return result;
+}
 
 function rangeTreeToRanges(tree) {
 /**
@@ -573,7 +574,7 @@ function mergeRangeTreeChildren(parentTrees) {
         } else {
             event.trees.forEach(function ({ parentIndex, tree }) { //jslint-quiet
                 if (tree.end > openRange.end) {
-                    const right = tree.split(openRange.end);
+                    const right = rangeTreeSplit(tree, openRange.end);
                     if (startEventQueue.pendingTrees === undefined) {
                         startEventQueue.pendingTrees = [];
                     }
