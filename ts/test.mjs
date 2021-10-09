@@ -269,7 +269,6 @@ import moduleFs from "fs";
             });
         }));
     });
-    //!! await import("./test_v8_coverage_node_sqlite.mjs");
     // Coverage-hack.
     debugInline();
 }());
