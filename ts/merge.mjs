@@ -157,7 +157,6 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         tree.end = value;
         return resultTree;
     }
-
     function insertChild(parentToNested, parentIndex, tree) {
         let nested = parentToNested.get(parentIndex);
         if (nested === undefined) {
