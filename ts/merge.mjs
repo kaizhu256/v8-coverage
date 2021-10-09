@@ -632,9 +632,15 @@ function nextChild(openRange, parentToNested) {
         ) {
             matchingTrees.push(nested[0]);
         } else {
-            matchingTrees.push(
-                rangeTreeCreate(openRange.start, openRange.end, 0, nested)
-            );
+
+// new rangeTreeCreate().
+
+            matchingTrees.push({
+                children: nested,
+                delta: 0,
+                end: openRange.end,
+                start: openRange.start
+            });
         }
     });
     parentToNested.clear();
