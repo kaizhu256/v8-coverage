@@ -205,7 +205,7 @@ Object.assign(RangeTree.prototype, {
                 });
                 tail.length = 0;
             }
-            head.normalize();
+            normalizeRangeTree(head);
             children.push(head);
         }
     },
