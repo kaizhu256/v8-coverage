@@ -1,8 +1,11 @@
+/*jslint this*/
+
 function compareScriptCovs(aa, bb) {
 /**
  * Compares two script coverages.
  *
- * The result corresponds to the comparison of their `url` value (alphabetical sort).
+ * The result corresponds to the comparison of their `url` value
+ * (alphabetical sort).
  */
     return (
         aa.url < bb.url
@@ -103,12 +106,12 @@ function normalizeFunctionCov(funcCov) {
  * Normalizes a function coverage.
  *
  * Sorts the ranges (pre-order sort).
- * TODO: Tree-based normalization of the ranges.
+ * TODO: Tree-based normalization of the ranges. //jslint-quiet
  *
  * @param funcCov Function coverage to normalize.
- */
+ */ //jslint-quiet
     funcCov.ranges.sort(compareRangeCovs);
-    const tree = RangeTree.fromSortedRanges(funcCov.ranges);
+    const tree = rangeTreeFromSortedRanges(funcCov.ranges);
     normalizeRangeTree(tree);
     funcCov.ranges = tree.toRanges();
 }
@@ -120,46 +123,48 @@ function normalizeRangeTree(tree) {
     tree.normalize();
 }
 
-class RangeTree {
-    constructor(start, end, delta, children) {
-        this.start = start;
-        this.end = end;
-        this.delta = delta;
-        this.children = children;
-    }
-    /**
-     * @precodition `ranges` are well-formed and pre-order sorted
-     */
-    static fromSortedRanges(ranges) {
-        let root;
-        // Stack of parent trees and parent counts.
-        const stack = [];
-        ranges.forEach(function (range) {
-            const node = new RangeTree(range.startOffset, range.endOffset, range.count, []);
-            if (root === undefined) {
-                root = node;
-                stack.push([node, range.count]);
-                return;
-            }
-            let parent;
-            let parentCount;
-            while (true) {
-                [parent, parentCount] = stack[stack.length - 1];
-                // assert: `top !== undefined` (the ranges are sorted)
-                if (range.startOffset < parent.end) {
-                    break;
-                }
-                else {
-                    stack.pop();
-                }
-            }
-            node.delta -= parentCount;
-            parent.children.push(node);
+function RangeTree(start, end, delta, children) {
+    this.start = start;
+    this.end = end;
+    this.delta = delta;
+    this.children = children;
+}
+
+function rangeTreeFromSortedRanges(ranges) {
+/**
+ * @precodition `ranges` are well-formed and pre-order sorted
+ */
+    let root;
+    // Stack of parent trees and parent counts.
+    const stack = [];
+    ranges.forEach(function (range) {
+        const node = new RangeTree(range.startOffset, range.endOffset, range.count, []);
+        if (root === undefined) {
+            root = node;
             stack.push([node, range.count]);
-        });
-        return root;
-    }
-    normalize() {
+            return;
+        }
+        let parent;
+        let parentCount;
+        while (true) {
+            [parent, parentCount] = stack[stack.length - 1];
+            // assert: `top !== undefined` (the ranges are sorted)
+            if (range.startOffset < parent.end) {
+                break;
+            }
+            else {
+                stack.pop();
+            }
+        }
+        node.delta -= parentCount;
+        parent.children.push(node);
+        stack.push([node, range.count]);
+    });
+    return root;
+}
+
+Object.assign(RangeTree.prototype, {
+    normalize: function () {
         const children = [];
         let curEnd;
         let head;
@@ -204,12 +209,13 @@ class RangeTree {
             head.normalize();
             children.push(head);
         }
-    }
+    },
+
+    split: function (value) {
     /**
      * @precondition `tree.start < value && value < tree.end`
      * @return RangeTree Right part
      */
-    split(value) {
         let leftChildLen = this.children.length;
         let mid;
         // TODO(perf): Binary search (check overhead)
@@ -233,13 +239,14 @@ class RangeTree {
         const result = new RangeTree(value, this.end, this.delta, rightChildren);
         this.end = value;
         return result;
-    }
+    },
+
+    toRanges: function () {
     /**
      * Get the range coverages corresponding to the tree.
      *
      * The ranges are pre-order sorted.
      */
-    toRanges() {
         const ranges = [];
         // Stack of parent trees and counts.
         const stack = [[this, 0]];
@@ -253,7 +260,7 @@ class RangeTree {
         }
         return ranges;
     }
-}
+});
 
 export function mergeProcessCovs(processCovs) {
 /**
@@ -391,7 +398,7 @@ export function mergeFunctionCovs(funcCovs) {
         // assert: `funcCov.ranges` is sorted
         count += funcCov.count !== undefined ? funcCov.count : funcCov.ranges[0].count;
         if (funcCov.isBlockCoverage) {
-            trees.push(RangeTree.fromSortedRanges(funcCov.ranges));
+            trees.push(rangeTreeFromSortedRanges(funcCov.ranges));
         }
     });
     let isBlockCoverage;
