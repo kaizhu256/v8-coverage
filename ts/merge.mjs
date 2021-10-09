@@ -472,9 +472,6 @@ class StartEvent {
         this.offset = offset;
         this.trees = trees;
     }
-    static compare(aa, bb) {
-        return aa.offset - bb.offset;
-    }
 }
 
 class StartEventQueue {
@@ -500,7 +497,9 @@ class StartEventQueue {
         startToTrees.forEach(function (trees, startOffset) {
             queue.push(new StartEvent(startOffset, trees));
         });
-        queue.sort(StartEvent.compare);
+        queue.sort(function (aa, bb) {
+            return aa.offset - bb.offset;
+        });
         return new StartEventQueue(queue);
     }
     setPendingOffset(offset) {
