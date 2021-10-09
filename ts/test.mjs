@@ -4,17 +4,17 @@ import moduleFs from "fs";
 
 // init debugInline
 let debugInline = (function () {
-    let console_error = function () {
+    let consoleError = function () {
         return;
     };
     return function (...argv) {
 
 // This function will both print <argv> to stderr and return <argv>[0].
 
-        console_error("\n\ndebugInline");
-        console_error(...argv);
-        console_error("\n");
-        console_error = console.error;
+        consoleError("\n\ndebugInline");
+        consoleError(...argv);
+        consoleError("\n");
+        consoleError = console.error;
         return argv[0];
     };
 }());
@@ -55,42 +55,6 @@ debugInline();
         }
     }
 
-    async function describe(description, testDescribe) {
-        let resultItList;
-        testItList = [];
-        testDescribe();
-        resultItList = await Promise.all(testItList);
-        console.error("describe " + description);
-        resultItList.forEach(function ([
-            err, description
-        ]) {
-            console.error(
-                (
-                    err
-                    ? "\u2718 "
-                    : "\u2714 "
-                ) + description
-            );
-            if (err) {
-                console.error(err);
-            }
-        });
-    }
-
-    function it(description, testIt) {
-        testItList.push(new Promise(async function (resolve) {
-            let err;
-            try {
-                await testIt();
-            } catch (errCaught) {
-                err = errCaught;
-            }
-            resolve([
-                err, description
-            ]);
-        }));
-    }
-
     function objectDeepCopyWithKeysSorted(obj) {
 
 // this function will recursively deep-copy <obj> with keys sorted
@@ -115,25 +79,68 @@ debugInline();
         return sorted;
     }
 
-    describe("coverage - merge empty arrays", function () {
+    async function testDescribe(description, testDescribe) {
+        let resultItList;
+        testItList = [];
+        testDescribe();
+        resultItList = await Promise.all(testItList);
+        console.error("\n  test describe - " + description);
+        resultItList.forEach(function ([
+            err, description
+        ]) {
+            if (err) {
+                console.error(
+                    "    \u001b[1;31m\u2718 it " + description + "\n"
+                    + err.stack
+                    + "\u001b[39m"
+                );
+                return;
+            }
+            console.error(
+                "    \u001b[1;32m\u2714 it " + description + "\u001b[39m"
+            );
+        });
+    }
+
+    function testIt(description, testIt) {
+        testItList.push(new Promise(async function (resolve) {
+            let err;
+            try {
+                await testIt();
+            } catch (errCaught) {
+                err = errCaught;
+            }
+            resolve([
+                err, description
+            ]);
+        }));
+    }
+
+    testDescribe("coverage - merge empty arrays", function () {
     /**
      * Generate a Mocha test suite for the provided
      * implementation of `v8-coverage-tools`.
      */
-        it("accepts empty arrays for `coverageProcessListMerge`", function () {
+        testIt((
+            "accepts empty arrays for `coverageProcessListMerge`"
+        ), function () {
             assertJsonEqual(coverageProcessListMerge([]), {
                 result: []
             });
         });
-        it("accepts empty arrays for `coverageScriptListMerge`", function () {
+        testIt((
+            "accepts empty arrays for `coverageScriptListMerge`"
+        ), function () {
             assertJsonEqual(coverageScriptListMerge([]), undefined);
         });
-        it("accepts empty arrays for `coverageFunctionListMerge`", function () {
+        testIt((
+            "accepts empty arrays for `coverageFunctionListMerge`"
+        ), function () {
             assertJsonEqual(coverageFunctionListMerge([]), undefined);
         });
     });
 
-    describe("coverage - merge non-empty arrays", function () {
+    testDescribe("coverage - merge non-empty arrays", function () {
         let functionsExpected = JSON.stringify([
             {
                 functionName: "test",
@@ -175,7 +182,7 @@ debugInline();
                 ]
             }
         ]);
-        it((
+        testIt((
             "accepts arrays with a single item for `coverageProcessListMerge`"
         ), function () {
             assertJsonEqual(coverageProcessListMerge([
@@ -198,7 +205,7 @@ debugInline();
                 ]
             });
         });
-        it((
+        testIt((
             "accepts arrays with two identical items for"
             + " `coverageProcessListMerge`"
         ), function () {
@@ -231,7 +238,7 @@ debugInline();
                 ]
             });
         });
-        it((
+        testIt((
             "accepts arrays with a single item for `coverageScriptListMerge`"
         ), function () {
             assertJsonEqual(coverageScriptListMerge([
@@ -246,7 +253,7 @@ debugInline();
                 scriptId: "123"
             });
         });
-        it((
+        testIt((
             "accepts arrays with a single item for `coverageFunctionListMerge`"
         ), function () {
             assertJsonEqual(
@@ -256,29 +263,34 @@ debugInline();
                 JSON.parse(functionsExpected)
             );
         });
-        Promise.all([
-            "test_merge_is_block_coverage_test.json",
-            "test_merge_issue_2_mixed_is_block_coverage_test.json",
-            //!! "test_merge_node_10_11_0_test.json",
-            "test_merge_node_10_internal_errors_one_of_test.json",
-            //!! "test_merge_npm_6_4_1_test.json",
-            "test_merge_reduced_test.json",
-            "test_merge_simple_test.json",
-            "test_merge_various_test.json"
-        ].map(async function (pathname) {
-            JSON.parse(
-                await moduleFs.promises.readFile(pathname, "utf8")
-            ).forEach(function ({
-                expected,
-                inputs
-            }) {
-                assertJsonEqual(coverageProcessListMerge(inputs), expected);
-            });
-        }));
     });
 
-    describe("coverage - merge multiple files", function () {
-        it("merge multiple node-sqlite coverage files`", async function () {
+    testDescribe("coverage - merge multiple files", function () {
+        testIt("merge test files`", async function () {
+            await Promise.all([
+                "test_merge_is_block_coverage_test.json",
+                "test_merge_issue_2_mixed_is_block_coverage_test.json",
+                // "test_merge_node_10_11_0_test.json",
+                "test_merge_node_10_internal_errors_one_of_test.json",
+                // "test_merge_npm_6_4_1_test.json",
+                "test_merge_reduced_test.json",
+                "test_merge_simple_test.json",
+                "test_merge_various_test.json"
+            ].map(async function (pathname) {
+                JSON.parse(
+                    await moduleFs.promises.readFile(pathname, "utf8")
+                ).forEach(function ({
+                    expected,
+                    inputs
+                }) {
+                    assertJsonEqual(coverageProcessListMerge(inputs), expected);
+                });
+            }));
+        });
+    });
+
+    testDescribe("coverage - merge multiple files", function () {
+        testIt("merge multiple node-sqlite coverage files`", async function () {
             let data1 = await Promise.all([
                 "test_v8_coverage_node_sqlite_merged.json",
                 "test_v8_coverage_node_sqlite_10880_1633662346331_0.json",
