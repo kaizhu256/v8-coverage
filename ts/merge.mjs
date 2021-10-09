@@ -264,7 +264,8 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
 // @param processCovs Process coverages to merge.
 // @return Merged process coverage.
 
-    let merged;
+    let result = [];
+    let urlToScripts = new Map();
     function coverageProcessNormalize(processCov) {
 
 // Normalizes a process coverage.
@@ -294,8 +295,8 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
             scriptId, scriptCov]) {
             scriptCov.scriptId = scriptId.toString(10);
         });
+        return processCov;
     }
-
     function coverageProcessNormalizeDeep(processCov) {
 
 // Normalizes a process coverage deeply.
@@ -306,9 +307,12 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
 // @param processCov Process coverage to normalize.
 
         processCov.result.forEach(function (scriptCov) {
+
+// Recurse coverageScriptNormalizeDeep().
+
             coverageScriptNormalizeDeep(scriptCov);
         });
-        coverageProcessNormalize(processCov);
+        return coverageProcessNormalize(processCov);
     }
 
     if (processCovs.length === 0) {
@@ -317,11 +321,8 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
         };
     }
     if (processCovs.length === 1) {
-        merged = processCovs[0];
-        coverageProcessNormalizeDeep(merged);
-        return merged;
+        return coverageProcessNormalizeDeep(processCovs[0]);
     }
-    let urlToScripts = new Map();
     processCovs.forEach(function (processCov) {
         processCov.result.forEach(function (scriptCov) {
             let scriptCovs = urlToScripts.get(scriptCov.url);
@@ -332,16 +333,13 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
             scriptCovs.push(scriptCov);
         });
     });
-    let result = [];
     urlToScripts.forEach(function (scripts) {
         // assert: `scripts.length > 0`
         result.push(mergeScriptCovs(scripts));
     });
-    merged = {
+    return coverageProcessNormalize({
         result
-    };
-    coverageProcessNormalize(merged);
-    return merged;
+    });
 }
 
 export function mergeScriptCovs(scriptCovs) { //jslint-quiet
