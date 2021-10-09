@@ -1,4 +1,5 @@
 /*jslint beta, node*/
+// shRunWithCoverage ./node_modules/.bin/mocha test/merge.spec.js
 import fs from "fs";
 // import {mergeProcessCovs} from "./lib/index.js";
 import {mergeProcessCovs} from "./merge.mjs";
