@@ -154,6 +154,18 @@ describe("merge", () => {
             moduleChai.assert.deepEqual(actual, expected);
         });
     });
+    Promise.all([
+        "test_merge_is_block_coverage_test.json",
+        "test_merge_issue_2_mixed_is_block_coverage_test.json",
+        "test_merge_node_10_11_0_test.json",
+        "test_merge_node_10_internal_errors_one_of_test.json",
+        "test_merge_npm_6_4_1_test.json",
+        "test_merge_reduced_test.json",
+        "test_merge_simple_test.json",
+        "test_merge_various_test.json"
+    ].map(async function (data) {
+        data = await moduleFs.promises.readFile(data);
+    }));
     for (const mergeTest of getMergeTests()) {
         it(mergeTest.name, test);
         function test() {
