@@ -138,7 +138,12 @@ function rangeTreeFromSortedRanges(ranges) {
     // Stack of parent trees and parent counts.
     const stack = [];
     ranges.forEach(function (range) {
-        const node = new RangeTree(range.startOffset, range.endOffset, range.count, []);
+        const node = new RangeTree(
+            range.startOffset,
+            range.endOffset,
+            range.count,
+            []
+        );
         if (root === undefined) {
             root = node;
             stack.push([node, range.count]);
@@ -152,9 +157,7 @@ function rangeTreeFromSortedRanges(ranges) {
             if (range.startOffset < parent.end) {
                 break;
             }
-            else {
-                stack.pop();
-            }
+            stack.pop();
         }
         node.delta -= parentCount;
         parent.children.push(node);
@@ -216,27 +219,34 @@ Object.assign(RangeTree.prototype, {
      * @precondition `tree.start < value && value < tree.end`
      * @return RangeTree Right part
      */
+        let ii = 0;
         let leftChildLen = this.children.length;
         let mid;
-        // TODO(perf): Binary search (check overhead)
-        for (let ii = 0; ii < this.children.length; ii += 1) {
+        // TODO(perf): Binary search (check overhead) //jslint-quiet
+        while (ii < this.children.length) {
             const child = this.children[ii];
             if (child.start < value && value < child.end) {
                 mid = child.split(value);
                 leftChildLen = ii + 1;
                 break;
             }
-            else if (child.start >= value) {
+            if (child.start >= value) {
                 leftChildLen = ii;
                 break;
             }
+            ii += 1;
         }
         const rightLen = this.children.length - leftChildLen;
         const rightChildren = this.children.splice(leftChildLen, rightLen);
         if (mid !== undefined) {
             rightChildren.unshift(mid);
         }
-        const result = new RangeTree(value, this.end, this.delta, rightChildren);
+        const result = new RangeTree(
+            value,
+            this.end,
+            this.delta,
+            rightChildren
+        );
         this.end = value;
         return result;
     },
