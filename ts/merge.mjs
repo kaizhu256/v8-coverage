@@ -1,6 +1,6 @@
 /*jslint beta, node*/
 
-function coverageFunctionListMerge(funcCovs) { //jslint-quiet
+function coverageFunctionListMerge(funcCovs) {
 
 // Merges a list of matching function coverages.
 //
@@ -83,6 +83,96 @@ function coverageFunctionNormalize(funcCov) {
         )
     );
     return funcCov;
+}
+
+function coverageProcessListMerge(processCovs) {
+
+// Merges a list of process coverages.
+//
+// The result is normalized.
+// The input values may be mutated, it is not safe to use them after passing
+// them to this function.
+// The computation is synchronous.
+//
+// @param processCovs Process coverages to merge.
+// @return Merged process coverage.
+
+    let result = [];
+    let urlToScripts = new Map();
+    function coverageProcessNormalize(processCov) {
+
+// Normalizes a process coverage.
+//
+// Sorts the scripts alphabetically by `url`.
+// Reassigns script ids: the script at index `0` receives `"0"`, the script at
+// index `1` receives `"1"` etc.
+// This does not normalize the script coverages.
+//
+// @param processCov Process coverage to normalize.
+
+        Object.entries(processCov.result.sort(function (aa, bb) {
+
+// Compares two script coverages.
+//
+// The result corresponds to the comparison of their `url` value
+// (alphabetical sort).
+
+            return (
+                aa.url < bb.url
+                ? -1
+                : aa.url > bb.url
+                ? 1
+                : 0
+            );
+        })).forEach(function ([
+            scriptId, scriptCov
+        ]) {
+            scriptCov.scriptId = scriptId.toString(10);
+        });
+        return processCov;
+    }
+    function coverageProcessNormalizeDeep(processCov) {
+
+// Normalizes a process coverage deeply.
+//
+// Normalizes the script coverages deeply, then normalizes the process coverage
+// itself.
+//
+// @param processCov Process coverage to normalize.
+
+        processCov.result.forEach(function (scriptCov) {
+            coverageScriptNormalizeDeep(scriptCov);
+        });
+        return coverageProcessNormalize(processCov);
+    }
+
+    if (processCovs.length === 0) {
+        return {
+            result: []
+        };
+    }
+    if (processCovs.length === 1) {
+        return coverageProcessNormalizeDeep(processCovs[0]);
+    }
+    processCovs.forEach(function (processCov) {
+        processCov.result.forEach(function (scriptCov) {
+            let scriptCovs = urlToScripts.get(scriptCov.url);
+            if (scriptCovs === undefined) {
+                scriptCovs = [];
+                urlToScripts.set(scriptCov.url, scriptCovs);
+            }
+            scriptCovs.push(scriptCov);
+        });
+    });
+    urlToScripts.forEach(function (scripts) {
+
+// assert: `scripts.length > 0`
+
+        result.push(coverageScriptListMerge(scripts));
+    });
+    return coverageProcessNormalize({
+        result
+    });
 }
 
 function coverageRangeListCompare(aa, bb) {
@@ -273,7 +363,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         }
         if (openRange === undefined) {
             openRangeEnd = event.offset + 1;
-            event.trees.forEach(function ({ parentIndex, tree }) { //jslint-quiet
+            event.trees.forEach(function ({ parentIndex, tree }) {
                 openRangeEnd = Math.max(openRangeEnd, tree.end);
                 insertChild(parentToNested, parentIndex, tree);
             });
@@ -283,7 +373,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
                 start: event.offset
             };
         } else {
-            event.trees.forEach(function ({ parentIndex, tree }) { //jslint-quiet
+            event.trees.forEach(function ({ parentIndex, tree }) {
                 if (tree.end > openRange.end) {
                     right = coverageRangeTreeSplit(tree, openRange.end);
                     if (startEventQueue.pendingTrees === undefined) {
@@ -466,97 +556,7 @@ function coverageRangeTreeToRanges(tree) {
     return ranges;
 }
 
-function coverageProcessListMerge(processCovs) { //jslint-quiet
-
-// Merges a list of process coverages.
-//
-// The result is normalized.
-// The input values may be mutated, it is not safe to use them after passing
-// them to this function.
-// The computation is synchronous.
-//
-// @param processCovs Process coverages to merge.
-// @return Merged process coverage.
-
-    let result = [];
-    let urlToScripts = new Map();
-    function coverageProcessNormalize(processCov) {
-
-// Normalizes a process coverage.
-//
-// Sorts the scripts alphabetically by `url`.
-// Reassigns script ids: the script at index `0` receives `"0"`, the script at
-// index `1` receives `"1"` etc.
-// This does not normalize the script coverages.
-//
-// @param processCov Process coverage to normalize.
-
-        Object.entries(processCov.result.sort(function (aa, bb) {
-
-// Compares two script coverages.
-//
-// The result corresponds to the comparison of their `url` value
-// (alphabetical sort).
-
-            return (
-                aa.url < bb.url
-                ? -1
-                : aa.url > bb.url
-                ? 1
-                : 0
-            );
-        })).forEach(function ([
-            scriptId, scriptCov
-        ]) {
-            scriptCov.scriptId = scriptId.toString(10);
-        });
-        return processCov;
-    }
-    function coverageProcessNormalizeDeep(processCov) {
-
-// Normalizes a process coverage deeply.
-//
-// Normalizes the script coverages deeply, then normalizes the process coverage
-// itself.
-//
-// @param processCov Process coverage to normalize.
-
-        processCov.result.forEach(function (scriptCov) {
-            coverageScriptNormalizeDeep(scriptCov);
-        });
-        return coverageProcessNormalize(processCov);
-    }
-
-    if (processCovs.length === 0) {
-        return {
-            result: []
-        };
-    }
-    if (processCovs.length === 1) {
-        return coverageProcessNormalizeDeep(processCovs[0]);
-    }
-    processCovs.forEach(function (processCov) {
-        processCov.result.forEach(function (scriptCov) {
-            let scriptCovs = urlToScripts.get(scriptCov.url);
-            if (scriptCovs === undefined) {
-                scriptCovs = [];
-                urlToScripts.set(scriptCov.url, scriptCovs);
-            }
-            scriptCovs.push(scriptCov);
-        });
-    });
-    urlToScripts.forEach(function (scripts) {
-
-// assert: `scripts.length > 0`
-
-        result.push(coverageScriptListMerge(scripts));
-    });
-    return coverageProcessNormalize({
-        result
-    });
-}
-
-function coverageScriptListMerge(scriptCovs) { //jslint-quiet
+function coverageScriptListMerge(scriptCovs) {
 
 // Merges a list of matching script coverages.
 //
