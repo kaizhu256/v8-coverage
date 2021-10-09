@@ -47,6 +47,7 @@ function coverageScriptNormalize(scriptCov) {
 
         return compareRangeCovs(aa.ranges[0], bb.ranges[0]);
     });
+    return scriptCov;
 }
 
 function coverageScriptNormalizeDeep(scriptCov) {
@@ -61,7 +62,7 @@ function coverageScriptNormalizeDeep(scriptCov) {
     scriptCov.functions.forEach(function (funcCov) {
         coverageFunctionNormalize(funcCov);
     });
-    coverageScriptNormalize(scriptCov);
+    return coverageScriptNormalize(scriptCov);
 }
 
 function rangeTreeCreate(start, end, delta, children) {
@@ -292,7 +293,8 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
                 : 0
             );
         })).forEach(function ([
-            scriptId, scriptCov]) {
+            scriptId, scriptCov
+        ]) {
             scriptCov.scriptId = scriptId.toString(10);
         });
         return processCov;
@@ -358,11 +360,6 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
     let merged;
     if (scriptCovs.length === 0) {
         return undefined;
-    }
-    if (scriptCovs.length === 1) {
-        merged = scriptCovs[0];
-        coverageScriptNormalizeDeep(merged);
-        return merged;
     }
     let first = scriptCovs[0];
     let scriptId = first.scriptId;
