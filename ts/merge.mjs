@@ -1,4 +1,4 @@
-/*jslint this*/
+/*jslint*/
 
 function compareScriptCovs(aa, bb) {
 
@@ -484,7 +484,7 @@ function startEventQueueFromParentTrees(parentTrees) {
             }
             trees.push({
 
-// new RangeTreeWithParent
+// new RangeTreeWithParent().
 
                 parentIndex,
                 tree: child
@@ -494,7 +494,7 @@ function startEventQueueFromParentTrees(parentTrees) {
     const queue = [];
     startToTrees.forEach(function (trees, startOffset) {
         queue.push({
-            // new StartEvent
+            // new StartEvent().
             offset: startOffset,
             trees
         });
@@ -502,14 +502,14 @@ function startEventQueueFromParentTrees(parentTrees) {
     queue.sort(function (aa, bb) {
         return aa.offset - bb.offset;
     });
-    return new StartEventQueue(queue);
-}
+    return {
 
-function StartEventQueue(queue) {
-    this.queue = queue;
-    this.nextIndex = 0;
-    this.pendingOffset = 0;
-    delete this.pendingTrees;
+// new StartEventQueue().
+
+        nextIndex: 0,
+        pendingIndex: 0,
+        queue
+    };
 }
 
 function mergeRangeTreeChildren(parentTrees) {
@@ -526,7 +526,7 @@ function mergeRangeTreeChildren(parentTrees) {
         } else if (nextEvent === undefined) {
             delete startEventQueue.pendingTrees;
             return {
-                // new StartEvent
+                // new StartEvent().
                 offset: startEventQueue.pendingOffset,
                 trees: pendingTrees
             };
@@ -534,7 +534,7 @@ function mergeRangeTreeChildren(parentTrees) {
             if (startEventQueue.pendingOffset < nextEvent.offset) {
                 delete startEventQueue.pendingTrees;
                 return {
-                    // new StartEvent
+                    // new StartEvent().
                     offset: startEventQueue.pendingOffset,
                     trees: pendingTrees
                 };
@@ -579,7 +579,7 @@ function mergeRangeTreeChildren(parentTrees) {
                     }
                     startEventQueue.pendingTrees.push({
 
-// new RangeTreeWithParent
+// new RangeTreeWithParent().
 
                         parentIndex,
                         tree: right
