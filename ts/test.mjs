@@ -87,7 +87,7 @@ debugInline();
     async function testDescribe(description, testFunction) {
         let result;
 
-// init process.exit
+// Init testOnExit.
 
         if (!testOnExit) {
             testOnExit = function (exitCode) {
@@ -107,9 +107,18 @@ debugInline();
             };
             process.on("exit", testOnExit);
         }
+
+// Init testItList.
+
         testItList = [];
         testFunction();
+
+// Wait for testItList to resolve.
+
         result = await Promise.all(testItList);
+
+// Print test results.
+
         console.error(
             "\n  " + (Date.now() - testTimeStart) + "ms"
             + " - test describe - " + description
