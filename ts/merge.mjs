@@ -361,6 +361,9 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
     if (scriptCovs.length === 0) {
         return undefined;
     }
+    if (scriptCovs.length === 1) {
+        return coverageScriptNormalizeDeep(scriptCovs[0]);
+    }
     let first = scriptCovs[0];
     let scriptId = first.scriptId;
     let url = first.url;
