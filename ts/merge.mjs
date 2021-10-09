@@ -156,12 +156,15 @@ function rangeTreeSplit(tree, value) {
     if (mid !== undefined) {
         rightChildren.unshift(mid);
     }
-    result = rangeTreeCreate(
-        value,
-        tree.end,
-        tree.delta,
-        rightChildren
-    );
+
+// new rangeTreeCreate().
+
+    result = {
+        children: rightChildren,
+        delta: tree.delta,
+        end: tree.end,
+        start: value
+    };
     tree.end = value;
     return result;
 }
