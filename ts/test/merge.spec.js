@@ -51,6 +51,63 @@ const WHITELIST = new Set([
 ]);
 testImpl({ coverageProcessListMerge, coverageScriptListMerge, coverageFunctionListMerge });
 describe("merge", () => {
+    function assertJsonEqual(aa, bb) {
+
+// this function will assert JSON.stringify(<aa>) === JSON.stringify(<bb>)
+
+        aa = JSON.stringify(objectDeepCopyWithKeysSorted(aa));
+        bb = JSON.stringify(objectDeepCopyWithKeysSorted(bb));
+        if (aa !== bb) {
+            throw new Error(
+                JSON.stringify(aa) + " !== " + JSON.stringify(bb)
+            );
+        }
+    }
+
+    function assertOrThrow(condition, message) {
+
+// This function will throw <message> if <condition> is falsy.
+
+        if (!condition) {
+            throw (
+                typeof message === "string"
+                ? new Error(message.slice(0, 2048))
+                : message
+            );
+        }
+    }
+
+    function noop(val) {
+
+// this function will do nothing except return <val>
+
+        return val;
+    }
+
+    function objectDeepCopyWithKeysSorted(obj) {
+
+// this function will recursively deep-copy <obj> with keys sorted
+
+        let sorted;
+        if (typeof obj !== "object" || !obj) {
+            return obj;
+        }
+
+// recursively deep-copy list with child-keys sorted
+
+        if (Array.isArray(obj)) {
+            return obj.map(objectDeepCopyWithKeysSorted);
+        }
+
+// recursively deep-copy obj with keys sorted
+
+        sorted = {};
+        Object.keys(obj).sort().forEach(function (key) {
+            sorted[key] = objectDeepCopyWithKeysSorted(obj[key]);
+        });
+        return sorted;
+    }
+
     describe("custom", () => {
         it("accepts arrays with a single item for `coverageProcessListMerge`", () => {
             const inputs = [
@@ -157,43 +214,21 @@ describe("merge", () => {
     Promise.all([
         "test_merge_is_block_coverage_test.json",
         "test_merge_issue_2_mixed_is_block_coverage_test.json",
-        "test_merge_node_10_11_0_test.json",
+        //!! "test_merge_node_10_11_0_test.json",
         "test_merge_node_10_internal_errors_one_of_test.json",
-        "test_merge_npm_6_4_1_test.json",
+        //!! "test_merge_npm_6_4_1_test.json",
         "test_merge_reduced_test.json",
         "test_merge_simple_test.json",
         "test_merge_various_test.json"
-    ].map(async function (data) {
-        data = await moduleFs.promises.readFile(data);
+    ].map(async function (pathname) {
+        JSON.parse(
+            await moduleFs.promises.readFile(pathname, "utf8")
+        ).forEach(function ({
+            expected,
+            inputs
+        }) {
+            assertJsonEqual(coverageProcessListMerge(inputs), expected);
+        });
     }));
-    for (const mergeTest of getMergeTests()) {
-        it(mergeTest.name, test);
-        function test() {
-            this.timeout(MERGE_TIMEOUT);
-            const items = JSON.parse(moduleFs.readFileSync(mergeTest.testPath, { encoding: "utf-8" }));
-            for (const item of items) {
-                const actual = coverageProcessListMerge(item.inputs);
-                moduleChai.assert.deepEqual(actual, item.expected);
-            }
-        }
-    }
 });
-function* getMergeTests() {
-    for (const dirEnt of moduleFs.readdirSync(MERGE_TESTS_DIR, { withFileTypes: true })) {
-        if (!dirEnt.isDirectory()) {
-            continue;
-        }
-        const testName = dirEnt.name;
-        const testDir = moduleSysPath.join(MERGE_TESTS_DIR, testName);
-        if (BLACKLIST.has(testName)) {
-            continue;
-        }
-        else if (WHITELIST.size > 0 && !WHITELIST.has(testName)) {
-            continue;
-        }
-        const testPath = moduleSysPath.join(testDir, "test.json");
-        yield { name: testName, testPath };
-    }
-}
-
 await import("../test_v8_coverage_node_sqlite.mjs");

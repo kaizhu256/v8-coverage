@@ -13,7 +13,7 @@ import coverageMerge from "./merge.mjs";
     let data1;
     let data2;
 
-    function assert_json_equal(aa, bb) {
+    function assertJsonEqual(aa, bb) {
 
 // this function will assert JSON.stringify(<aa>) === JSON.stringify(<bb>)
 
@@ -26,7 +26,7 @@ import coverageMerge from "./merge.mjs";
         }
     }
 
-    function assert_or_throw(condition, message) {
+    function assertOrThrow(condition, message) {
 
 // This function will throw <message> if <condition> is falsy.
 
@@ -93,7 +93,7 @@ import coverageMerge from "./merge.mjs";
     data1 = objectDeepCopyWithKeysSorted(data1);
     data1 = JSON.stringify(data1, undefined, 4) + "\n";
     await fs.promises.writeFile(".v8_coverage_node_sqlite_merged.json", data1);
-    assert_or_throw(data1 === data2);
+    assertOrThrow(data1 === data2);
 
     (function () {
         const inputs = [
@@ -181,7 +181,7 @@ import coverageMerge from "./merge.mjs";
             ]
         };
         const actual = coverageProcessListMerge(inputs);
-        assert_json_equal(actual, expected);
+        assertJsonEqual(actual, expected);
     }());
 
     console.error("finished test_v8_coverage_node_sqlite.mjs");
