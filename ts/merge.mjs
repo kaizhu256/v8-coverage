@@ -544,13 +544,6 @@ Object.assign(StartEventQueue.prototype, {
         }
     },
 
-    pushPendingTree: function (tree) {
-        if (this.pendingTrees === undefined) {
-            this.pendingTrees = [];
-        }
-        this.pendingTrees.push(tree);
-    },
-
     setPendingOffset: function (offset) {
         this.pendingOffset = offset;
     }
@@ -585,7 +578,10 @@ function mergeRangeTreeChildren(parentTrees) {
             event.trees.forEach(function ({ parentIndex, tree }) { //jslint-quiet
                 if (tree.end > openRange.end) {
                     const right = tree.split(openRange.end);
-                    startEventQueue.pushPendingTree({
+                    if (startEventQueue.pendingTrees === undefined) {
+                        startEventQueue.pendingTrees = [];
+                    }
+                    startEventQueue.pendingTrees.push({
 
 // new RangeTreeWithParent
 
