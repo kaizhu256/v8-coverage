@@ -500,26 +500,25 @@ function startEventQueueFromParentTrees(parentTrees) {
             });
         });
     });
-    let queue = [];
-    startToTrees.forEach(function (trees, startOffset) {
-
-// new StartEvent().
-
-        queue.push({
-            offset: startOffset,
-            trees
-        });
-    });
-    queue.sort(function (aa, bb) {
-        return aa.offset - bb.offset;
-    });
 
 // new StartEventQueue().
 
     return {
         nextIndex: 0,
         pendingIndex: 0,
-        queue
+        queue: Array.from(startToTrees).map(function ([
+            startOffset, trees
+        ]) {
+
+// new StartEvent().
+
+            return {
+                offset: startOffset,
+                trees
+            };
+        }).sort(function (aa, bb) {
+            return aa.offset - bb.offset;
+        })
     };
 }
 
