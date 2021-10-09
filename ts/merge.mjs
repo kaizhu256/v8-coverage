@@ -397,11 +397,12 @@ export function mergeFunctionCovs(funcCovs) {
  * @param funcCovs Function coverages to merge.
  * @return Merged function coverage, or `undefined` if the input list was empty.
  */
+    let merged;
     if (funcCovs.length === 0) {
         return undefined;
     }
     else if (funcCovs.length === 1) {
-        const merged = funcCovs[0];
+        merged = funcCovs[0];
         normalizeFunctionCov(merged);
         return merged;
     }
@@ -432,7 +433,7 @@ export function mergeFunctionCovs(funcCovs) {
         isBlockCoverage = false;
         ranges = [{ startOffset, endOffset, count }];
     }
-    const merged = { functionName, ranges, isBlockCoverage };
+    merged = { functionName, ranges, isBlockCoverage };
     if (count !== ranges[0].count) {
         merged.count = count;
     }
