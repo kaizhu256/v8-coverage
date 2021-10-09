@@ -257,4 +257,3 @@ describe("merge", function () {
         });
     }));
 });
-await import("../test.mjs");

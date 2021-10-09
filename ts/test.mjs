@@ -38,8 +38,8 @@ function assertOrThrow(condition, message) {
 
     if (!condition) {
         throw (
-            typeof message === "string"
-            ? new Error(message.slice(0, 2048))
+            (!message || typeof message === "string")
+            ? new Error(String(message).slice(0, 2048))
             : message
         );
     }
@@ -78,33 +78,62 @@ debugInline();
         coverageProcessListMerge,
         coverageScriptListMerge
     } = coverageMerge;
-    let testDescribeList = [];
+    let testCountFailed = 0;
+    let testCountTotal = 0;
     let testItList;
+    let testOnExit;
+    let testTimeStart = Date.now();
 
     async function testDescribe(description, testFunction) {
-        let resultItList;
+        let result;
+
+// init process.exit
+
+        if (!testOnExit) {
+            testOnExit = function (exitCode) {
+                console.error(
+                    (
+                        testCountFailed
+                        ? "\n\u001b[31m"
+                        : "\n\u001b[32m"
+                    )
+                    + "  tests total  - " + testCountTotal + "\n"
+                    + "  tests failed - " + testCountFailed + "\n"
+                    + "\u001b[39m"
+                );
+                if (!exitCode && testCountFailed) {
+                    process.exit(1);
+                }
+            };
+            process.on("exit", testOnExit);
+        }
         testItList = [];
         testFunction();
-        resultItList = await Promise.all(testItList);
-        console.error("\n  test describe - " + description);
-        resultItList.forEach(function ([
+        result = await Promise.all(testItList);
+        console.error(
+            "\n  " + (Date.now() - testTimeStart) + "ms"
+            + " - test describe - " + description
+        );
+        result.forEach(function ([
             err, description
         ]) {
             if (err) {
+                testCountFailed += 1;
                 console.error(
-                    "    \u001b[1;31m\u2718 it " + description + "\n"
+                    "    \u001b[31m\u2718 it " + description + "\n"
                     + err.stack
                     + "\u001b[39m"
                 );
                 return;
             }
             console.error(
-                "    \u001b[1;32m\u2714 it " + description + "\u001b[39m"
+                "    \u001b[32m\u2714 it " + description + "\u001b[39m"
             );
         });
     }
 
     function testIt(description, testFunction) {
+        testCountTotal += 1;
         testItList.push(new Promise(async function (resolve) {
             let err;
             try {
@@ -320,7 +349,7 @@ debugInline();
                 ".v8_coverage_node_sqlite_merged.json",
                 data1
             );
-            assertOrThrow(data1 === data2);
+            assertOrThrow(data1 === data2, "data1 !== data2");
         });
     });
 }());
