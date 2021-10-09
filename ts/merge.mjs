@@ -346,7 +346,7 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
     const rangeToFuncs = new Map();
     scriptCovs.forEach(function (scriptCov) {
         scriptCov.functions.forEach(function (funcCov) {
-            const rootRange = "";
+            const rootRange = stringifyFunctionRootRange(funcCov);
             let funcCovs = rangeToFuncs.get(rootRange);
             if (funcCovs === undefined) {
                 funcCovs = [];
