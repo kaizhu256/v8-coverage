@@ -346,7 +346,16 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
     const rangeToFuncs = new Map();
     scriptCovs.forEach(function (scriptCov) {
         scriptCov.functions.forEach(function (funcCov) {
-            const rootRange = stringifyFunctionRootRange(funcCov);
+
+// This string can be used to match function with same root range.
+// The string is derived from the start and end offsets of the root range of
+// the function.
+// This assumes that `ranges` is non-empty (true for valid function coverages).
+
+            let rootRange = (
+                funcCov.ranges[0].startOffset
+                + ";" + funcCov.ranges[0].endOffset
+            );
             let funcCovs = rangeToFuncs.get(rootRange);
             if (funcCovs === undefined) {
                 funcCovs = [];
@@ -367,22 +376,6 @@ export function mergeScriptCovs(scriptCovs) { //jslint-quiet
     };
     normalizeScriptCov(merged);
     return merged;
-}
-
-function stringifyFunctionRootRange(funcCov) {
-
-// Returns a string representation of the root range of the function.
-//
-// This string can be used to match function with same root range.
-// The string is derived from the start and end offsets of the root range of
-// the function.
-// This assumes that `ranges` is non-empty (true for valid function coverages).
-//
-// @param funcCov Function coverage with the range to stringify
-// @internal
-
-    const rootRange = funcCov.ranges[0];
-    return `${rootRange.startOffset.toString(10)};${rootRange.endOffset.toString(10)}`; //jslint-quiet
 }
 
 export function mergeFunctionCovs(funcCovs) { //jslint-quiet
