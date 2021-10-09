@@ -4,7 +4,32 @@ import sysPath from "path";
 import path from "path";
 import url from "url";
 import { mergeFunctionCovs, mergeProcessCovs, mergeScriptCovs } from "../merge.mjs";
-import { testImpl } from "@v8-coverage-tools/mocha";
+/**
+ * Generate a Mocha test suite for the provided
+ * implementation of `v8-coverage-tools`.
+ */
+export function testImpl(lib) {
+    describe("merge", () => {
+        it("accepts empty arrays for `mergeProcessCovs`", () => {
+            const inputs = [];
+            const expected = { result: [] };
+            const actual = lib.mergeProcessCovs(inputs);
+            chai.assert.deepEqual(actual, expected);
+        });
+        it("accepts empty arrays for `mergeScriptCovs`", () => {
+            const inputs = [];
+            const expected = undefined;
+            const actual = lib.mergeScriptCovs(inputs);
+            chai.assert.deepEqual(actual, expected);
+        });
+        it("accepts empty arrays for `mergeFunctionCovs`", () => {
+            const inputs = [];
+            const expected = undefined;
+            const actual = lib.mergeFunctionCovs(inputs);
+            chai.assert.deepEqual(actual, expected);
+        });
+    });
+}
 const REPO_ROOT = path.join(url.fileURLToPath(import.meta.url), "..", "..", "..");
 const MERGE_TESTS_DIR = path.join(REPO_ROOT, "tests", "merge");
 const MERGE_TIMEOUT = 30000; // 30sec

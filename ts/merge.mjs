@@ -4,15 +4,13 @@ function compareScriptCovs(aa, bb) {
  *
  * The result corresponds to the comparison of their `url` value (alphabetical sort).
  */
-    if (aa.url === bb.url) {
-        return 0;
-    }
-    else if (aa.url < bb.url) {
-        return -1;
-    }
-    else {
-        return 1;
-    }
+    return (
+        aa.url < bb.url
+        ? -1
+        : aa.url > bb.url
+        ? 1
+        : 0
+    );
 }
 
 function compareFunctionCovs(aa, bb) {
