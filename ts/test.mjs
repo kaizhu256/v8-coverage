@@ -18,6 +18,57 @@ let debugInline = (function () {
         return argv[0];
     };
 }());
+
+function assertJsonEqual(aa, bb) {
+
+// this function will assert JSON.stringify(<aa>) === JSON.stringify(<bb>)
+
+    aa = JSON.stringify(objectDeepCopyWithKeysSorted(aa));
+    bb = JSON.stringify(objectDeepCopyWithKeysSorted(bb));
+    if (aa !== bb) {
+        throw new Error(
+            JSON.stringify(aa) + " !== " + JSON.stringify(bb)
+        );
+    }
+}
+
+function assertOrThrow(condition, message) {
+
+// This function will throw <message> if <condition> is falsy.
+
+    if (!condition) {
+        throw (
+            typeof message === "string"
+            ? new Error(message.slice(0, 2048))
+            : message
+        );
+    }
+}
+
+function objectDeepCopyWithKeysSorted(obj) {
+
+// this function will recursively deep-copy <obj> with keys sorted
+
+    let sorted;
+    if (typeof obj !== "object" || !obj) {
+        return obj;
+    }
+
+// recursively deep-copy list with child-keys sorted
+
+    if (Array.isArray(obj)) {
+        return obj.map(objectDeepCopyWithKeysSorted);
+    }
+
+// recursively deep-copy obj with keys sorted
+
+    sorted = {};
+    Object.keys(obj).sort().forEach(function (key) {
+        sorted[key] = objectDeepCopyWithKeysSorted(obj[key]);
+    });
+    return sorted;
+}
+
 // Coverage-hack.
 debugInline();
 
@@ -27,62 +78,13 @@ debugInline();
         coverageProcessListMerge,
         coverageScriptListMerge
     } = coverageMerge;
+    let testDescribeList = [];
     let testItList;
 
-    function assertJsonEqual(aa, bb) {
-
-// this function will assert JSON.stringify(<aa>) === JSON.stringify(<bb>)
-
-        aa = JSON.stringify(objectDeepCopyWithKeysSorted(aa));
-        bb = JSON.stringify(objectDeepCopyWithKeysSorted(bb));
-        if (aa !== bb) {
-            throw new Error(
-                JSON.stringify(aa) + " !== " + JSON.stringify(bb)
-            );
-        }
-    }
-
-    function assertOrThrow(condition, message) {
-
-// This function will throw <message> if <condition> is falsy.
-
-        if (!condition) {
-            throw (
-                typeof message === "string"
-                ? new Error(message.slice(0, 2048))
-                : message
-            );
-        }
-    }
-
-    function objectDeepCopyWithKeysSorted(obj) {
-
-// this function will recursively deep-copy <obj> with keys sorted
-
-        let sorted;
-        if (typeof obj !== "object" || !obj) {
-            return obj;
-        }
-
-// recursively deep-copy list with child-keys sorted
-
-        if (Array.isArray(obj)) {
-            return obj.map(objectDeepCopyWithKeysSorted);
-        }
-
-// recursively deep-copy obj with keys sorted
-
-        sorted = {};
-        Object.keys(obj).sort().forEach(function (key) {
-            sorted[key] = objectDeepCopyWithKeysSorted(obj[key]);
-        });
-        return sorted;
-    }
-
-    async function testDescribe(description, testDescribe) {
+    async function testDescribe(description, testFunction) {
         let resultItList;
         testItList = [];
-        testDescribe();
+        testFunction();
         resultItList = await Promise.all(testItList);
         console.error("\n  test describe - " + description);
         resultItList.forEach(function ([
@@ -102,11 +104,11 @@ debugInline();
         });
     }
 
-    function testIt(description, testIt) {
+    function testIt(description, testFunction) {
         testItList.push(new Promise(async function (resolve) {
             let err;
             try {
-                await testIt();
+                await testFunction();
             } catch (errCaught) {
                 err = errCaught;
             }
