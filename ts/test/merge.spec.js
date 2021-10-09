@@ -1,8 +1,8 @@
-import chai from "chai";
-import fs from "fs";
-import sysPath from "path";
-import path from "path";
-import url from "url";
+import moduleChai from "chai";
+import moduleFs from "fs";
+import moduleSysPath from "path";
+import modulePath from "path";
+import moduleUrl from "url";
 import { coverageFunctionListMerge, coverageProcessListMerge, coverageScriptListMerge } from "../merge.mjs";
 /**
  * Generate a Mocha test suite for the provided
@@ -14,24 +14,24 @@ export function testImpl(lib) {
             const inputs = [];
             const expected = { result: [] };
             const actual = lib.coverageProcessListMerge(inputs);
-            chai.assert.deepEqual(actual, expected);
+            moduleChai.assert.deepEqual(actual, expected);
         });
         it("accepts empty arrays for `coverageScriptListMerge`", () => {
             const inputs = [];
             const expected = undefined;
             const actual = lib.coverageScriptListMerge(inputs);
-            chai.assert.deepEqual(actual, expected);
+            moduleChai.assert.deepEqual(actual, expected);
         });
         it("accepts empty arrays for `coverageFunctionListMerge`", () => {
             const inputs = [];
             const expected = undefined;
             const actual = lib.coverageFunctionListMerge(inputs);
-            chai.assert.deepEqual(actual, expected);
+            moduleChai.assert.deepEqual(actual, expected);
         });
     });
 }
-const REPO_ROOT = path.join(url.fileURLToPath(import.meta.url), "..", "..", "..");
-const MERGE_TESTS_DIR = path.join(REPO_ROOT, "tests", "merge");
+const REPO_ROOT = modulePath.join(moduleUrl.fileURLToPath(import.meta.url), "..", "..", "..");
+const MERGE_TESTS_DIR = modulePath.join(REPO_ROOT, "tests", "merge");
 const MERGE_TIMEOUT = 30000; // 30sec
 // `BLACKLIST` can be used to forcefully skip some tests.
 const BLACKLIST = new Set([
@@ -51,7 +51,7 @@ describe("merge", () => {
                     result: [
                         {
                             scriptId: "123",
-                            url: "/lib.js",
+                            moduleUrl: "/lib.js",
                             functions: [
                                 {
                                     functionName: "test",
@@ -71,7 +71,7 @@ describe("merge", () => {
                 result: [
                     {
                         scriptId: "0",
-                        url: "/lib.js",
+                        moduleUrl: "/lib.js",
                         functions: [
                             {
                                 functionName: "test",
@@ -86,13 +86,13 @@ describe("merge", () => {
                 ],
             };
             const actual = coverageProcessListMerge(inputs);
-            chai.assert.deepEqual(actual, expected);
+            moduleChai.assert.deepEqual(actual, expected);
         });
         it("accepts arrays with a single item for `coverageScriptListMerge`", () => {
             const inputs = [
                 {
                     scriptId: "123",
-                    url: "/lib.js",
+                    moduleUrl: "/lib.js",
                     functions: [
                         {
                             functionName: "test",
@@ -108,7 +108,7 @@ describe("merge", () => {
             ];
             const expected = {
                 scriptId: "123",
-                url: "/lib.js",
+                moduleUrl: "/lib.js",
                 functions: [
                     {
                         functionName: "test",
@@ -121,7 +121,7 @@ describe("merge", () => {
                 ],
             };
             const actual = coverageScriptListMerge(inputs);
-            chai.assert.deepEqual(actual, expected);
+            moduleChai.assert.deepEqual(actual, expected);
         });
         it("accepts arrays with a single item for `coverageFunctionListMerge`", () => {
             const inputs = [
@@ -144,35 +144,35 @@ describe("merge", () => {
                 ],
             };
             const actual = coverageFunctionListMerge(inputs);
-            chai.assert.deepEqual(actual, expected);
+            moduleChai.assert.deepEqual(actual, expected);
         });
     });
     for (const mergeTest of getMergeTests()) {
         it(mergeTest.name, test);
         function test() {
             this.timeout(MERGE_TIMEOUT);
-            const items = JSON.parse(fs.readFileSync(mergeTest.testPath, { encoding: "utf-8" }));
+            const items = JSON.parse(moduleFs.readFileSync(mergeTest.testPath, { encoding: "utf-8" }));
             for (const item of items) {
                 const actual = coverageProcessListMerge(item.inputs);
-                chai.assert.deepEqual(actual, item.expected);
+                moduleChai.assert.deepEqual(actual, item.expected);
             }
         }
     }
 });
 function* getMergeTests() {
-    for (const dirEnt of fs.readdirSync(MERGE_TESTS_DIR, { withFileTypes: true })) {
+    for (const dirEnt of moduleFs.readdirSync(MERGE_TESTS_DIR, { withFileTypes: true })) {
         if (!dirEnt.isDirectory()) {
             continue;
         }
         const testName = dirEnt.name;
-        const testDir = sysPath.join(MERGE_TESTS_DIR, testName);
+        const testDir = moduleSysPath.join(MERGE_TESTS_DIR, testName);
         if (BLACKLIST.has(testName)) {
             continue;
         }
         else if (WHITELIST.size > 0 && !WHITELIST.has(testName)) {
             continue;
         }
-        const testPath = sysPath.join(testDir, "test.json");
+        const testPath = moduleSysPath.join(testDir, "test.json");
         yield { name: testName, testPath };
     }
 }
