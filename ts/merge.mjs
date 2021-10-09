@@ -321,7 +321,7 @@ export function mergeProcessCovs(processCovs) { //jslint-quiet
     return merged;
 }
 
-export function mergeScriptCovs(scriptCovs) {
+export function mergeScriptCovs(scriptCovs) { //jslint-quiet
 /**
  * Merges a list of matching script coverages.
  *
@@ -338,7 +338,7 @@ export function mergeScriptCovs(scriptCovs) {
     if (scriptCovs.length === 0) {
         return undefined;
     }
-    else if (scriptCovs.length === 1) {
+    if (scriptCovs.length === 1) {
         merged = scriptCovs[0];
         deepNormalizeScriptCov(merged);
         return merged;
@@ -363,7 +363,7 @@ export function mergeScriptCovs(scriptCovs) {
         // assert: `funcCovs.length > 0`
         functions.push(mergeFunctionCovs(funcCovs));
     });
-    merged = { scriptId, url, functions };
+    merged = { functions, scriptId, url };
     normalizeScriptCov(merged);
     return merged;
 }
@@ -381,10 +381,10 @@ function stringifyFunctionRootRange(funcCov) {
  * @internal
  */
     const rootRange = funcCov.ranges[0];
-    return `${rootRange.startOffset.toString(10)};${rootRange.endOffset.toString(10)}`;
+    return `${rootRange.startOffset.toString(10)};${rootRange.endOffset.toString(10)}`; //jslint-quiet
 }
 
-export function mergeFunctionCovs(funcCovs) {
+export function mergeFunctionCovs(funcCovs) { //jslint-quiet
 /**
  * Merges a list of matching function coverages.
  *
@@ -401,7 +401,7 @@ export function mergeFunctionCovs(funcCovs) {
     if (funcCovs.length === 0) {
         return undefined;
     }
-    else if (funcCovs.length === 1) {
+    if (funcCovs.length === 1) {
         merged = funcCovs[0];
         normalizeFunctionCov(merged);
         return merged;
@@ -416,7 +416,11 @@ export function mergeFunctionCovs(funcCovs) {
     funcCovs.forEach(function (funcCov) {
         // assert: `funcCov.ranges.length > 0`
         // assert: `funcCov.ranges` is sorted
-        count += funcCov.count !== undefined ? funcCov.count : funcCov.ranges[0].count;
+        count += (
+            funcCov.count !== undefined
+            ? funcCov.count
+            : funcCov.ranges[0].count
+        );
         if (funcCov.isBlockCoverage) {
             trees.push(rangeTreeFromSortedRanges(funcCov.ranges));
         }
@@ -428,8 +432,7 @@ export function mergeFunctionCovs(funcCovs) {
         const mergedTree = mergeRangeTrees(trees);
         normalizeRangeTree(mergedTree);
         ranges = mergedTree.toRanges();
-    }
-    else {
+    } else {
         isBlockCoverage = false;
         ranges = [{ startOffset, endOffset, count }];
     }
@@ -515,17 +518,14 @@ class StartEventQueue {
         if (pendingTrees === undefined) {
             this.nextIndex += 1;
             return nextEvent;
-        }
-        else if (nextEvent === undefined) {
+        } else if (nextEvent === undefined) {
             this.pendingTrees = undefined;
             return new StartEvent(this.pendingOffset, pendingTrees);
-        }
-        else {
+        } else {
             if (this.pendingOffset < nextEvent.offset) {
                 this.pendingTrees = undefined;
                 return new StartEvent(this.pendingOffset, pendingTrees);
-            }
-            else {
+            } else {
                 if (this.pendingOffset === nextEvent.offset) {
                     this.pendingTrees = undefined;
                     pendingTrees.forEach(function (tree) {
@@ -561,8 +561,7 @@ function mergeRangeTreeChildren(parentTrees) {
             });
             startEventQueue.setPendingOffset(openRangeEnd);
             openRange = { start: event.offset, end: openRangeEnd };
-        }
-        else {
+        } else {
             event.trees.forEach(function ({ parentIndex, tree }) {
                 if (tree.end > openRange.end) {
                     const right = tree.split(openRange.end);
@@ -592,8 +591,7 @@ function nextChild(openRange, parentToNested) {
     parentToNested.forEach(function (nested) {
         if (nested.length === 1 && nested[0].start === openRange.start && nested[0].end === openRange.end) {
             matchingTrees.push(nested[0]);
-        }
-        else {
+        } else {
             matchingTrees.push(new RangeTree(openRange.start, openRange.end, 0, nested));
         }
     });
