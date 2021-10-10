@@ -199,7 +199,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
     let queueListIi = 0;
     let queueOffset;
     let queueTrees;
-    let resultChildren = [];
+    let result = [];
     let startToTreeMap = new Map();
     function coverageRangeTreeSplit(tree, value) {
 
@@ -250,11 +250,11 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         tree.end = value;
         return resultTree;
     }
-    function insertChild(parentToNestedMap, parentIndex, tree) {
-        let nested = parentToNestedMap.get(parentIndex);
+    function insertChild(parentToNestedMap, parentIi, tree) {
+        let nested = parentToNestedMap.get(parentIi);
         if (nested === undefined) {
             nested = [];
-            parentToNestedMap.set(parentIndex, nested);
+            parentToNestedMap.set(parentIi, nested);
         }
         nested.push(tree);
     }
@@ -310,22 +310,22 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         }
         if (nextOffset === undefined) {
             if (openRange !== undefined) {
-                resultChildren.push(nextChild(openRange, parentToNestedMap));
+                result.push(nextChild(openRange, parentToNestedMap));
             }
             return true;
         }
         if (openRange !== undefined && openRange.end <= nextOffset) {
-            resultChildren.push(nextChild(openRange, parentToNestedMap));
+            result.push(nextChild(openRange, parentToNestedMap));
             openRange = undefined;
         }
         if (openRange === undefined) {
             openRangeEnd = nextOffset + 1;
             nextTrees.forEach(function ({ //jslint-quiet
-                parentIndex,
+                parentIi,
                 tree
             }) {
                 openRangeEnd = Math.max(openRangeEnd, tree.end);
-                insertChild(parentToNestedMap, parentIndex, tree);
+                insertChild(parentToNestedMap, parentIi, tree);
             });
             queueOffset = openRangeEnd;
             openRange = {
@@ -334,7 +334,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
             };
         } else {
             nextTrees.forEach(function ({ //jslint-quiet
-                parentIndex,
+                parentIi,
                 tree
             }) {
                 let right;
@@ -347,15 +347,15 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
 // new RangeTreeWithParent().
 
                     queueTrees.push({
-                        parentIndex,
+                        parentIi,
                         tree: right
                     });
                 }
-                insertChild(parentToNestedMap, parentIndex, tree);
+                insertChild(parentToNestedMap, parentIi, tree);
             });
         }
     }
-    parentTrees.forEach(function (parentTree, parentIndex) {
+    parentTrees.forEach(function (parentTree, parentIi) {
         parentTree.children.forEach(function (child) {
             let trees = startToTreeMap.get(child.start);
             if (trees === undefined) {
@@ -366,7 +366,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
 // new RangeTreeWithParent().
 
             trees.push({
-                parentIndex,
+                parentIi,
                 tree: child
             });
         });
@@ -391,7 +391,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
             break;
         }
     }
-    return resultChildren;
+    return result;
 }
 
 function coverageRangeTreeFromSortedRanges(ranges) {
