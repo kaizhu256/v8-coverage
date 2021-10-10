@@ -292,12 +292,12 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
 
         if (nextOffset === undefined) {
             if (openRange !== undefined) {
-                resultAppendNextChild(openRange, parentToNestedMap);
+                resultAppendNextChild();
             }
             return true;
         }
         if (openRange !== undefined && openRange.end <= nextOffset) {
-            resultAppendNextChild(openRange, parentToNestedMap);
+            resultAppendNextChild();
             openRange = undefined;
         }
         if (openRange === undefined) {
@@ -337,7 +337,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
             });
         }
     }
-    function resultAppendNextChild(openRange, parentToNestedMap) {
+    function resultAppendNextChild() {
 
 // This function will append next child to <result>.
 
