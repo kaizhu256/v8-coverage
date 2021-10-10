@@ -14,7 +14,7 @@ function v8CoverageListMerge(processCovs) {
 // @return Merged process coverage.
 
     let resultMerged = [];      // List of merged scripts from processCovs.
-    let urlToScriptDict = new Map();    // Dict mapping script.url to scriptCovs
+    let urlToScriptDict = new Map();    // Map script.url to scriptCovs.
 
     function compareRangeList(aa, bb) {
 
@@ -78,12 +78,6 @@ function v8CoverageListMerge(processCovs) {
         let queueTrees;
         let resultChildren = [];
         let startToTreeDict = new Map();
-        function childInsert(parentIi, child) {
-
-// This function will insert <child> into <parentToNestedDict>[<parentIi>].
-
-            dictKeyValueAppend(parentToNestedDict, parentIi, child);
-        }
         function nextXxx() {
 
 // Increment nextOffset, nextTrees.
@@ -144,7 +138,7 @@ function v8CoverageListMerge(processCovs) {
 
 // Insert children from nextTrees to parentToNextDict.
 
-                    childInsert(parentIi, tree);
+                    dictKeyValueAppend(parentToNestedDict, parentIi, tree);
                 });
                 queueOffset = openRangeEnd;
                 openRange = {
@@ -173,7 +167,7 @@ function v8CoverageListMerge(processCovs) {
 
 // Insert children from nextTrees to parentToNextDict.
 
-                    childInsert(parentIi, tree);
+                    dictKeyValueAppend(parentToNestedDict, parentIi, tree);
                 });
             }
         }
