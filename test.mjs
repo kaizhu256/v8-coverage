@@ -1,3 +1,6 @@
+/*
+shRunWithCoverage node --unhandled-rejections=strict test.mjs
+*/
 /*jslint beta, node*/
 import coverageMerge from "./merge.mjs";
 import moduleFs from "fs";
@@ -78,56 +81,56 @@ debugInline();
         coverageProcessListMerge,
         coverageScriptListMerge
     } = coverageMerge;
-    let testCountFailed = 0;
-    let testCountTotal = 0;
-    let testItList;
-    let testOnExit;
-    let testTimeStart = Date.now();
+    let jtestCountFailed = 0;
+    let jtestCountTotal = 0;
+    let jtestItList = [];
+    let jtestOnExit;
+    let jtestTimeStart = Date.now();
 
     async function testDescribe(description, testFunction) {
         let result;
 
-// Init testOnExit.
+// Init jtestOnExit.
 
-        if (!testOnExit) {
-            testOnExit = function (exitCode) {
+        if (!jtestOnExit) {
+            jtestOnExit = function (exitCode) {
                 console.error(
                     (
-                        testCountFailed
+                        jtestCountFailed
                         ? "\n\u001b[31m"
                         : "\n\u001b[32m"
                     )
-                    + "  tests total  - " + testCountTotal + "\n"
-                    + "  tests failed - " + testCountFailed + "\n"
+                    + "  tests total  - " + jtestCountTotal + "\n"
+                    + "  tests failed - " + jtestCountFailed + "\n"
                     + "\u001b[39m"
                 );
-                if (!exitCode && testCountFailed) {
+                if (!exitCode && jtestCountFailed) {
                     process.exit(1);
                 }
             };
-            process.on("exit", testOnExit);
+            process.on("exit", jtestOnExit);
         }
 
-// Init testItList.
+// Init jtestItList.
 
-        testItList = [];
+        jtestItList = [];
         testFunction();
 
-// Wait for testItList to resolve.
+// Wait for jtestItList to resolve.
 
-        result = await Promise.all(testItList);
+        result = await Promise.all(jtestItList);
 
 // Print test results.
 
         console.error(
-            "\n  " + (Date.now() - testTimeStart) + "ms"
+            "\n  " + (Date.now() - jtestTimeStart) + "ms"
             + " - test describe - " + description
         );
         result.forEach(function ([
             err, description
         ]) {
             if (err) {
-                testCountFailed += 1;
+                jtestCountFailed += 1;
                 console.error(
                     "    \u001b[31m\u2718 it " + description + "\n"
                     + err.stack
@@ -141,9 +144,9 @@ debugInline();
         });
     }
 
-    function testIt(description, testFunction) {
-        testCountTotal += 1;
-        testItList.push(new Promise(async function (resolve) {
+    function jtestIt(description, testFunction) {
+        jtestCountTotal += 1;
+        jtestItList.push(new Promise(async function (resolve) {
             let err;
             try {
                 await testFunction();
@@ -156,31 +159,31 @@ debugInline();
         }));
     }
 
-    testDescribe("coverage - merge empty arrays", function () {
+    jtestDescribe("coverage - merge empty arrays", function () {
     /**
      * Generate a Mocha test suite for the provided
      * implementation of `v8-coverage-tools`.
      */
-        testIt((
+        jtestIt((
             "accepts empty arrays for `coverageProcessListMerge`"
         ), function () {
             assertJsonEqual(coverageProcessListMerge([]), {
                 result: []
             });
         });
-        testIt((
+        jtestIt((
             "accepts empty arrays for `coverageScriptListMerge`"
         ), function () {
             assertJsonEqual(coverageScriptListMerge([]), undefined);
         });
-        testIt((
+        jtestIt((
             "accepts empty arrays for `coverageFunctionListMerge`"
         ), function () {
             assertJsonEqual(coverageFunctionListMerge([]), undefined);
         });
     });
 
-    testDescribe("coverage - merge non-empty arrays", function () {
+    jtestDescribe("coverage - merge non-empty arrays", function () {
         let functionsExpected = JSON.stringify([
             {
                 functionName: "test",
@@ -222,7 +225,7 @@ debugInline();
                 ]
             }
         ]);
-        testIt((
+        jtestIt((
             "accepts arrays with a single item for `coverageProcessListMerge`"
         ), function () {
             assertJsonEqual(coverageProcessListMerge([
@@ -245,7 +248,7 @@ debugInline();
                 ]
             });
         });
-        testIt((
+        jtestIt((
             "accepts arrays with two identical items for"
             + " `coverageProcessListMerge`"
         ), function () {
@@ -278,7 +281,7 @@ debugInline();
                 ]
             });
         });
-        testIt((
+        jtestIt((
             "accepts arrays with a single item for `coverageScriptListMerge`"
         ), function () {
             assertJsonEqual(coverageScriptListMerge([
@@ -293,7 +296,7 @@ debugInline();
                 scriptId: "123"
             });
         });
-        testIt((
+        jtestIt((
             "accepts arrays with a single item for `coverageFunctionListMerge`"
         ), function () {
             assertJsonEqual(
@@ -305,8 +308,8 @@ debugInline();
         });
     });
 
-    testDescribe("coverage - merge multiple files", function () {
-        testIt("merge test files`", async function () {
+    jtestDescribe("coverage - merge multiple files", function () {
+        jtestIt("merge test files`", async function () {
             await Promise.all([
                 "test_coverage_merge_is_block_coverage_test.json",
                 "test_coverage_merge_issue_2_mixed_is_block_coverage_test.json",
@@ -327,8 +330,8 @@ debugInline();
         });
     });
 
-    testDescribe("coverage - merge multiple files", function () {
-        testIt("merge multiple node-sqlite coverage files`", async function () {
+    jtestDescribe("coverage - merge multiple files", function () {
+        jtestIt("merge multiple node-sqlite coverage files`", async function () {
             let data1 = await Promise.all([
                 "test_v8_coverage_node_sqlite_merged.json",
                 "test_v8_coverage_node_sqlite_9884_1633662346346_0.json",
@@ -347,10 +350,10 @@ debugInline();
             data1 = JSON.stringify(data1, undefined, 4) + "\n";
 
 // Debug data1.
-//             await moduleFs.promises.writeFile(
-//                 ".test_v8_coverage_node_sqlite_merged.json",
-//                 data1
-//             );
+// await moduleFs.promises.writeFile(
+//     ".test_v8_coverage_node_sqlite_merged.json",
+//     data1
+// );
 
             assertOrThrow(data1 === data2, "data1 !== data2");
         });
