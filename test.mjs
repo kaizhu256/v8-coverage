@@ -152,12 +152,18 @@ function objectDeepCopyWithKeysSorted(obj) {
 // Coverage-hack.
 debugInline();
 
-(function () {
+(async function () {
     let {
         coverageFunctionListMerge,
         coverageProcessListMerge,
         coverageScriptListMerge
     } = coverageMerge;
+    let testCoverageMergeData = JSON.parse(
+        await moduleFs.promises.readFile(
+            "test_coverage_merge_data.json",
+            "utf8"
+        )
+    );
 
     jstestDescribe("coverage - merge empty arrays", function () {
     /**
@@ -309,24 +315,23 @@ debugInline();
     });
 
     jstestDescribe("coverage - merge multiple files", function () {
-        jstestIt("merge test files`", async function () {
-            await Promise.all([
+        jstestIt("merge test files`", function () {
+            [
                 "test_coverage_merge_is_block_coverage_test.json",
                 "test_coverage_merge_issue_2_mixed_is_block_coverage_test.json",
                 "test_coverage_merge_node_10_internal_errors_one_of_test.json",
                 "test_coverage_merge_reduced_test.json",
                 "test_coverage_merge_simple_test.json",
                 "test_coverage_merge_various_test.json"
-            ].map(async function (pathname) {
-                JSON.parse(
-                    await moduleFs.promises.readFile(pathname, "utf8")
-                ).forEach(function ({
+            ].forEach(function (file) {
+                file = testCoverageMergeData[file];
+                file.forEach(function ({
                     expected,
                     inputs
                 }) {
                     assertJsonEqual(coverageProcessListMerge(inputs), expected);
                 });
-            }));
+            });
         });
     });
 
@@ -334,30 +339,25 @@ debugInline();
         jstestIt((
             "merge multiple node-sqlite coverage files`"
         ), async function () {
-            let data1 = await Promise.all([
-                "test_v8_coverage_node_sqlite_merged.json",
+            let data1 = [
                 "test_v8_coverage_node_sqlite_9884_1633662346346_0.json",
                 "test_v8_coverage_node_sqlite_13216_1633662333140_0.json"
-            ].map(async function (file, ii) {
-                file = await moduleFs.promises.readFile(file, "utf8");
-                if (ii > 0) {
-                    file = JSON.parse(file);
-                }
-                return file;
-            }));
-            let data2 = data1.shift();
+            ].map(function (file) {
+                return testCoverageMergeData[file];
+            });
+            let data2 = testCoverageMergeData[
+                "test_v8_coverage_node_sqlite_merged.json"
+            ];
             data1 = coverageProcessListMerge(data1);
             data1 = coverageProcessListMerge([data1]);
-            data1 = objectDeepCopyWithKeysSorted(data1);
-            data1 = JSON.stringify(data1, undefined, 4) + "\n";
 
 // Debug data1.
 // await moduleFs.promises.writeFile(
 //     ".test_v8_coverage_node_sqlite_merged.json",
-//     data1
+//     JSON.stringify(objectDeepCopyWithKeysSorted(data1), undefined, 4) + "\n"
 // );
 
-            assertOrThrow(data1 === data2, "data1 !== data2");
+            assertJsonEqual(data1, data2);
         });
     });
 }());
