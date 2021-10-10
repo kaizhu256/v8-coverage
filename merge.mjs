@@ -273,20 +273,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
             queueNextIndex += 1;
             return;
         }
-        if (eventNext === undefined) {
-            queuePendingTrees = undefined;
-
-// new StartEvent().
-
-            eventNext = {
-                offset: queuePendingOffset,
-                trees
-            };
-            nextOffset = eventNext.offset;
-            nextTrees = eventNext.trees;
-            return;
-        }
-        if (queuePendingOffset < nextOffset) {
+        if (eventNext === undefined || queuePendingOffset < nextOffset) {
             queuePendingTrees = undefined;
 
 // new StartEvent().
