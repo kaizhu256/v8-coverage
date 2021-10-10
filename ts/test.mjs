@@ -333,14 +333,8 @@ debugInline();
         testIt("merge multiple node-sqlite coverage files`", async function () {
             let data1 = await Promise.all([
                 "test_v8_coverage_node_sqlite_merged.json",
-                "test_v8_coverage_node_sqlite_10880_1633662346331_0.json",
-                "test_v8_coverage_node_sqlite_11656_1633662282219_0.json",
-                "test_v8_coverage_node_sqlite_12292_1633662282282_0.json",
-                "test_v8_coverage_node_sqlite_13216_1633662333140_0.json",
-                "test_v8_coverage_node_sqlite_14020_1633662282250_0.json",
-                "test_v8_coverage_node_sqlite_2084_1633662269154_0.json",
-                "test_v8_coverage_node_sqlite_9620_1633662346393_0.json",
-                "test_v8_coverage_node_sqlite_9884_1633662346346_0.json"
+                "test_v8_coverage_node_sqlite_9884_1633662346346_0.json",
+                "test_v8_coverage_node_sqlite_13216_1633662333140_0.json"
             ].map(async function (file, ii) {
                 file = await moduleFs.promises.readFile(file, "utf8");
                 if (ii > 0) {
@@ -355,7 +349,7 @@ debugInline();
             data1 = JSON.stringify(data1, undefined, 4) + "\n";
             // debug data1
             await moduleFs.promises.writeFile(
-                ".v8_coverage_node_sqlite_merged.json",
+                ".test_v8_coverage_node_sqlite_merged.json",
                 data1
             );
             assertOrThrow(data1 === data2, "data1 !== data2");
