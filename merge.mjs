@@ -490,12 +490,17 @@ function coverageProcessListMerge(processCovs) {
             sortScript(scriptCov);
         });
 
-// sort processCovs[0].result.
+// Sort processCovs[0].result.
 
         return sortProcess(processCovs[0]);
     }
-    processCovs.forEach(function (processCov) {
-        processCov.result.forEach(function (scriptCov) {
+
+// Init urlToScriptDict.
+
+    processCovs.forEach(function ({
+        result
+    }) {
+        result.forEach(function (scriptCov) {
             dictKeyValueAppend(urlToScriptDict, scriptCov.url, scriptCov);
         });
     });
@@ -525,18 +530,27 @@ function coverageProcessListMerge(processCovs) {
             result.push(sortScript(scriptCovs[0]));
             return;
         }
-        scriptCovs.forEach(function (scriptCov) {
-            scriptCov.functions.forEach(function (funcCov) {
+
+// Init rangeToFuncDict.
+
+        scriptCovs.forEach(function ({
+            functions
+        }) {
+            functions.forEach(function (funcCov) {
+                dictKeyValueAppend(
+                    rangeToFuncDict,
 
 // This string can be used to match function with same root range.
 // The string is derived from the start and end offsets of the root range of
 // the function.
 // This assumes that `ranges` is non-empty (true for valid function coverages).
 
-                dictKeyValueAppend(rangeToFuncDict, (
-                    funcCov.ranges[0].startOffset
-                    + ";" + funcCov.ranges[0].endOffset
-                ), funcCov);
+                    (
+                        funcCov.ranges[0].startOffset
+                        + ";" + funcCov.ranges[0].endOffset
+                    ),
+                    funcCov
+                );
             });
         });
         rangeToFuncDict.forEach(function (funcCovs) {
