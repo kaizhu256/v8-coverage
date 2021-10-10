@@ -258,11 +258,11 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         nested.push(tree);
     }
     function next() {
-        eventNext = queueList[queueNextIndex];
         let trees = queuePendingTrees;
+        eventNext = queueList[queueNextIndex];
         if (trees === undefined) {
             queueNextIndex += 1;
-            return
+            return;
         }
         if (eventNext === undefined) {
             queuePendingTrees = undefined;
