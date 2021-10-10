@@ -254,13 +254,106 @@ function coverageProcessListMerge(processCovs) {
         return resultChildren;
     }
 
+    function dictKeyValueAppend(dict, key, val) {
+
+// This function will append <val> to list <dict>[<key>].
+
+        let list = dict.get(key);
+        if (list === undefined) {
+            list = [];
+            dict.set(key, list);
+        }
+        list.push(val);
+    }
+
+    function mergeRangeList(parentTrees) {
+
+// This function will return RangeTree object with <parentTrees> merged into
+// property-children.
+
+
+// @precondition Same `start` and `end` for all the parentTrees
+
+        if (parentTrees.length <= 1) {
+            return parentTrees[0];
+        }
+
+// new RangeTree().
+
+        return {
+
+// Merge parentTrees into property-children.
+
+            children: coverageRangeTreeChildrenMerge(parentTrees),
+            delta: parentTrees.reduce(function (aa, bb) {
+                return aa + bb.delta;
+            }, 0),
+            end: parentTrees[0].end,
+            start: parentTrees[0].start
+        };
+    }
+
+    function sortFunc(funcCov) {
+
+// This function will normalize-and-sort <funcCov>.ranges.
+// Sorts the ranges (pre-order sort).
+// TODO: Tree-based normalization of the ranges. //jslint-quiet
+// @param funcCov Function coverage to normalize.
+
+        funcCov.ranges = treeToRanges(treeFromSortedRanges(
+            funcCov.ranges.sort(compareRangeList)
+        ));
+        return funcCov;
+    }
+
+    function sortProcess(processCov) {
+
+// This function will sort <processCov>.result.
+// Sorts the scripts alphabetically by `url`.
+// Reassigns script ids: the script at index `0` receives `"0"`, the script at
+// index `1` receives `"1"` etc.
+
+        Object.entries(processCov.result.sort(function (aa, bb) {
+            return (
+                aa.url < bb.url
+                ? -1
+                : aa.url > bb.url
+                ? 1
+                : 0
+            );
+        })).forEach(function ([
+            scriptId, scriptCov
+        ]) {
+            scriptCov.scriptId = scriptId.toString(10);
+        });
+        return processCov;
+    }
+
+    function sortScript(scriptCov) {
+
+// This function will normalize-and-sort <scriptCov>.functions.
+
+// Normalize-and-sort functions[xxx].ranges.
+
+        scriptCov.functions.forEach(function (funcCov) {
+            sortFunc(funcCov);
+        });
+
+// Sort functions by root range (pre-order sort).
+
+        scriptCov.functions.sort(function (aa, bb) {
+            return compareRangeList(aa.ranges[0], bb.ranges[0]);
+        });
+        return scriptCov;
+    }
+
     function treeFromSortedRanges(ranges) {
 
 // @precondition `ranges` are well-formed and pre-order sorted
 
         let root;
-        let stack = [];             // Stack of parent trees and parent counts.
-        ranges.sort(compareRangeList).forEach(function (range) {
+        let stack = [];   // Stack of parent trees and parent counts.
+        ranges.forEach(function (range) {
 
 // new rangeTreeCreate().
 
@@ -300,7 +393,7 @@ function coverageProcessListMerge(processCovs) {
         return root;
     }
 
-    function coverageRangeTreeToRanges(tree) {
+    function treeToRanges(tree) {
 
 // Get the range coverages corresponding to the tree.
 // The ranges are pre-order sorted.
@@ -391,97 +484,6 @@ function coverageProcessListMerge(processCovs) {
             }
         }
         return ranges;
-    }
-
-    function dictKeyValueAppend(dict, key, val) {
-
-// This function will append <val> to list <dict>[<key>].
-
-        let list = dict.get(key);
-        if (list === undefined) {
-            list = [];
-            dict.set(key, list);
-        }
-        list.push(val);
-    }
-
-    function mergeRangeList(parentTrees) {
-
-// This function will return RangeTree object with <parentTrees> merged into
-// property-children.
-
-
-// @precondition Same `start` and `end` for all the parentTrees
-
-        if (parentTrees.length <= 1) {
-            return parentTrees[0];
-        }
-
-// new RangeTree().
-
-        return {
-
-// Merge parentTrees into property-children.
-
-            children: coverageRangeTreeChildrenMerge(parentTrees),
-            delta: parentTrees.reduce(function (aa, bb) {
-                return aa + bb.delta;
-            }, 0),
-            end: parentTrees[0].end,
-            start: parentTrees[0].start
-        };
-    }
-
-    function sortFunc(funcCov) {
-
-// This function will normalize-and-sort <funcCov>.ranges.
-// Sorts the ranges (pre-order sort).
-// TODO: Tree-based normalization of the ranges. //jslint-quiet
-// @param funcCov Function coverage to normalize.
-
-        funcCov.ranges = coverageRangeTreeToRanges(
-            treeFromSortedRanges(funcCov.ranges)
-        );
-        return funcCov;
-    }
-
-    function sortProcess(processCov) {
-
-// This function will sort <processCov>.result.
-// Sorts the scripts alphabetically by `url`.
-// Reassigns script ids: the script at index `0` receives `"0"`, the script at
-// index `1` receives `"1"` etc.
-
-        Object.entries(processCov.result.sort(function (aa, bb) {
-            return (
-                aa.url < bb.url
-                ? -1
-                : aa.url > bb.url
-                ? 1
-                : 0
-            );
-        })).forEach(function ([
-            scriptId, scriptCov
-        ]) {
-            scriptCov.scriptId = scriptId.toString(10);
-        });
-        return processCov;
-    }
-
-    function sortScript(scriptCov) {
-
-// This function will normalize-and-sort <scriptCov>.functions.
-
-        scriptCov.functions.forEach(function (funcCov) {
-            sortFunc(funcCov);
-        });
-
-// Sort functions by root range (pre-order sort).
-
-        scriptCov.functions.sort(function (aa, bb) {
-            return compareRangeList(aa.ranges[0], bb.ranges[0]);
-        });
-        return scriptCov;
     }
 
     if (processCovs.length === 0) {
@@ -608,7 +610,7 @@ function coverageProcessListMerge(processCovs) {
             });
             if (trees.length > 0) {
                 isBlockCoverage = true;
-                ranges = coverageRangeTreeToRanges(mergeRangeList(trees));
+                ranges = treeToRanges(mergeRangeList(trees));
             } else {
                 isBlockCoverage = false;
                 ranges = [
