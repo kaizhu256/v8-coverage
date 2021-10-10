@@ -29,7 +29,46 @@ function coverageProcessListMerge(processCovs) {
         return bb.endOffset - aa.endOffset;
     }
 
-    function coverageRangeTreeChildrenMerge(parentTrees) {
+    function dictKeyValueAppend(dict, key, val) {
+
+// This function will append <val> to list <dict>[<key>].
+
+        let list = dict.get(key);
+        if (list === undefined) {
+            list = [];
+            dict.set(key, list);
+        }
+        list.push(val);
+    }
+
+    function mergeRangeList(parentTrees) {
+
+// This function will return RangeTree object with <parentTrees> merged into
+// property-children.
+
+
+// @precondition Same `start` and `end` for all the parentTrees
+
+        if (parentTrees.length <= 1) {
+            return parentTrees[0];
+        }
+
+// new RangeTree().
+
+        return {
+
+// Merge parentTrees into property-children.
+
+            children: mergeRangeTree(parentTrees),
+            delta: parentTrees.reduce(function (aa, bb) {
+                return aa + bb.delta;
+            }, 0),
+            end: parentTrees[0].end,
+            start: parentTrees[0].start
+        };
+    }
+
+    function mergeRangeTree(parentTrees) {
 
 // This function will return <resultChildren> with <parentTrees> merged.
 
@@ -252,45 +291,6 @@ function coverageProcessListMerge(processCovs) {
             }
         }
         return resultChildren;
-    }
-
-    function dictKeyValueAppend(dict, key, val) {
-
-// This function will append <val> to list <dict>[<key>].
-
-        let list = dict.get(key);
-        if (list === undefined) {
-            list = [];
-            dict.set(key, list);
-        }
-        list.push(val);
-    }
-
-    function mergeRangeList(parentTrees) {
-
-// This function will return RangeTree object with <parentTrees> merged into
-// property-children.
-
-
-// @precondition Same `start` and `end` for all the parentTrees
-
-        if (parentTrees.length <= 1) {
-            return parentTrees[0];
-        }
-
-// new RangeTree().
-
-        return {
-
-// Merge parentTrees into property-children.
-
-            children: coverageRangeTreeChildrenMerge(parentTrees),
-            delta: parentTrees.reduce(function (aa, bb) {
-                return aa + bb.delta;
-            }, 0),
-            end: parentTrees[0].end,
-            start: parentTrees[0].start
-        };
     }
 
     function sortFunc(funcCov) {
