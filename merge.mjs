@@ -201,6 +201,14 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
     let queueTrees;
     let result = [];
     let startToTreeMap = new Map();
+    function childInsert(parentToNestedMap, parentIi, tree) {
+        let nested = parentToNestedMap.get(parentIi);
+        if (nested === undefined) {
+            nested = [];
+            parentToNestedMap.set(parentIi, nested);
+        }
+        nested.push(tree);
+    }
     function coverageRangeTreeSplit(tree, value) {
 
 // @precondition `tree.start < value && value < tree.end`
@@ -250,41 +258,9 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         tree.end = value;
         return resultTree;
     }
-    function insertChild(parentToNestedMap, parentIi, tree) {
-        let nested = parentToNestedMap.get(parentIi);
-        if (nested === undefined) {
-            nested = [];
-            parentToNestedMap.set(parentIi, nested);
-        }
-        nested.push(tree);
-    }
-    function nextChild(openRange, parentToNestedMap) {
-        let matchingTrees = [];
-        parentToNestedMap.forEach(function (nested) {
-            if (
-                nested.length === 1
-                && nested[0].start === openRange.start
-                && nested[0].end === openRange.end
-            ) {
-                matchingTrees.push(nested[0]);
-            } else {
-
-// new rangeTreeCreate().
-
-                matchingTrees.push({
-                    children: nested,
-                    delta: 0,
-                    end: openRange.end,
-                    start: openRange.start
-                });
-            }
-        });
-        parentToNestedMap.clear();
-        return coverageRangeTreeListMerge(matchingTrees);
-    }
     function nextXxx() {
 
-// Init nextOffset, nextTrees.
+// Increment nextOffset, nextTrees.
 
         let [
             nextOffset, nextTrees
@@ -292,15 +268,18 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         let openRangeEnd;
         if (queueTrees === undefined) {
             queueListIi += 1;
+
+// Increment nextOffset, nextTrees.
+
         } else if (nextOffset === undefined || nextOffset > queueOffset) {
-
-// Update nextOffset, nextTrees.
-
             nextOffset = queueOffset;
             nextTrees = queueTrees;
             queueTrees = undefined;
+
+// Concat queueTrees to nextTrees.
+
         } else {
-            if (queueOffset === nextOffset) {
+            if (nextOffset === queueOffset) {
                 queueTrees.forEach(function (tree) {
                     nextTrees.push(tree);
                 });
@@ -308,14 +287,17 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
             }
             queueListIi += 1;
         }
+
+// Reached end of queueList.
+
         if (nextOffset === undefined) {
             if (openRange !== undefined) {
-                result.push(nextChild(openRange, parentToNestedMap));
+                resultAppendNextChild(openRange, parentToNestedMap);
             }
             return true;
         }
         if (openRange !== undefined && openRange.end <= nextOffset) {
-            result.push(nextChild(openRange, parentToNestedMap));
+            resultAppendNextChild(openRange, parentToNestedMap);
             openRange = undefined;
         }
         if (openRange === undefined) {
@@ -325,7 +307,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
                 tree
             }) {
                 openRangeEnd = Math.max(openRangeEnd, tree.end);
-                insertChild(parentToNestedMap, parentIi, tree);
+                childInsert(parentToNestedMap, parentIi, tree);
             });
             queueOffset = openRangeEnd;
             openRange = {
@@ -351,9 +333,36 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
                         tree: right
                     });
                 }
-                insertChild(parentToNestedMap, parentIi, tree);
+                childInsert(parentToNestedMap, parentIi, tree);
             });
         }
+    }
+    function resultAppendNextChild(openRange, parentToNestedMap) {
+
+// This function will append next child to <result>.
+
+        let treesMatching = [];
+        parentToNestedMap.forEach(function (nested) {
+            if (
+                nested.length === 1
+                && nested[0].start === openRange.start
+                && nested[0].end === openRange.end
+            ) {
+                treesMatching.push(nested[0]);
+            } else {
+
+// new rangeTreeCreate().
+
+                treesMatching.push({
+                    children: nested,
+                    delta: 0,
+                    end: openRange.end,
+                    start: openRange.start
+                });
+            }
+        });
+        parentToNestedMap.clear();
+        result.push(coverageRangeTreeListMerge(treesMatching));
     }
     parentTrees.forEach(function (parentTree, parentIi) {
         parentTree.children.forEach(function (child) {
