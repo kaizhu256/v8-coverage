@@ -426,9 +426,9 @@ function coverageProcessListMerge(processCovs) {
             }
         );
     }
-    function normalizeFunc(funcCov) {
+    function sortFunc(funcCov) {
 
-// Normalizes a function coverage.
+// This function will sort <funcCov>.ranges.
 // Sorts the ranges (pre-order sort).
 // TODO: Tree-based normalization of the ranges. //jslint-quiet
 // @param funcCov Function coverage to normalize.
@@ -440,7 +440,7 @@ function coverageProcessListMerge(processCovs) {
         );
         return funcCov;
     }
-    function normalizeProcess(processCov) {
+    function sortProcess(processCov) {
 
 // Normalizes a process coverage.
 // Sorts the scripts alphabetically by `url`.
@@ -469,9 +469,9 @@ function coverageProcessListMerge(processCovs) {
         });
         return processCov;
     }
-    function normalizeScript(scriptCov) {
+    function sortScript(scriptCov) {
 
-// Normalizes a script coverage.
+// This function will sort <scriptCov>.functions.
 // Sorts the function by root range (pre-order sort).
 // This does not normalize the function coverages.
 // @param scriptCov Script coverage to normalize.
@@ -485,17 +485,17 @@ function coverageProcessListMerge(processCovs) {
         });
         return scriptCov;
     }
-    function normalizeScriptDeep(scriptCov) {
+    function sortScriptDeep(scriptCov) {
 
-// Normalizes a script coverage deeply.
+// This function will deep-sort <scriptCov>.functions.
 // Normalizes the function coverages deeply, then normalizes the script coverage
 // itself.
 // @param scriptCov Script coverage to normalize.
 
         scriptCov.functions.forEach(function (funcCov) {
-            normalizeFunc(funcCov);
+            sortFunc(funcCov);
         });
-        return normalizeScript(scriptCov);
+        return sortScript(scriptCov);
     }
     if (processCovs.length === 0) {
         return {
@@ -504,16 +504,17 @@ function coverageProcessListMerge(processCovs) {
     }
     if (processCovs.length === 1) {
 
-// function normalizeProcessDeep(processCovs[0]) {
+// This function will deep-sort <processCovs[0]>.result.
+// function sortProcessDeep(processCovs[0]) {
 // Normalizes a process coverage deeply.
 // Normalizes the script coverages deeply, then normalizes the process coverage
 // itself.
 // @param processCovs[0] Process coverage to normalize.
 
         processCovs[0].result.forEach(function (scriptCov) {
-            normalizeScriptDeep(scriptCov);
+            sortScriptDeep(scriptCov);
         });
-        return normalizeProcess(processCovs[0]);
+        return sortProcess(processCovs[0]);
     }
     processCovs.forEach(function (processCov) {
         processCov.result.forEach(function (scriptCov) {
@@ -543,7 +544,7 @@ function coverageProcessListMerge(processCovs) {
 // }
 
         if (scriptCovs.length === 1) {
-            result.push(normalizeScriptDeep(scriptCovs[0]));
+            result.push(sortScriptDeep(scriptCovs[0]));
             return;
         }
         scriptCovs.forEach(function (scriptCov) {
@@ -554,12 +555,10 @@ function coverageProcessListMerge(processCovs) {
 // the function.
 // This assumes that `ranges` is non-empty (true for valid function coverages).
 
-                let funcCovs;
-                let rootRange = (
+                dictKeyValueAppend(rangeToFuncDict, (
                     funcCov.ranges[0].startOffset
                     + ";" + funcCov.ranges[0].endOffset
-                );
-                dictKeyValueAppend(rangeToFuncDict, rootRange, funcCov);
+                ), funcCov);
             });
         });
         rangeToFuncDict.forEach(function (funcCovs) {
@@ -588,7 +587,7 @@ function coverageProcessListMerge(processCovs) {
 // }
 
             if (funcCovs.length === 1) {
-                functions.push(normalizeFunc(funcCovs[0]));
+                functions.push(sortFunc(funcCovs[0]));
                 return;
             }
 
@@ -636,7 +635,7 @@ function coverageProcessListMerge(processCovs) {
 
             functions.push(merged);
         });
-        result.push(normalizeScript({
+        result.push(sortScript({
             functions,
             scriptId: scriptCovs[0].scriptId,
             url: scriptCovs[0].url
@@ -645,7 +644,7 @@ function coverageProcessListMerge(processCovs) {
 
 
     });
-    return normalizeProcess({
+    return sortProcess({
         result
     });
 }
