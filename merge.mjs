@@ -430,7 +430,7 @@ function coverageProcessListMerge(processCovs) {
             }
         );
     }
-    function mergeScripList(scriptCovs) {
+    function mergeScriptList(scriptCovs) {
 
 // Merges a list of matching script coverages.
 //
@@ -674,7 +674,7 @@ function coverageProcessListMerge(processCovs) {
 
 // assert: `scripts.length > 0`
 
-        result.push(mergeScripList(scripts));
+        result.push(mergeScriptList(scripts));
     });
     return normalizeProcess({
         result
