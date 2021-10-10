@@ -41,7 +41,7 @@ function coverageProcessListMerge(processCovs) {
         list.push(val);
     }
 
-    function mergeRangeList(parentTrees) {
+    function mergeTreeList(parentTrees) {
 
 // This function will return RangeTree object with <parentTrees> merged into
 // property-children.
@@ -59,7 +59,7 @@ function coverageProcessListMerge(processCovs) {
 
 // Merge parentTrees into property-children.
 
-            children: mergeRangeTree(parentTrees),
+            children: mergeTreeListToChildren(parentTrees),
             delta: parentTrees.reduce(function (aa, bb) {
                 return aa + bb.delta;
             }, 0),
@@ -68,7 +68,7 @@ function coverageProcessListMerge(processCovs) {
         };
     }
 
-    function mergeRangeTree(parentTrees) {
+    function mergeTreeListToChildren(parentTrees) {
 
 // This function will return <resultChildren> with <parentTrees> merged.
 
@@ -254,7 +254,7 @@ function coverageProcessListMerge(processCovs) {
                 }
             });
             parentToNestedDict.clear();
-            resultChildren.push(mergeRangeList(treesMatching));
+            resultChildren.push(mergeTreeList(treesMatching));
         }
 
 // Init startToTreeDict.
@@ -610,7 +610,7 @@ function coverageProcessListMerge(processCovs) {
             });
             if (trees.length > 0) {
                 isBlockCoverage = true;
-                ranges = treeToRanges(mergeRangeList(trees));
+                ranges = treeToRanges(mergeTreeList(trees));
             } else {
                 isBlockCoverage = false;
                 ranges = [
