@@ -15,6 +15,7 @@ function coverageProcessListMerge(processCovs) {
 
     let resultMerged = [];      // List of merged scripts from processCovs.
     let urlToScriptDict = new Map();    // Dict mapping script.url to scriptCovs
+
     function compareRangeList(aa, bb) {
 
 // Compares two range coverages.
@@ -27,6 +28,7 @@ function coverageProcessListMerge(processCovs) {
         }
         return bb.endOffset - aa.endOffset;
     }
+
     function coverageRangeTreeChildrenMerge(parentTrees) {
 
 // This function will return <resultChildren> with <parentTrees> merged.
@@ -251,6 +253,7 @@ function coverageProcessListMerge(processCovs) {
         }
         return resultChildren;
     }
+
     function coverageRangeTreeFromSortedRanges(ranges) {
 
 // @precondition `ranges` are well-formed and pre-order sorted
@@ -296,6 +299,7 @@ function coverageProcessListMerge(processCovs) {
         });
         return root;
     }
+
     function coverageRangeTreeToRanges(tree) {
 
 // Get the range coverages corresponding to the tree.
@@ -388,6 +392,7 @@ function coverageProcessListMerge(processCovs) {
         }
         return ranges;
     }
+
     function dictKeyValueAppend(dict, key, val) {
 
 // This function will append <val> to list <dict>[<key>].
@@ -399,6 +404,7 @@ function coverageProcessListMerge(processCovs) {
         }
         list.push(val);
     }
+
     function mergeRangeList(parentTrees) {
 
 // This function will return RangeTree object with <parentTrees> merged into
@@ -425,6 +431,7 @@ function coverageProcessListMerge(processCovs) {
             start: parentTrees[0].start
         };
     }
+
     function sortFunc(funcCov) {
 
 // This function will normalize-and-sort <funcCov>.ranges.
@@ -439,6 +446,7 @@ function coverageProcessListMerge(processCovs) {
         );
         return funcCov;
     }
+
     function sortProcess(processCov) {
 
 // This function will sort <processCov>.result.
@@ -461,6 +469,7 @@ function coverageProcessListMerge(processCovs) {
         });
         return processCov;
     }
+
     function sortScript(scriptCov) {
 
 // This function will normalize-and-sort <scriptCov>.functions.
@@ -476,6 +485,7 @@ function coverageProcessListMerge(processCovs) {
         });
         return scriptCov;
     }
+
     if (processCovs.length === 0) {
         return {
             result: []
