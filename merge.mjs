@@ -199,7 +199,6 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
     let queuePendingOffset;
     let queuePendingTrees;
     let resultChildren = [];
-    let right;
     let startToTreeMap = new Map();
     function coverageRangeTreeSplit(tree, value) {
 
@@ -378,6 +377,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
                 parentIndex,
                 tree
             }) {
+                let right;
                 if (tree.end > openRange.end) {
                     right = coverageRangeTreeSplit(tree, openRange.end);
                     if (queuePendingTrees === undefined) {
