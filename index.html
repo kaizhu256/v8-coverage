@@ -1,0 +1,42 @@
+
+<script type="module">
+/*jslint beta, browser*/
+import merge from "./merge.mjs";
+(function () {
+    window.merge = merge;
+    merge.coverageProcessListMerge([
+        {
+            result: [
+                {
+                    functions: [
+                        {
+                            functionName: "test",
+                            isBlockCoverage: true,
+                            ranges: [
+                                {
+                                    count: 2,
+                                    endOffset: 4,
+                                    startOffset: 0
+                                }
+                            ]
+                        }
+                    ],
+                    moduleUrl: "/lib.js",
+                    scriptId: "1"
+                }
+            ]
+        },
+        {
+            result: [
+                {
+                    functions: [
+                    ],
+                    moduleUrl: "/lib.js",
+                    scriptId: "2"
+                }
+            ]
+        }
+    ]);
+}());
+</script>
+
