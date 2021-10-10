@@ -194,7 +194,11 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
     let openRange;
     let openRangeEnd;
     let parentToNestedMap = new Map();
-    let queue;
+    let queueList;
+    let queueNextIndex = 0;
+    let queuePendingIndex = 0;
+    let queuePendingOffset;
+    let queuePendingTrees;
     let resultChildren = [];
     let right;
     let startEventQueue;
@@ -257,38 +261,38 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         nested.push(tree);
     }
     function next() {
-        let nextEvent = queue[startEventQueue.nextIndex];
-        let pendingTrees = startEventQueue.pendingTrees;
+        let nextEvent = queueList[queueNextIndex];
+        let pendingTrees = queuePendingTrees;
         if (pendingTrees === undefined) {
-            startEventQueue.nextIndex += 1;
+            queueNextIndex += 1;
             return nextEvent;
         } else if (nextEvent === undefined) {
-            delete startEventQueue.pendingTrees;
+            queuePendingTrees = undefined;
 
 // new StartEvent().
 
             return {
-                offset: startEventQueue.pendingOffset,
+                offset: queuePendingOffset,
                 trees: pendingTrees
             };
         } else {
-            if (startEventQueue.pendingOffset < nextEvent.offset) {
-                delete startEventQueue.pendingTrees;
+            if (queuePendingOffset < nextEvent.offset) {
+                queuePendingTrees = undefined;
 
 // new StartEvent().
 
                 return {
-                    offset: startEventQueue.pendingOffset,
+                    offset: queuePendingOffset,
                     trees: pendingTrees
                 };
             } else {
-                if (startEventQueue.pendingOffset === nextEvent.offset) {
-                    delete startEventQueue.pendingTrees;
+                if (queuePendingOffset === nextEvent.offset) {
+                    queuePendingTrees = undefined;
                     pendingTrees.forEach(function (tree) {
                         nextEvent.trees.push(tree);
                     });
                 }
-                startEventQueue.nextIndex += 1;
+                queueNextIndex += 1;
                 return nextEvent;
             }
         }
@@ -336,11 +340,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
 
 // new StartEventQueue().
 
-    startEventQueue = {
-        nextIndex: 0,
-        pendingIndex: 0,
-    };
-    queue = Array.from(startToTreeMap).map(function ([
+    queueList = Array.from(startToTreeMap).map(function ([
         startOffset, trees
     ]) {
 
@@ -368,7 +368,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
                 openRangeEnd = Math.max(openRangeEnd, tree.end);
                 insertChild(parentToNestedMap, parentIndex, tree);
             });
-            startEventQueue.pendingOffset = openRangeEnd;
+            queuePendingOffset = openRangeEnd;
             openRange = {
                 end: openRangeEnd,
                 start: event.offset
@@ -377,13 +377,13 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
             event.trees.forEach(function ({ parentIndex, tree }) {
                 if (tree.end > openRange.end) {
                     right = coverageRangeTreeSplit(tree, openRange.end);
-                    if (startEventQueue.pendingTrees === undefined) {
-                        startEventQueue.pendingTrees = [];
+                    if (queuePendingTrees === undefined) {
+                        queuePendingTrees = [];
                     }
 
 // new RangeTreeWithParent().
 
-                    startEventQueue.pendingTrees.push({
+                    queuePendingTrees.push({
                         parentIndex,
                         tree: right
                     });
