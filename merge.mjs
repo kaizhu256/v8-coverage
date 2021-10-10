@@ -3,7 +3,7 @@ shRunWithCoverage node --unhandled-rejections=strict test.mjs
 */
 /*jslint beta, node*/
 
-function coverageProcessListMerge(processCovs) {
+function v8CoverageListMerge(processCovs) {
 
 // Merges a list of process coverages.
 // The result is normalized.
@@ -646,5 +646,5 @@ function coverageProcessListMerge(processCovs) {
 }
 
 export default Object.freeze({
-    coverageProcessListMerge
+    v8CoverageListMerge
 });

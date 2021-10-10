@@ -154,7 +154,7 @@ debugInline();
 
 (async function () {
     let {
-        coverageProcessListMerge
+        v8CoverageListMerge
     } = coverageMerge;
     let testCoverageMergeData = JSON.parse(
         await moduleFs.promises.readFile(
@@ -169,14 +169,14 @@ debugInline();
      * implementation of `v8-coverage-tools`.
      */
         jstestIt((
-            "accepts empty arrays for `coverageProcessListMerge`"
+            "accepts empty arrays for `v8CoverageListMerge`"
         ), function () {
-            assertJsonEqual(coverageProcessListMerge([]), {
+            assertJsonEqual(v8CoverageListMerge([]), {
                 result: []
             });
         });
         jstestIt("funcCovs.length === 1", function () {
-            assertJsonEqual(coverageProcessListMerge([
+            assertJsonEqual(v8CoverageListMerge([
                 {
                     result: [
                         {
@@ -273,9 +273,9 @@ debugInline();
             }
         ]);
         jstestIt((
-            "accepts arrays with a single item for `coverageProcessListMerge`"
+            "accepts arrays with a single item for `v8CoverageListMerge`"
         ), function () {
-            assertJsonEqual(coverageProcessListMerge([
+            assertJsonEqual(v8CoverageListMerge([
                 {
                     result: [
                         {
@@ -297,9 +297,9 @@ debugInline();
         });
         jstestIt((
             "accepts arrays with two identical items for"
-            + " `coverageProcessListMerge`"
+            + " `v8CoverageListMerge`"
         ), function () {
-            assertJsonEqual(coverageProcessListMerge([
+            assertJsonEqual(v8CoverageListMerge([
                 {
                     result: [
                         {
@@ -345,7 +345,7 @@ debugInline();
                     expected,
                     inputs
                 }) {
-                    assertJsonEqual(coverageProcessListMerge(inputs), expected);
+                    assertJsonEqual(v8CoverageListMerge(inputs), expected);
                 });
             });
         });
@@ -364,8 +364,8 @@ debugInline();
             let data2 = testCoverageMergeData[
                 "test_v8_coverage_node_sqlite_merged.json"
             ];
-            data1 = coverageProcessListMerge(data1);
-            data1 = coverageProcessListMerge([data1]);
+            data1 = v8CoverageListMerge(data1);
+            data1 = v8CoverageListMerge([data1]);
 
 // Debug data1.
 // await moduleFs.promises.writeFile(
