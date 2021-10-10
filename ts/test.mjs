@@ -345,11 +345,13 @@ debugInline();
             data1 = coverageProcessListMerge([data1]);
             data1 = objectDeepCopyWithKeysSorted(data1);
             data1 = JSON.stringify(data1, undefined, 4) + "\n";
-            // debug data1
-            await moduleFs.promises.writeFile(
-                ".test_v8_coverage_node_sqlite_merged.json",
-                data1
-            );
+
+// Debug data1.
+//             await moduleFs.promises.writeFile(
+//                 ".test_v8_coverage_node_sqlite_merged.json",
+//                 data1
+//             );
+
             assertOrThrow(data1 === data2, "data1 !== data2");
         });
     });
