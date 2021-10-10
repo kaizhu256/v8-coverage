@@ -21,9 +21,12 @@ function coverageFunctionListMerge(funcCovs) {
     let merged;
     let ranges;
     let trees = [];
-    if (funcCovs.length === 0) {
-        return undefined;
-    }
+
+// Probably deadcode.
+// if (funcCovs.length === 0) {
+//     return undefined;
+// }
+
     if (funcCovs.length === 1) {
         return coverageFunctionNormalize(funcCovs[0]);
     }
@@ -148,7 +151,6 @@ function coverageProcessListMerge(processCovs) {
         });
         return coverageProcessNormalize(processCov);
     }
-
     if (processCovs.length === 0) {
         return {
             result: []
@@ -609,9 +611,12 @@ function coverageScriptListMerge(scriptCovs) {
 
     let functions = [];
     let rangeToFuncMap = new Map();
-    if (scriptCovs.length === 0) {
-        return undefined;
-    }
+
+// Probably deadcode.
+// if (scriptCovs.length === 0) {
+//     return undefined;
+// }
+
     if (scriptCovs.length === 1) {
         return coverageScriptNormalizeDeep(scriptCovs[0]);
     }
@@ -685,7 +690,7 @@ function coverageScriptNormalizeDeep(scriptCov) {
 }
 
 export default Object.freeze({
-    coverageFunctionListMerge,
+    //!! coverageFunctionListMerge,
     coverageProcessListMerge,
     coverageScriptListMerge
 });

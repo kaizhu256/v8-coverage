@@ -154,7 +154,7 @@ debugInline();
 
 (async function () {
     let {
-        coverageFunctionListMerge,
+        //!! coverageFunctionListMerge,
         coverageProcessListMerge,
         coverageScriptListMerge
     } = coverageMerge;
@@ -177,16 +177,16 @@ debugInline();
                 result: []
             });
         });
-        jstestIt((
-            "accepts empty arrays for `coverageScriptListMerge`"
-        ), function () {
-            assertJsonEqual(coverageScriptListMerge([]), undefined);
-        });
-        jstestIt((
-            "accepts empty arrays for `coverageFunctionListMerge`"
-        ), function () {
-            assertJsonEqual(coverageFunctionListMerge([]), undefined);
-        });
+        //!! jstestIt((
+            //!! "accepts empty arrays for `coverageScriptListMerge`"
+        //!! ), function () {
+            //!! assertJsonEqual(coverageScriptListMerge([]), undefined);
+        //!! });
+        //!! jstestIt((
+            //!! "accepts empty arrays for `coverageFunctionListMerge`"
+        //!! ), function () {
+            //!! assertJsonEqual(coverageFunctionListMerge([]), undefined);
+        //!! });
     });
 
     jstestDescribe("coverage - merge non-empty arrays", function () {
@@ -302,16 +302,17 @@ debugInline();
                 scriptId: "123"
             });
         });
-        jstestIt((
-            "accepts arrays with a single item for `coverageFunctionListMerge`"
-        ), function () {
-            assertJsonEqual(
-                [
-                    coverageFunctionListMerge(JSON.parse(functionsInput))
-                ],
-                JSON.parse(functionsExpected)
-            );
-        });
+        //!! jstestIt((
+            //!! "accepts arrays with a single item for
+            //!! `coverageFunctionListMerge`"
+        //!! ), function () {
+            //!! assertJsonEqual(
+                //!! [
+                    //!! coverageFunctionListMerge(JSON.parse(functionsInput))
+                //!! ],
+                //!! JSON.parse(functionsExpected)
+            //!! );
+        //!! });
     });
 
     jstestDescribe("coverage - merge test files", function () {
