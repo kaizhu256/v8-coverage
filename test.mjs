@@ -40,18 +40,18 @@ function assertJsonEqual(aa, bb) {
     }
 }
 
-function assertOrThrow(condition, message) {
+//!! function assertOrThrow(condition, message) {
 
-// This function will throw <message> if <condition> is falsy.
+//!! // This function will throw <message> if <condition> is falsy.
 
-    if (!condition) {
-        throw (
-            (!message || typeof message === "string")
-            ? new Error(String(message).slice(0, 2048))
-            : message
-        );
-    }
-}
+    //!! if (!condition) {
+        //!! throw (
+            //!! (!message || typeof message === "string")
+            //!! ? new Error(String(message).slice(0, 2048))
+            //!! : message
+        //!! );
+    //!! }
+//!! }
 
 async function jstestDescribe(description, testFunction) {
     let result;
@@ -314,8 +314,8 @@ debugInline();
         });
     });
 
-    jstestDescribe("coverage - merge multiple files", function () {
-        jstestIt("merge test files`", function () {
+    jstestDescribe("coverage - merge test files", function () {
+        jstestIt("merge test files", function () {
             [
                 "test_coverage_merge_is_block_coverage_test.json",
                 "test_coverage_merge_issue_2_mixed_is_block_coverage_test.json",
@@ -337,8 +337,8 @@ debugInline();
 
     jstestDescribe("coverage - merge multiple files", function () {
         jstestIt((
-            "merge multiple node-sqlite coverage files`"
-        ), async function () {
+            "merge multiple node-sqlite coverage files"
+        ), function () {
             let data1 = [
                 "test_v8_coverage_node_sqlite_9884_1633662346346_0.json",
                 "test_v8_coverage_node_sqlite_13216_1633662333140_0.json"
