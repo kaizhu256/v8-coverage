@@ -17,7 +17,7 @@ function coverageProcessListMerge(processCovs) {
 
     let result = [];
     let urlToScriptMap = new Map();
-    function coverageRangeListCompare(aa, bb) {
+    function compareRangeList(aa, bb) {
 
 // Compares two range coverages.
 //
@@ -267,7 +267,7 @@ function coverageProcessListMerge(processCovs) {
     }
     function coverageRangeTreeFromSortedRanges(ranges) {
 
-// @precodition `ranges` are well-formed and pre-order sorted
+// @precondition `ranges` are well-formed and pre-order sorted
 
         let root;
         let stack = [];             // Stack of parent trees and parent counts.
@@ -568,7 +568,7 @@ function coverageProcessListMerge(processCovs) {
 
         funcCov.ranges = coverageRangeTreeToRanges(
             coverageRangeTreeFromSortedRanges(
-                funcCov.ranges.sort(coverageRangeListCompare)
+                funcCov.ranges.sort(compareRangeList)
             )
         );
         return funcCov;
@@ -634,7 +634,7 @@ function coverageProcessListMerge(processCovs) {
 //
 // The result corresponds to the comparison of the root ranges.
 
-            return coverageRangeListCompare(aa.ranges[0], bb.ranges[0]);
+            return compareRangeList(aa.ranges[0], bb.ranges[0]);
         });
         return scriptCov;
     }
