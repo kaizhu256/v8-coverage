@@ -430,134 +430,6 @@ function coverageProcessListMerge(processCovs) {
             }
         );
     }
-    function mergeScriptList(scriptCovs) {
-
-// Merges a list of matching script coverages.
-//
-// Scripts are matching if they have the same `url`.
-// The result is normalized.
-// The input values may be mutated, it is not safe to use them after passing
-// them to this function.
-// The computation is synchronous.
-//
-// @param scriptCovs Process coverages to merge.
-// @return Merged script coverage, or `undefined` if the input list was empty.
-
-        let functions = [];
-        let rangeToFuncMap = new Map();
-
-// Probably deadcode.
-// if (scriptCovs.length === 0) {
-//     return undefined;
-// }
-
-        if (scriptCovs.length === 1) {
-            return normalizeScriptDeep(scriptCovs[0]);
-        }
-        scriptCovs.forEach(function (scriptCov) {
-            scriptCov.functions.forEach(function (funcCov) {
-
-// This string can be used to match function with same root range.
-// The string is derived from the start and end offsets of the root range of
-// the function.
-// This assumes that `ranges` is non-empty (true for valid function coverages).
-
-                let funcCovs;
-                let rootRange = (
-                    funcCov.ranges[0].startOffset
-                    + ";" + funcCov.ranges[0].endOffset
-                );
-                funcCovs = rangeToFuncMap.get(rootRange);
-                if (funcCovs === undefined) {
-                    funcCovs = [];
-                    rangeToFuncMap.set(rootRange, funcCovs);
-                }
-                funcCovs.push(funcCov);
-            });
-        });
-        rangeToFuncMap.forEach(function (funcCovs) {
-
-// assert: `funcCovs.length > 0`
-
-// function mergeFuncList(funcCovs) {
-//
-// Merges a list of matching function coverages.
-//
-// Functions are matching if their root ranges have the same span.
-// The result is normalized.
-// The input values may be mutated, it is not safe to use them after passing
-// them to this function.
-// The computation is synchronous.
-//
-// @param funcCovs Function coverages to merge.
-// @return Merged function coverage, or `undefined` if the input list was empty.
-
-            let count = 0;
-            let isBlockCoverage;
-            let merged;
-            let ranges;
-            let trees = [];
-
-// Probably deadcode.
-// if (funcCovs.length === 0) {
-//     return undefined;
-// }
-
-            if (funcCovs.length === 1) {
-                functions.push(normalizeFunc(funcCovs[0]));
-                return;
-            }
-
-// assert: `funcCovs[0].ranges.length > 0`
-
-            funcCovs.forEach(function (funcCov) {
-
-// assert: `funcCov.ranges.length > 0`
-// assert: `funcCov.ranges` is sorted
-
-                count += (
-                    funcCov.count !== undefined
-                    ? funcCov.count
-                    : funcCov.ranges[0].count
-                );
-                if (funcCov.isBlockCoverage) {
-                    trees.push(
-                        coverageRangeTreeFromSortedRanges(funcCov.ranges)
-                    );
-                }
-            });
-            if (trees.length > 0) {
-                isBlockCoverage = true;
-                ranges = coverageRangeTreeToRanges(mergeRangeList(trees));
-            } else {
-                isBlockCoverage = false;
-                ranges = [
-                    {
-                        count,
-                        endOffset: funcCovs[0].ranges[0].endOffset,
-                        startOffset: funcCovs[0].ranges[0].startOffset
-                    }
-                ];
-            }
-            merged = {
-                functionName: funcCovs[0].functionName,
-                isBlockCoverage,
-                ranges
-            };
-            if (count !== ranges[0].count) {
-                merged.count = count;
-            }
-
-// assert: `merged` is normalized
-
-            functions.push(merged);
-        });
-        return normalizeScript({
-            functions,
-            scriptId: scriptCovs[0].scriptId,
-            url: scriptCovs[0].url
-        });
-    }
     function normalizeFunc(funcCov) {
 
 // Normalizes a function coverage.
@@ -671,11 +543,141 @@ function coverageProcessListMerge(processCovs) {
             scriptCovs.push(scriptCov);
         });
     });
-    urlToScriptMap.forEach(function (scripts) {
+    urlToScriptMap.forEach(function (scriptCovs) {
 
-// assert: `scripts.length > 0`
+// assert: `scriptCovs.length > 0`
 
-        result.push(mergeScriptList(scripts));
+//     function mergeScriptList(scriptCovs) {
+//
+// Merges a list of matching script coverages.
+//
+// Scripts are matching if they have the same `url`.
+// The result is normalized.
+// The input values may be mutated, it is not safe to use them after passing
+// them to this function.
+// The computation is synchronous.
+//
+// @param scriptCovs Process coverages to merge.
+// @return Merged script coverage, or `undefined` if the input list was empty.
+
+        let functions = [];
+        let rangeToFuncMap = new Map();
+
+// Probably deadcode.
+// if (scriptCovs.length === 0) {
+//     return undefined;
+// }
+
+        if (scriptCovs.length === 1) {
+            result.push(normalizeScriptDeep(scriptCovs[0]));
+            return;
+        }
+        scriptCovs.forEach(function (scriptCov) {
+            scriptCov.functions.forEach(function (funcCov) {
+
+// This string can be used to match function with same root range.
+// The string is derived from the start and end offsets of the root range of
+// the function.
+// This assumes that `ranges` is non-empty (true for valid function coverages).
+
+                let funcCovs;
+                let rootRange = (
+                    funcCov.ranges[0].startOffset
+                    + ";" + funcCov.ranges[0].endOffset
+                );
+                funcCovs = rangeToFuncMap.get(rootRange);
+                if (funcCovs === undefined) {
+                    funcCovs = [];
+                    rangeToFuncMap.set(rootRange, funcCovs);
+                }
+                funcCovs.push(funcCov);
+            });
+        });
+        rangeToFuncMap.forEach(function (funcCovs) {
+
+// assert: `funcCovs.length > 0`
+
+// function mergeFuncList(funcCovs) {
+//
+// Merges a list of matching function coverages.
+//
+// Functions are matching if their root ranges have the same span.
+// The result is normalized.
+// The input values may be mutated, it is not safe to use them after passing
+// them to this function.
+// The computation is synchronous.
+//
+// @param funcCovs Function coverages to merge.
+// @return Merged function coverage, or `undefined` if the input list was empty.
+
+            let count = 0;
+            let isBlockCoverage;
+            let merged;
+            let ranges;
+            let trees = [];
+
+// Probably deadcode.
+// if (funcCovs.length === 0) {
+//     return undefined;
+// }
+
+            if (funcCovs.length === 1) {
+                functions.push(normalizeFunc(funcCovs[0]));
+                return;
+            }
+
+// assert: `funcCovs[0].ranges.length > 0`
+
+            funcCovs.forEach(function (funcCov) {
+
+// assert: `funcCov.ranges.length > 0`
+// assert: `funcCov.ranges` is sorted
+
+                count += (
+                    funcCov.count !== undefined
+                    ? funcCov.count
+                    : funcCov.ranges[0].count
+                );
+                if (funcCov.isBlockCoverage) {
+                    trees.push(
+                        coverageRangeTreeFromSortedRanges(funcCov.ranges)
+                    );
+                }
+            });
+            if (trees.length > 0) {
+                isBlockCoverage = true;
+                ranges = coverageRangeTreeToRanges(mergeRangeList(trees));
+            } else {
+                isBlockCoverage = false;
+                ranges = [
+                    {
+                        count,
+                        endOffset: funcCovs[0].ranges[0].endOffset,
+                        startOffset: funcCovs[0].ranges[0].startOffset
+                    }
+                ];
+            }
+            merged = {
+                functionName: funcCovs[0].functionName,
+                isBlockCoverage,
+                ranges
+            };
+            if (count !== ranges[0].count) {
+                merged.count = count;
+            }
+
+// assert: `merged` is normalized
+
+            functions.push(merged);
+        });
+        result.push(normalizeScript({
+            functions,
+            scriptId: scriptCovs[0].scriptId,
+            url: scriptCovs[0].url
+        }));
+
+
+
     });
     return normalizeProcess({
         result
