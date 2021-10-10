@@ -98,7 +98,7 @@ function coverageProcessListMerge(processCovs) {
 // @return Merged process coverage.
 
     let result = [];
-    let urlToScripts = new Map();
+    let urlToScriptMap = new Map();
     function coverageProcessNormalize(processCov) {
 
 // Normalizes a process coverage.
@@ -156,15 +156,15 @@ function coverageProcessListMerge(processCovs) {
     }
     processCovs.forEach(function (processCov) {
         processCov.result.forEach(function (scriptCov) {
-            let scriptCovs = urlToScripts.get(scriptCov.url);
+            let scriptCovs = urlToScriptMap.get(scriptCov.url);
             if (scriptCovs === undefined) {
                 scriptCovs = [];
-                urlToScripts.set(scriptCov.url, scriptCovs);
+                urlToScriptMap.set(scriptCov.url, scriptCovs);
             }
             scriptCovs.push(scriptCov);
         });
     });
-    urlToScripts.forEach(function (scripts) {
+    urlToScriptMap.forEach(function (scripts) {
 
 // assert: `scripts.length > 0`
 
@@ -193,11 +193,11 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
     let event;
     let openRange;
     let openRangeEnd;
-    let parentToNested = new Map();
+    let parentToNestedMap = new Map();
     let resultChildren = [];
     let right;
     let startEventQueue;
-    let startToTrees = new Map();
+    let startToTreeMap = new Map();
     function coverageRangeTreeSplit(tree, value) {
 
 // @precondition `tree.start < value && value < tree.end`
@@ -247,11 +247,11 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         tree.end = value;
         return resultTree;
     }
-    function insertChild(parentToNested, parentIndex, tree) {
-        let nested = parentToNested.get(parentIndex);
+    function insertChild(parentToNestedMap, parentIndex, tree) {
+        let nested = parentToNestedMap.get(parentIndex);
         if (nested === undefined) {
             nested = [];
-            parentToNested.set(parentIndex, nested);
+            parentToNestedMap.set(parentIndex, nested);
         }
         nested.push(tree);
     }
@@ -292,9 +292,9 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
             }
         }
     }
-    function nextChild(openRange, parentToNested) {
+    function nextChild(openRange, parentToNestedMap) {
         let matchingTrees = [];
-        parentToNested.forEach(function (nested) {
+        parentToNestedMap.forEach(function (nested) {
             if (
                 nested.length === 1
                 && nested[0].start === openRange.start
@@ -313,15 +313,15 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
                 });
             }
         });
-        parentToNested.clear();
+        parentToNestedMap.clear();
         return coverageRangeTreeListMerge(matchingTrees);
     }
     parentTrees.forEach(function (parentTree, parentIndex) {
         parentTree.children.forEach(function (child) {
-            let trees = startToTrees.get(child.start);
+            let trees = startToTreeMap.get(child.start);
             if (trees === undefined) {
                 trees = [];
-                startToTrees.set(child.start, trees);
+                startToTreeMap.set(child.start, trees);
             }
 
 // new RangeTreeWithParent().
@@ -338,7 +338,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
     startEventQueue = {
         nextIndex: 0,
         pendingIndex: 0,
-        queue: Array.from(startToTrees).map(function ([
+        queue: Array.from(startToTreeMap).map(function ([
             startOffset, trees
         ]) {
 
@@ -358,14 +358,14 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
             break;
         }
         if (openRange !== undefined && openRange.end <= event.offset) {
-            resultChildren.push(nextChild(openRange, parentToNested));
+            resultChildren.push(nextChild(openRange, parentToNestedMap));
             openRange = undefined;
         }
         if (openRange === undefined) {
             openRangeEnd = event.offset + 1;
             event.trees.forEach(function ({ parentIndex, tree }) {
                 openRangeEnd = Math.max(openRangeEnd, tree.end);
-                insertChild(parentToNested, parentIndex, tree);
+                insertChild(parentToNestedMap, parentIndex, tree);
             });
             startEventQueue.pendingOffset = openRangeEnd;
             openRange = {
@@ -387,12 +387,12 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
                         tree: right
                     });
                 }
-                insertChild(parentToNested, parentIndex, tree);
+                insertChild(parentToNestedMap, parentIndex, tree);
             });
         }
     }
     if (openRange !== undefined) {
-        resultChildren.push(nextChild(openRange, parentToNested));
+        resultChildren.push(nextChild(openRange, parentToNestedMap));
     }
     return resultChildren;
 }
@@ -570,7 +570,7 @@ function coverageScriptListMerge(scriptCovs) {
 // @return Merged script coverage, or `undefined` if the input list was empty.
 
     let functions = [];
-    let rangeToFuncs = new Map();
+    let rangeToFuncMap = new Map();
     if (scriptCovs.length === 0) {
         return undefined;
     }
@@ -590,15 +590,15 @@ function coverageScriptListMerge(scriptCovs) {
                 funcCov.ranges[0].startOffset
                 + ";" + funcCov.ranges[0].endOffset
             );
-            funcCovs = rangeToFuncs.get(rootRange);
+            funcCovs = rangeToFuncMap.get(rootRange);
             if (funcCovs === undefined) {
                 funcCovs = [];
-                rangeToFuncs.set(rootRange, funcCovs);
+                rangeToFuncMap.set(rootRange, funcCovs);
             }
             funcCovs.push(funcCov);
         });
     });
-    rangeToFuncs.forEach(function (funcCovs) {
+    rangeToFuncMap.forEach(function (funcCovs) {
 
 // assert: `funcCovs.length > 0`
 
