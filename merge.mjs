@@ -5,7 +5,7 @@ shRunWithCoverage node --unhandled-rejections=strict test.mjs
 
 function v8CoverageListMerge(processCovs) {
 
-// Merges a list of process coverages.
+// Merges a list of v8 process coverages.
 // The result is normalized.
 // The input values may be mutated, it is not safe to use them after passing
 // them to this function.
@@ -45,8 +45,6 @@ function v8CoverageListMerge(processCovs) {
 
 // This function will return RangeTree object with <parentTrees> merged into
 // property-children.
-
-
 // @precondition Same `start` and `end` for all the parentTrees
 
         if (parentTrees.length <= 1) {
@@ -85,56 +83,6 @@ function v8CoverageListMerge(processCovs) {
 // This function will insert <child> into <parentToNestedDict>[<parentIi>].
 
             dictKeyValueAppend(parentToNestedDict, parentIi, child);
-        }
-        function coverageRangeTreeSplit(tree, offset) {
-
-// This function will split <tree> along <offset> and return the right-side.
-// @precondition `tree.start < offset && offset < tree.end`
-// @return RangeTree Right part
-
-            let child;
-            let ii = 0;
-            let leftChildLen = tree.children.length;
-            let mid;
-            let resultTree;
-            let rightChildren;
-
-// TODO(perf): Binary search (check overhead) //jslint-quiet
-
-            while (ii < tree.children.length) {
-                child = tree.children[ii];
-                if (child.start < offset && offset < child.end) {
-
-// Recurse coverageRangeTreeSplit().
-
-                    mid = coverageRangeTreeSplit(child, offset);
-                    leftChildLen = ii + 1;
-                    break;
-                }
-                if (child.start >= offset) {
-                    leftChildLen = ii;
-                    break;
-                }
-                ii += 1;
-            }
-            rightChildren = tree.children.splice(
-                leftChildLen,
-                tree.children.length - leftChildLen
-            );
-            if (mid !== undefined) {
-                rightChildren.unshift(mid);
-            }
-
-// new rangeTreeCreate().
-
-            resultTree = {
-                children: rightChildren,
-                delta: tree.delta,
-                end: tree.end,
-                start: offset
-            };
-            tree.end = offset;
-            return resultTree;
         }
         function nextXxx() {
 
@@ -210,7 +158,7 @@ function v8CoverageListMerge(processCovs) {
                 }) {
                     let right;
                     if (tree.end > openRange.end) {
-                        right = coverageRangeTreeSplit(tree, openRange.end);
+                        right = treeSplit(tree, openRange.end);
                         if (queueTrees === undefined) {
                             queueTrees = [];
                         }
@@ -254,7 +202,60 @@ function v8CoverageListMerge(processCovs) {
                 }
             });
             parentToNestedDict.clear();
+
+// Recurse mergeTreeList().
+
             resultChildren.push(mergeTreeList(treesMatching));
+        }
+        function treeSplit(tree, offset) {
+
+// This function will split <tree> along <offset> and return the right-side.
+// @precondition `tree.start < offset && offset < tree.end`
+// @return RangeTree Right part
+
+            let child;
+            let ii = 0;
+            let leftChildLen = tree.children.length;
+            let mid;
+            let resultTree;
+            let rightChildren;
+
+// TODO(perf): Binary search (check overhead) //jslint-quiet
+
+            while (ii < tree.children.length) {
+                child = tree.children[ii];
+                if (child.start < offset && offset < child.end) {
+
+// Recurse treeSplit().
+
+                    mid = treeSplit(child, offset);
+                    leftChildLen = ii + 1;
+                    break;
+                }
+                if (child.start >= offset) {
+                    leftChildLen = ii;
+                    break;
+                }
+                ii += 1;
+            }
+            rightChildren = tree.children.splice(
+                leftChildLen,
+                tree.children.length - leftChildLen
+            );
+            if (mid !== undefined) {
+                rightChildren.unshift(mid);
+            }
+
+// new rangeTreeCreate().
+
+            resultTree = {
+                children: rightChildren,
+                delta: tree.delta,
+                end: tree.end,
+                start: offset
+            };
+            tree.end = offset;
+            return resultTree;
         }
 
 // Init startToTreeDict.
