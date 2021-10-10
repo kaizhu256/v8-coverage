@@ -1197,6 +1197,1128 @@
             ],
             "scriptId": "36",
             "url": "internal/linkedlist.js"
+        },
+        {
+            "functions": [
+                {
+                    "functionName": "",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 19158,
+                            "startOffset": 0
+                        }
+                    ]
+                },
+                {
+                    "functionName": "",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 4543,
+                            "startOffset": 4516
+                        }
+                    ]
+                },
+                {
+                    "functionName": "initAsyncResource",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 5802,
+                            "startOffset": 5518
+                        }
+                    ]
+                },
+                {
+                    "functionName": "Timeout",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 6918,
+                            "startOffset": 5891
+                        }
+                    ]
+                },
+                {
+                    "functionName": "Timeout.<computed>",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 7213,
+                            "startOffset": 7034
+                        }
+                    ]
+                },
+                {
+                    "functionName": "Timeout.refresh",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 7351,
+                            "startOffset": 7246
+                        }
+                    ]
+                },
+                {
+                    "functionName": "Timeout.unref",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 7517,
+                            "startOffset": 7382
+                        }
+                    ]
+                },
+                {
+                    "functionName": "Timeout.ref",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 7681,
+                            "startOffset": 7546
+                        }
+                    ]
+                },
+                {
+                    "functionName": "Timeout.hasRef",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 7752,
+                            "startOffset": 7713
+                        }
+                    ]
+                },
+                {
+                    "functionName": "TimersList",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 8064,
+                            "startOffset": 7757
+                        }
+                    ]
+                },
+                {
+                    "functionName": "TimersList.<computed>",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 8362,
+                            "startOffset": 8183
+                        }
+                    ]
+                },
+                {
+                    "functionName": "ImmediateList",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 2,
+                            "endOffset": 8494,
+                            "startOffset": 8423
+                        }
+                    ]
+                },
+                {
+                    "functionName": "ImmediateList.append",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 8852,
+                            "startOffset": 8677
+                        }
+                    ]
+                },
+                {
+                    "functionName": "ImmediateList.remove",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 9387,
+                            "startOffset": 9034
+                        }
+                    ]
+                },
+                {
+                    "functionName": "incRefCount",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 9471,
+                            "startOffset": 9392
+                        }
+                    ]
+                },
+                {
+                    "functionName": "decRefCount",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 9555,
+                            "startOffset": 9475
+                        }
+                    ]
+                },
+                {
+                    "functionName": "active",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 9698,
+                            "startOffset": 9642
+                        }
+                    ]
+                },
+                {
+                    "functionName": "unrefActive",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 9911,
+                            "startOffset": 9849
+                        }
+                    ]
+                },
+                {
+                    "functionName": "insertGuarded",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 10677,
+                            "startOffset": 10138
+                        }
+                    ]
+                },
+                {
+                    "functionName": "insert",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 11352,
+                            "startOffset": 10681
+                        }
+                    ]
+                },
+                {
+                    "functionName": "setUnrefTimeout",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 11672,
+                            "startOffset": 11356
+                        }
+                    ]
+                },
+                {
+                    "functionName": "getTimerDuration",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 12279,
+                            "startOffset": 11742
+                        }
+                    ]
+                },
+                {
+                    "functionName": "compareTimersLists",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 12497,
+                            "startOffset": 12283
+                        }
+                    ]
+                },
+                {
+                    "functionName": "setPosition",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 12574,
+                            "startOffset": 12501
+                        }
+                    ]
+                },
+                {
+                    "functionName": "getTimerCallbacks",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 17857,
+                            "startOffset": 12578
+                        }
+                    ]
+                },
+                {
+                    "functionName": "processImmediate",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 14758,
+                            "startOffset": 12896
+                        }
+                    ]
+                },
+                {
+                    "functionName": "processTimers",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 15258,
+                            "startOffset": 14766
+                        }
+                    ]
+                },
+                {
+                    "functionName": "listOnTimeout",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 17792,
+                            "startOffset": 15264
+                        }
+                    ]
+                },
+                {
+                    "functionName": "Immediate",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 18218,
+                            "startOffset": 17882
+                        }
+                    ]
+                },
+                {
+                    "functionName": "ref",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 18404,
+                            "startOffset": 18224
+                        }
+                    ]
+                },
+                {
+                    "functionName": "unref",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 18593,
+                            "startOffset": 18410
+                        }
+                    ]
+                },
+                {
+                    "functionName": "hasRef",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 18642,
+                            "startOffset": 18599
+                        }
+                    ]
+                }
+            ],
+            "scriptId": "37",
+            "url": "internal/timers.js"
+        },
+        {
+            "functions": [
+                {
+                    "functionName": "",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 3052,
+                            "startOffset": 0
+                        }
+                    ]
+                },
+                {
+                    "functionName": "PriorityQueue",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 838,
+                            "startOffset": 589
+                        }
+                    ]
+                },
+                {
+                    "functionName": "module.exports",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 886,
+                            "startOffset": 844
+                        }
+                    ]
+                },
+                {
+                    "functionName": "insert",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 1086,
+                            "startOffset": 892
+                        }
+                    ]
+                },
+                {
+                    "functionName": "peek",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 1133,
+                            "startOffset": 1092
+                        }
+                    ]
+                },
+                {
+                    "functionName": "percolateDown",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 1829,
+                            "startOffset": 1139
+                        }
+                    ]
+                },
+                {
+                    "functionName": "percolateUp",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 2344,
+                            "startOffset": 1835
+                        }
+                    ]
+                },
+                {
+                    "functionName": "removeAt",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 2695,
+                            "startOffset": 2350
+                        }
+                    ]
+                },
+                {
+                    "functionName": "remove",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 2876,
+                            "startOffset": 2701
+                        }
+                    ]
+                },
+                {
+                    "functionName": "shift",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 3046,
+                            "startOffset": 2882
+                        }
+                    ]
+                }
+            ],
+            "scriptId": "38",
+            "url": "internal/priority_queue.js"
+        },
+        {
+            "functions": [
+                {
+                    "functionName": "",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 2918,
+                            "startOffset": 0
+                        }
+                    ]
+                },
+                {
+                    "functionName": "initializeDebugEnv",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 904,
+                            "startOffset": 521
+                        },
+                        {
+                            "count": 0,
+                            "endOffset": 819,
+                            "startOffset": 614
+                        }
+                    ]
+                },
+                {
+                    "functionName": "emitWarningIfNeeded",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 1314,
+                            "startOffset": 982
+                        }
+                    ]
+                },
+                {
+                    "functionName": "noop",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 13,
+                            "endOffset": 1336,
+                            "startOffset": 1318
+                        }
+                    ]
+                },
+                {
+                    "functionName": "debuglogImpl",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 3,
+                            "endOffset": 1921,
+                            "startOffset": 1340
+                        },
+                        {
+                            "count": 2,
+                            "endOffset": 1891,
+                            "startOffset": 1416
+                        },
+                        {
+                            "count": 0,
+                            "endOffset": 1841,
+                            "startOffset": 1436
+                        }
+                    ]
+                },
+                {
+                    "functionName": "debug",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 1833,
+                            "startOffset": 1528
+                        }
+                    ]
+                },
+                {
+                    "functionName": "debuglog",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 12,
+                            "endOffset": 2855,
+                            "startOffset": 2147
+                        }
+                    ]
+                },
+                {
+                    "functionName": "init",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 3,
+                            "endOffset": 2278,
+                            "startOffset": 2179
+                        }
+                    ]
+                },
+                {
+                    "functionName": "debug",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 3,
+                            "endOffset": 2539,
+                            "startOffset": 2294
+                        }
+                    ]
+                },
+                {
+                    "functionName": "test",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 2644,
+                            "startOffset": 2571
+                        }
+                    ]
+                },
+                {
+                    "functionName": "logger",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 3,
+                            "endOffset": 2691,
+                            "startOffset": 2664
+                        }
+                    ]
+                },
+                {
+                    "functionName": "get",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 2779,
+                            "startOffset": 2743
+                        }
+                    ]
+                }
+            ],
+            "scriptId": "39",
+            "url": "internal/util/debuglog.js"
+        },
+        {
+            "functions": [
+                {
+                    "functionName": "",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 7161,
+                            "startOffset": 0
+                        }
+                    ]
+                },
+                {
+                    "functionName": "tryGetCwd",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 890,
+                            "startOffset": 551
+                        },
+                        {
+                            "count": 0,
+                            "endOffset": 887,
+                            "startOffset": 615
+                        }
+                    ]
+                },
+                {
+                    "functionName": "evalModule",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 1347,
+                            "startOffset": 894
+                        }
+                    ]
+                },
+                {
+                    "functionName": "evalScript",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 2774,
+                            "startOffset": 1351
+                        }
+                    ]
+                },
+                {
+                    "functionName": "setUncaughtExceptionCaptureCallback",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 3570,
+                            "startOffset": 2858
+                        }
+                    ]
+                },
+                {
+                    "functionName": "hasUncaughtExceptionCaptureCallback",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 3677,
+                            "startOffset": 3574
+                        }
+                    ]
+                },
+                {
+                    "functionName": "noop",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 3699,
+                            "startOffset": 3681
+                        }
+                    ]
+                },
+                {
+                    "functionName": "createOnGlobalUncaughtException",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 6711,
+                            "startOffset": 4252
+                        }
+                    ]
+                },
+                {
+                    "functionName": "",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 6707,
+                            "startOffset": 4525
+                        }
+                    ]
+                },
+                {
+                    "functionName": "readStdin",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 6931,
+                            "startOffset": 6715
+                        }
+                    ]
+                }
+            ],
+            "scriptId": "40",
+            "url": "internal/process/execution.js"
+        },
+        {
+            "functions": [
+                {
+                    "functionName": "",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 5002,
+                            "startOffset": 0
+                        }
+                    ]
+                },
+                {
+                    "functionName": "lazyOption",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 864,
+                            "startOffset": 295
+                        }
+                    ]
+                },
+                {
+                    "functionName": "writeOut",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 1097,
+                            "startOffset": 970
+                        }
+                    ]
+                },
+                {
+                    "functionName": "writeToFile",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 1504,
+                            "startOffset": 1101
+                        }
+                    ]
+                },
+                {
+                    "functionName": "doEmitWarning",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 1581,
+                            "startOffset": 1508
+                        }
+                    ]
+                },
+                {
+                    "functionName": "onWarning",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 2833,
+                            "startOffset": 1623
+                        }
+                    ]
+                },
+                {
+                    "functionName": "emitWarning",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 4139,
+                            "startOffset": 2961
+                        }
+                    ]
+                },
+                {
+                    "functionName": "emitWarningSync",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 4239,
+                            "startOffset": 4143
+                        }
+                    ]
+                },
+                {
+                    "functionName": "createWarningObject",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 4924,
+                            "startOffset": 4243
+                        }
+                    ]
+                }
+            ],
+            "scriptId": "41",
+            "url": "internal/process/warning.js"
+        },
+        {
+            "functions": [
+                {
+                    "functionName": "",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 6632,
+                            "startOffset": 0
+                        }
+                    ]
+                },
+                {
+                    "functionName": "process._startProfilerIdleNotifier",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 533,
+                            "startOffset": 525
+                        }
+                    ]
+                },
+                {
+                    "functionName": "process._stopProfilerIdleNotifier",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 580,
+                            "startOffset": 572
+                        }
+                    ]
+                },
+                {
+                    "functionName": "defineStream",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 3,
+                            "endOffset": 738,
+                            "startOffset": 585
+                        }
+                    ]
+                },
+                {
+                    "functionName": "createWritableStdioStream",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 2943,
+                            "startOffset": 1318
+                        }
+                    ]
+                },
+                {
+                    "functionName": "dummyDestroy",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 3343,
+                            "startOffset": 2947
+                        }
+                    ]
+                },
+                {
+                    "functionName": "getStdout",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 3728,
+                            "startOffset": 3387
+                        }
+                    ]
+                },
+                {
+                    "functionName": "getStderr",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 4073,
+                            "startOffset": 3732
+                        }
+                    ]
+                },
+                {
+                    "functionName": "getStdin",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 6480,
+                            "startOffset": 4077
+                        }
+                    ]
+                },
+                {
+                    "functionName": "rawMethods.resetStdioForTesting",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 6629,
+                            "startOffset": 6546
+                        }
+                    ]
+                }
+            ],
+            "scriptId": "42",
+            "url": "internal/bootstrap/switches/is_main_thread.js"
+        },
+        {
+            "functions": [
+                {
+                    "functionName": "",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 1177,
+                            "startOffset": 0
+                        }
+                    ]
+                },
+                {
+                    "functionName": "isSignal",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 4,
+                            "endOffset": 318,
+                            "startOffset": 220
+                        }
+                    ]
+                },
+                {
+                    "functionName": "startListeningIfSignal",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 4,
+                            "endOffset": 892,
+                            "startOffset": 385
+                        },
+                        {
+                            "count": 1,
+                            "endOffset": 472,
+                            "startOffset": 447
+                        },
+                        {
+                            "count": 1,
+                            "endOffset": 889,
+                            "startOffset": 474
+                        },
+                        {
+                            "count": 0,
+                            "endOffset": 848,
+                            "startOffset": 766
+                        }
+                    ]
+                },
+                {
+                    "functionName": "stopListeningIfSignal",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 1097,
+                            "startOffset": 896
+                        }
+                    ]
+                }
+            ],
+            "scriptId": "43",
+            "url": "internal/process/signal.js"
+        },
+        {
+            "functions": [
+                {
+                    "functionName": "",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 3655,
+                            "startOffset": 0
+                        },
+                        {
+                            "count": 0,
+                            "endOffset": 598,
+                            "startOffset": 298
+                        }
+                    ]
+                },
+                {
+                    "functionName": "wrapPosixCredentialSetters",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 3064,
+                            "startOffset": 846
+                        }
+                    ]
+                },
+                {
+                    "functionName": "wrappedChdir",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 3397,
+                            "startOffset": 3221
+                        }
+                    ]
+                },
+                {
+                    "functionName": "wrappedUmask",
+                    "isBlockCoverage": false,
+                    "ranges": [
+                        {
+                            "count": 0,
+                            "endOffset": 3542,
+                            "startOffset": 3401
+                        }
+                    ]
+                },
+                {
+                    "functionName": "wrappedCwd",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 2,
+                            "endOffset": 3653,
+                            "startOffset": 3546
+                        },
+                        {
+                            "count": 1,
+                            "endOffset": 3629,
+                            "startOffset": 3600
+                        }
+                    ]
+                }
+            ],
+            "scriptId": "44",
+            "url": "internal/bootstrap/switches/does_own_process_state.js"
+        },
+        {
+            "functions": [
+                {
+                    "functionName": "",
+                    "isBlockCoverage": true,
+                    "ranges": [
+                        {
+                            "count": 1,
+                            "endOffset": 649,
+                            "startOffset": 0
+                        }
+                    ]
+                }
+            ],
+            "scriptId": "45",
+            "url": "internal/main/run_main_module.js"
         }
     ],
     "timestamp": 967709.209879
