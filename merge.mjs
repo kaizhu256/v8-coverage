@@ -43,7 +43,7 @@ function coverageProcessListMerge(processCovs) {
 
 // This function will insert <child> into <parentToNestedDict>[<parentIi>].
 
-            dictKeyValuePush(parentToNestedDict, parentIi, child);
+            dictKeyValueAppend(parentToNestedDict, parentIi, child);
         }
         function coverageRangeTreeSplit(tree, offset) {
 
@@ -220,15 +220,10 @@ function coverageProcessListMerge(processCovs) {
 
         parentTrees.forEach(function (parentTree, parentIi) {
             parentTree.children.forEach(function (child) {
-                let trees = startToTreeDict.get(child.start);
-                if (trees === undefined) {
-                    trees = [];
-                    startToTreeDict.set(child.start, trees);
-                }
 
 // new RangeTreeWithParent().
 
-                trees.push({
+                dictKeyValueAppend(startToTreeDict, child.start, {
                     parentIi,
                     tree: child
                 });
@@ -393,9 +388,9 @@ function coverageProcessListMerge(processCovs) {
         }
         return ranges;
     }
-    function dictKeyValuePush(dict, key, val) {
+    function dictKeyValueAppend(dict, key, val) {
 
-// This function will push <val> to list <dict>[<key>].
+// This function will append <val> to list <dict>[<key>].
 
         let list = dict.get(key);
         if (list === undefined) {
@@ -522,12 +517,7 @@ function coverageProcessListMerge(processCovs) {
     }
     processCovs.forEach(function (processCov) {
         processCov.result.forEach(function (scriptCov) {
-            let scriptCovs = urlToScriptDict.get(scriptCov.url);
-            if (scriptCovs === undefined) {
-                scriptCovs = [];
-                urlToScriptDict.set(scriptCov.url, scriptCovs);
-            }
-            scriptCovs.push(scriptCov);
+            dictKeyValueAppend(urlToScriptDict, scriptCov.url, scriptCov);
         });
     });
     urlToScriptDict.forEach(function (scriptCovs) {
@@ -569,12 +559,7 @@ function coverageProcessListMerge(processCovs) {
                     funcCov.ranges[0].startOffset
                     + ";" + funcCov.ranges[0].endOffset
                 );
-                funcCovs = rangeToFuncDict.get(rootRange);
-                if (funcCovs === undefined) {
-                    funcCovs = [];
-                    rangeToFuncDict.set(rootRange, funcCovs);
-                }
-                funcCovs.push(funcCov);
+                dictKeyValueAppend(rangeToFuncDict, rootRange, funcCov);
             });
         });
         rangeToFuncDict.forEach(function (funcCovs) {
