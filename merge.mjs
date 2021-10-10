@@ -306,7 +306,7 @@ function coverageProcessListMerge(processCovs) {
         let ii;
         let parentCount;
         let ranges = [];
-        let stack = [               // Stack of parent trees and counts.
+        let stack = [           // Stack of parent trees and counts.
             [
                 tree, 0
             ]
@@ -407,28 +407,27 @@ function coverageProcessListMerge(processCovs) {
 
 // @precondition Same `start` and `end` for all the parentTrees
 
-        return (
-            parentTrees.length <= 1
-            ? parentTrees[0]
+        if (parentTrees.length <= 1) {
+            return parentTrees[0];
+        }
 
 // new RangeTree().
 
-            : {
+        return {
 
 // Merge parentTrees into property-children.
 
-                children: coverageRangeTreeChildrenMerge(parentTrees),
-                delta: parentTrees.reduce(function (aa, bb) {
-                    return aa + bb.delta;
-                }, 0),
-                end: parentTrees[0].end,
-                start: parentTrees[0].start
-            }
-        );
+            children: coverageRangeTreeChildrenMerge(parentTrees),
+            delta: parentTrees.reduce(function (aa, bb) {
+                return aa + bb.delta;
+            }, 0),
+            end: parentTrees[0].end,
+            start: parentTrees[0].start
+        };
     }
     function sortFunc(funcCov) {
 
-// This function will sort <funcCov>.ranges.
+// This function will normalize-and-sort <funcCov>.ranges.
 // Sorts the ranges (pre-order sort).
 // TODO: Tree-based normalization of the ranges. //jslint-quiet
 // @param funcCov Function coverage to normalize.
@@ -464,7 +463,7 @@ function coverageProcessListMerge(processCovs) {
     }
     function sortScript(scriptCov) {
 
-// This function will normalize and sort <scriptCov>.functions.
+// This function will normalize-and-sort <scriptCov>.functions.
 
         scriptCov.functions.forEach(function (funcCov) {
             sortFunc(funcCov);
@@ -632,9 +631,6 @@ function coverageProcessListMerge(processCovs) {
             scriptId: scriptCovs[0].scriptId,
             url: scriptCovs[0].url
         }));
-
-
-
     });
     return sortProcess({
         result: resultMerged
