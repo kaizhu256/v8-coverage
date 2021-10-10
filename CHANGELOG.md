@@ -1,11 +1,8 @@
-# Next
+# 0.1.1 (2018-05-05)
 
-- **Docs**: Document supported Rust and Node versions.
-- **Internal**: Migrate from Travis to GitHub Actions.
-- **Internal**: Update to Yarn 3.
-- **Internal**: Migrate from Gulp to `package.json` scripts.
+- **[Fix]**: Fix invalid counts when merging function coverage with mixed `isBlockCoverage` value.
+- **[Internal]**: Fix `CHANGELOG.md`
 
-## Node-TypeScript
+# 0.1.0 (2018-10-01)
 
-- **Breaking change**: Migrate to ES modules.
-- **Breaking change**: Split into smaller packages.
+- **[Feature]**: First release.
