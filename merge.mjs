@@ -13,8 +13,8 @@ function coverageProcessListMerge(processCovs) {
 // @param processCovs Process coverages to merge.
 // @return Merged process coverage.
 
-    let result = [];            // Merges a list of process coverages
-    let urlToScriptDict = new Map();
+    let result = [];                    // Merges a list of process coverages
+    let urlToScriptDict = new Map();    // Dict mapping script.url to scriptCovs
     function compareRangeList(aa, bb) {
 
 // Compares two range coverages.
@@ -43,12 +43,7 @@ function coverageProcessListMerge(processCovs) {
 
 // This function will insert <child> into <parentToNestedDict>[<parentIi>].
 
-            let nested = parentToNestedDict.get(parentIi);
-            if (nested === undefined) {
-                nested = [];
-                parentToNestedDict.set(parentIi, nested);
-            }
-            nested.push(child);
+            dictKeyValuePush(parentToNestedDict, parentIi, child);
         }
         function coverageRangeTreeSplit(tree, offset) {
 
@@ -397,6 +392,17 @@ function coverageProcessListMerge(processCovs) {
             }
         }
         return ranges;
+    }
+    function dictKeyValuePush(dict, key, val) {
+
+// This function will push <val> to list <dict>[<key>].
+
+        let list = dict.get(key);
+        if (list === undefined) {
+            list = [];
+            dict.set(key, list);
+        }
+        list.push(val);
     }
     function mergeRangeList(parentTrees) {
 
