@@ -13,7 +13,7 @@ function coverageProcessListMerge(processCovs) {
 // @param processCovs Process coverages to merge.
 // @return Merged process coverage.
 
-    let result = [];            // List of merged scripts from processCovs.
+    let resultMerged = [];      // List of merged scripts from processCovs.
     let urlToScriptDict = new Map();    // Dict mapping script.url to scriptCovs
     function compareRangeList(aa, bb) {
 
@@ -527,7 +527,7 @@ function coverageProcessListMerge(processCovs) {
 // }
 
         if (scriptCovs.length === 1) {
-            result.push(sortScript(scriptCovs[0]));
+            resultMerged.push(sortScript(scriptCovs[0]));
             return;
         }
 
@@ -627,7 +627,7 @@ function coverageProcessListMerge(processCovs) {
 
             functions.push(merged);
         });
-        result.push(sortScript({
+        resultMerged.push(sortScript({
             functions,
             scriptId: scriptCovs[0].scriptId,
             url: scriptCovs[0].url
@@ -637,7 +637,7 @@ function coverageProcessListMerge(processCovs) {
 
     });
     return sortProcess({
-        result
+        result: resultMerged
     });
 }
 
