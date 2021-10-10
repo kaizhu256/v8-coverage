@@ -254,13 +254,13 @@ function coverageProcessListMerge(processCovs) {
         return resultChildren;
     }
 
-    function coverageRangeTreeFromSortedRanges(ranges) {
+    function treeFromSortedRanges(ranges) {
 
 // @precondition `ranges` are well-formed and pre-order sorted
 
         let root;
         let stack = [];             // Stack of parent trees and parent counts.
-        ranges.forEach(function (range) {
+        ranges.sort(compareRangeList).forEach(function (range) {
 
 // new rangeTreeCreate().
 
@@ -440,9 +440,7 @@ function coverageProcessListMerge(processCovs) {
 // @param funcCov Function coverage to normalize.
 
         funcCov.ranges = coverageRangeTreeToRanges(
-            coverageRangeTreeFromSortedRanges(
-                funcCov.ranges.sort(compareRangeList)
-            )
+            treeFromSortedRanges(funcCov.ranges)
         );
         return funcCov;
     }
@@ -605,9 +603,7 @@ function coverageProcessListMerge(processCovs) {
                     : funcCov.ranges[0].count
                 );
                 if (funcCov.isBlockCoverage) {
-                    trees.push(
-                        coverageRangeTreeFromSortedRanges(funcCov.ranges)
-                    );
+                    trees.push(treeFromSortedRanges(funcCov.ranges));
                 }
             });
             if (trees.length > 0) {
