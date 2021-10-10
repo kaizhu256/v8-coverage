@@ -353,11 +353,11 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         return aa.offset - bb.offset;
     });
 
-    //!! queueList.forEach(function ({
-        //!! offset,
-        //!! trees
-    //!! }) {
-    //!! });
+    queueList.some(function ({
+        offset,
+        trees
+    }) {
+    });
 
     while (true) {
         event = next();
