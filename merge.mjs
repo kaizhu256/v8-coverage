@@ -17,79 +17,6 @@ function coverageProcessListMerge(processCovs) {
 
     let result = [];
     let urlToScriptMap = new Map();
-
-    function coverageFunctionListMerge(funcCovs) {
-
-// Merges a list of matching function coverages.
-//
-// Functions are matching if their root ranges have the same span.
-// The result is normalized.
-// The input values may be mutated, it is not safe to use them after passing
-// them to this function.
-// The computation is synchronous.
-//
-// @param funcCovs Function coverages to merge.
-// @return Merged function coverage, or `undefined` if the input list was empty.
-
-        let count = 0;
-        let isBlockCoverage;
-        let merged;
-        let ranges;
-        let trees = [];
-
-// Probably deadcode.
-// if (funcCovs.length === 0) {
-//     return undefined;
-// }
-
-        if (funcCovs.length === 1) {
-            return normalizeFunc(funcCovs[0]);
-        }
-
-// assert: `funcCovs[0].ranges.length > 0`
-
-        funcCovs.forEach(function (funcCov) {
-
-// assert: `funcCov.ranges.length > 0`
-// assert: `funcCov.ranges` is sorted
-
-            count += (
-                funcCov.count !== undefined
-                ? funcCov.count
-                : funcCov.ranges[0].count
-            );
-            if (funcCov.isBlockCoverage) {
-                trees.push(coverageRangeTreeFromSortedRanges(funcCov.ranges));
-            }
-        });
-        if (trees.length > 0) {
-            isBlockCoverage = true;
-            ranges = coverageRangeTreeToRanges(
-                coverageRangeTreeListMerge(trees)
-            );
-        } else {
-            isBlockCoverage = false;
-            ranges = [
-                {
-                    count,
-                    endOffset: funcCovs[0].ranges[0].endOffset,
-                    startOffset: funcCovs[0].ranges[0].startOffset
-                }
-            ];
-        }
-        merged = {
-            functionName: funcCovs[0].functionName,
-            isBlockCoverage,
-            ranges
-        };
-        if (count !== ranges[0].count) {
-            merged.count = count;
-        }
-
-// assert: `merged` is normalized
-
-        return merged;
-    }
     function coverageRangeListCompare(aa, bb) {
 
 // Compares two range coverages.
@@ -295,7 +222,7 @@ function coverageProcessListMerge(processCovs) {
                 }
             });
             parentToNestedMap.clear();
-            resultChildren.push(coverageRangeTreeListMerge(treesMatching));
+            resultChildren.push(mergeRangeList(treesMatching));
         }
 
 // Init startToTreeMap.
@@ -383,7 +310,7 @@ function coverageProcessListMerge(processCovs) {
         });
         return root;
     }
-    function coverageRangeTreeListMerge(parentTrees) {
+    function mergeRangeList(parentTrees) {
 
 // This function will return RangeTree object with <parentTrees> merged into
 // property-children.
@@ -503,7 +430,7 @@ function coverageProcessListMerge(processCovs) {
         }
         return ranges;
     }
-    function coverageScriptListMerge(scriptCovs) {
+    function mergeScripList(scriptCovs) {
 
 // Merges a list of matching script coverages.
 //
@@ -552,7 +479,77 @@ function coverageProcessListMerge(processCovs) {
 
 // assert: `funcCovs.length > 0`
 
-            functions.push(coverageFunctionListMerge(funcCovs));
+// function mergeFuncList(funcCovs) {
+// Merges a list of matching function coverages.
+//
+// Functions are matching if their root ranges have the same span.
+// The result is normalized.
+// The input values may be mutated, it is not safe to use them after passing
+// them to this function.
+// The computation is synchronous.
+//
+// @param funcCovs Function coverages to merge.
+// @return Merged function coverage, or `undefined` if the input list was empty.
+
+            let count = 0;
+            let isBlockCoverage;
+            let merged;
+            let ranges;
+            let trees = [];
+
+// Probably deadcode.
+// if (funcCovs.length === 0) {
+//     return undefined;
+// }
+
+            if (funcCovs.length === 1) {
+                functions.push(normalizeFunc(funcCovs[0]));
+                return;
+            }
+
+// assert: `funcCovs[0].ranges.length > 0`
+
+            funcCovs.forEach(function (funcCov) {
+
+// assert: `funcCov.ranges.length > 0`
+// assert: `funcCov.ranges` is sorted
+
+                count += (
+                    funcCov.count !== undefined
+                    ? funcCov.count
+                    : funcCov.ranges[0].count
+                );
+                if (funcCov.isBlockCoverage) {
+                    trees.push(
+                        coverageRangeTreeFromSortedRanges(funcCov.ranges)
+                    );
+                }
+            });
+            if (trees.length > 0) {
+                isBlockCoverage = true;
+                ranges = coverageRangeTreeToRanges(mergeRangeList(trees));
+            } else {
+                isBlockCoverage = false;
+                ranges = [
+                    {
+                        count,
+                        endOffset: funcCovs[0].ranges[0].endOffset,
+                        startOffset: funcCovs[0].ranges[0].startOffset
+                    }
+                ];
+            }
+            merged = {
+                functionName: funcCovs[0].functionName,
+                isBlockCoverage,
+                ranges
+            };
+            if (count !== ranges[0].count) {
+                merged.count = count;
+            }
+
+// assert: `merged` is normalized
+
+            functions.push(merged);
         });
         return normalizeScript({
             functions,
@@ -677,7 +674,7 @@ function coverageProcessListMerge(processCovs) {
 
 // assert: `scripts.length > 0`
 
-        result.push(coverageScriptListMerge(scripts));
+        result.push(mergeScripList(scripts));
     });
     return normalizeProcess({
         result
