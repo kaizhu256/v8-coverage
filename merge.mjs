@@ -285,33 +285,6 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         parentToNestedMap.clear();
         return coverageRangeTreeListMerge(matchingTrees);
     }
-    function nextXxx() {
-        if (queueListIi < queueList.length) {
-            [
-                nextOffset, nextTrees
-            ] = queueList[queueListIi];
-        }
-        if (queuePendingTrees === undefined) {
-            queueListIi += 1;
-            return;
-        }
-        if (
-            queueListIi >= queueList.length
-            || queuePendingOffset < nextOffset
-        ) {
-            nextOffset = queuePendingOffset;
-            nextTrees = queuePendingTrees;
-            queuePendingTrees = undefined;
-            return;
-        }
-        if (queuePendingOffset === nextOffset) {
-            queuePendingTrees.forEach(function (tree) {
-                nextTrees.push(tree);
-            });
-            queuePendingTrees = undefined;
-        }
-        queueListIi += 1;
-    }
     parentTrees.forEach(function (parentTree, parentIndex) {
         parentTree.children.forEach(function (child) {
             let trees = startToTreeMap.get(child.start);
@@ -344,8 +317,33 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         return aa[0] - bb[0];
     });
     while (true) {
-        nextXxx();
-        if (queueListIi > queueList.length) {
+
+// Init nextOffset, nextTrees.
+
+        [
+            nextOffset, nextTrees
+        ] = queueList[queueListIi] || [];
+        if (queuePendingTrees === undefined) {
+            queueListIi += 1;
+        } else if (
+            nextOffset === undefined || queuePendingOffset < nextOffset
+        ) {
+
+// Update nextOffset, nextTrees.
+
+            nextOffset = queuePendingOffset;
+            nextTrees = queuePendingTrees;
+            queuePendingTrees = undefined;
+        } else {
+            if (queuePendingOffset === nextOffset) {
+                queuePendingTrees.forEach(function (tree) {
+                    nextTrees.push(tree);
+                });
+                queuePendingTrees = undefined;
+            }
+            queueListIi += 1;
+        }
+        if (nextOffset === undefined) {
             break;
         }
         if (openRange !== undefined && openRange.end <= nextOffset) {
