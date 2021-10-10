@@ -262,8 +262,8 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
     }
     function next() {
         let nextEvent = queueList[queueNextIndex];
-        let pendingTrees = queuePendingTrees;
-        if (pendingTrees === undefined) {
+        let trees = queuePendingTrees;
+        if (trees === undefined) {
             queueNextIndex += 1;
             return nextEvent;
         }
@@ -274,7 +274,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
 
             return {
                 offset: queuePendingOffset,
-                trees: pendingTrees
+                trees
             };
         }
         if (queuePendingOffset < nextEvent.offset) {
@@ -284,12 +284,12 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
 
             return {
                 offset: queuePendingOffset,
-                trees: pendingTrees
+                trees
             };
         }
         if (queuePendingOffset === nextEvent.offset) {
             queuePendingTrees = undefined;
-            pendingTrees.forEach(function (tree) {
+            trees.forEach(function (tree) {
                 nextEvent.trees.push(tree);
             });
         }
