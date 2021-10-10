@@ -87,7 +87,7 @@ debugInline();
     let jtestOnExit;
     let jtestTimeStart = Date.now();
 
-    async function testDescribe(description, testFunction) {
+    async function jtestDescribe(description, testFunction) {
         let result;
 
 // Init jtestOnExit.
