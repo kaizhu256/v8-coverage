@@ -71,13 +71,13 @@ function v8CoverageListMerge(processCovs) {
 // This function will return <resultChildren> with <parentTrees> merged.
 
         let openRange;
-        let parentToNestedDict = new Map();
+        let parentToChildDict = new Map();      // Map parent to child.
         let queueList;
         let queueListIi = 0;
         let queueOffset;
         let queueTrees;
         let resultChildren = [];
-        let startToTreeDict = new Map();
+        let startToTreeDict = new Map();        // Map tree.start to tree.
         function nextXxx() {
 
 // Increment nextOffset, nextTrees.
@@ -113,7 +113,7 @@ function v8CoverageListMerge(processCovs) {
             if (nextOffset === undefined) {
                 if (openRange !== undefined) {
 
-// Append nested-children from parentToNextDict (within openRange) to
+// Append nested-children from parentToChildDict (within openRange) to
 // resultChildren.
 
                     resultAppendNextChild();
@@ -122,7 +122,7 @@ function v8CoverageListMerge(processCovs) {
             }
             if (openRange !== undefined && openRange.end <= nextOffset) {
 
-// Append nested-children from parentToNextDict (within openRange) to
+// Append nested-children from parentToChildDict (within openRange) to
 // resultChildren.
 
                 resultAppendNextChild();
@@ -136,9 +136,9 @@ function v8CoverageListMerge(processCovs) {
                 }) {
                     openRangeEnd = Math.max(openRangeEnd, tree.end);
 
-// Insert children from nextTrees to parentToNextDict.
+// Append children from nextTrees to parentToChildDict.
 
-                    dictKeyValueAppend(parentToNestedDict, parentIi, tree);
+                    dictKeyValueAppend(parentToChildDict, parentIi, tree);
                 });
                 queueOffset = openRangeEnd;
                 openRange = {
@@ -165,9 +165,9 @@ function v8CoverageListMerge(processCovs) {
                         });
                     }
 
-// Insert children from nextTrees to parentToNextDict.
+// Append children from nextTrees to parentToChildDict.
 
-                    dictKeyValueAppend(parentToNestedDict, parentIi, tree);
+                    dictKeyValueAppend(parentToChildDict, parentIi, tree);
                 });
             }
         }
@@ -176,7 +176,7 @@ function v8CoverageListMerge(processCovs) {
 // This function will append next child to <resultChildren>.
 
             let treesMatching = [];
-            parentToNestedDict.forEach(function (nested) {
+            parentToChildDict.forEach(function (nested) {
                 if (
                     nested.length === 1
                     && nested[0].start === openRange.start
@@ -195,7 +195,7 @@ function v8CoverageListMerge(processCovs) {
                     });
                 }
             });
-            parentToNestedDict.clear();
+            parentToChildDict.clear();
 
 // Recurse mergeTreeList().
 
@@ -257,7 +257,7 @@ function v8CoverageListMerge(processCovs) {
         parentTrees.forEach(function (parentTree, parentIi) {
             parentTree.children.forEach(function (child) {
 
-// new RangeTreeWithParent().
+// Append child with child.start to startToTreeDict.
 
                 dictKeyValueAppend(startToTreeDict, child.start, {
                     parentIi,
@@ -266,7 +266,7 @@ function v8CoverageListMerge(processCovs) {
             });
         });
 
-// new StartEventQueue().
+// init queueList.
 
         queueList = Array.from(startToTreeDict).map(function ([
             startOffset, trees
