@@ -14,7 +14,7 @@ function v8CoverageListMerge(processCovs) {
 // @return Merged process coverage.
 
     let resultMerged = [];      // List of merged scripts from processCovs.
-    let urlToScriptDict = new Map();    // Map script.url to scriptCovs.
+    let urlToScriptDict = new Map();    // Map scriptCov.url to scriptCovs.
 
     function compareRangeList(aa, bb) {
 
@@ -523,6 +523,9 @@ function v8CoverageListMerge(processCovs) {
 // @return Merged script coverage, or `undefined` if the input list was empty.
 
         let functions = [];
+
+// Map funcCovRoot.startOffset:funcCovRoot.endOffset to funcCov.
+
         let rangeToFuncDict = new Map();
 
 // Probably deadcode.
@@ -536,6 +539,7 @@ function v8CoverageListMerge(processCovs) {
         }
 
 // Init rangeToFuncDict.
+// Map funcCovRoot.startOffset:funcCovRoot.endOffset to funcCov.
 
         scriptCovs.forEach(function ({
             functions
