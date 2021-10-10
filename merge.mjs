@@ -1,3 +1,6 @@
+/*
+shRunWithCoverage node --unhandled-rejections=strict test.mjs
+*/
 /*jslint beta, node*/
 
 function coverageFunctionListMerge(funcCovs) {
@@ -191,6 +194,8 @@ function coverageRangeListCompare(aa, bb) {
 
 function coverageRangeTreeChildrenMerge(parentTrees) {
     let eventNext;
+    let nextOffset;
+    let nextTrees;
     let openRange;
     let openRangeEnd;
     let parentToNestedMap = new Map();
@@ -260,6 +265,10 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
     function next() {
         let trees = queuePendingTrees;
         eventNext = queueList[queueNextIndex];
+        if (eventNext) {
+            nextOffset = eventNext.offset;
+            nextTrees = eventNext.trees;
+        }
         if (trees === undefined) {
             queueNextIndex += 1;
             return;
@@ -273,9 +282,11 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
                 offset: queuePendingOffset,
                 trees
             };
+            nextOffset = eventNext.offset;
+            nextTrees = eventNext.trees;
             return;
         }
-        if (queuePendingOffset < eventNext.offset) {
+        if (queuePendingOffset < nextOffset) {
             queuePendingTrees = undefined;
 
 // new StartEvent().
@@ -284,12 +295,14 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
                 offset: queuePendingOffset,
                 trees
             };
+            nextOffset = eventNext.offset;
+            nextTrees = eventNext.trees;
             return;
         }
-        if (queuePendingOffset === eventNext.offset) {
+        if (queuePendingOffset === nextOffset) {
             queuePendingTrees = undefined;
             trees.forEach(function (tree) {
-                eventNext.trees.push(tree);
+                nextTrees.push(tree);
             });
         }
         queueNextIndex += 1;
@@ -355,13 +368,13 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         if (eventNext === undefined) {
             break;
         }
-        if (openRange !== undefined && openRange.end <= eventNext.offset) {
+        if (openRange !== undefined && openRange.end <= nextOffset) {
             resultChildren.push(nextChild(openRange, parentToNestedMap));
             openRange = undefined;
         }
         if (openRange === undefined) {
-            openRangeEnd = eventNext.offset + 1;
-            eventNext.trees.forEach(function ({ //jslint-quiet
+            openRangeEnd = nextOffset + 1;
+            nextTrees.forEach(function ({ //jslint-quiet
                 parentIndex,
                 tree
             }) {
@@ -371,10 +384,10 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
             queuePendingOffset = openRangeEnd;
             openRange = {
                 end: openRangeEnd,
-                start: eventNext.offset
+                start: nextOffset
             };
         } else {
-            eventNext.trees.forEach(function ({ //jslint-quiet
+            nextTrees.forEach(function ({ //jslint-quiet
                 parentIndex,
                 tree
             }) {
