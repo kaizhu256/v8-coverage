@@ -21,6 +21,11 @@ let debugInline = (function () {
         return argv[0];
     };
 }());
+let jtestCountFailed = 0;
+let jtestCountTotal = 0;
+let jtestItList = [];
+let jtestOnExit;
+let jtestTimeStart = Date.now();
 
 function assertJsonEqual(aa, bb) {
 
@@ -46,6 +51,78 @@ function assertOrThrow(condition, message) {
             : message
         );
     }
+}
+
+async function jtestDescribe(description, testFunction) {
+    let result;
+
+// Init jtestOnExit.
+
+    if (!jtestOnExit) {
+        jtestOnExit = function (exitCode) {
+            console.error(
+                (
+                    jtestCountFailed
+                    ? "\n\u001b[31m"
+                    : "\n\u001b[32m"
+                )
+                + "  tests total  - " + jtestCountTotal + "\n"
+                + "  tests failed - " + jtestCountFailed + "\n"
+                + "\u001b[39m"
+            );
+            if (!exitCode && jtestCountFailed) {
+                process.exit(1);
+            }
+        };
+        process.on("exit", jtestOnExit);
+    }
+
+// Init jtestItList.
+
+    jtestItList = [];
+    testFunction();
+
+// Wait for jtestItList to resolve.
+
+    result = await Promise.all(jtestItList);
+
+// Print test results.
+
+    console.error(
+        "\n  " + (Date.now() - jtestTimeStart) + "ms"
+        + " - test describe - " + description
+    );
+    result.forEach(function ([
+        err, description
+    ]) {
+        if (err) {
+            jtestCountFailed += 1;
+            console.error(
+                "    \u001b[31m\u2718 it " + description + "\n"
+                + err.stack
+                + "\u001b[39m"
+            );
+            return;
+        }
+        console.error(
+            "    \u001b[32m\u2714 it " + description + "\u001b[39m"
+        );
+    });
+}
+
+function jtestIt(description, testFunction) {
+    jtestCountTotal += 1;
+    jtestItList.push(new Promise(async function (resolve) {
+        let err;
+        try {
+            await testFunction();
+        } catch (errCaught) {
+            err = errCaught;
+        }
+        resolve([
+            err, description
+        ]);
+    }));
 }
 
 function objectDeepCopyWithKeysSorted(obj) {
@@ -81,83 +158,6 @@ debugInline();
         coverageProcessListMerge,
         coverageScriptListMerge
     } = coverageMerge;
-    let jtestCountFailed = 0;
-    let jtestCountTotal = 0;
-    let jtestItList = [];
-    let jtestOnExit;
-    let jtestTimeStart = Date.now();
-
-    async function jtestDescribe(description, testFunction) {
-        let result;
-
-// Init jtestOnExit.
-
-        if (!jtestOnExit) {
-            jtestOnExit = function (exitCode) {
-                console.error(
-                    (
-                        jtestCountFailed
-                        ? "\n\u001b[31m"
-                        : "\n\u001b[32m"
-                    )
-                    + "  tests total  - " + jtestCountTotal + "\n"
-                    + "  tests failed - " + jtestCountFailed + "\n"
-                    + "\u001b[39m"
-                );
-                if (!exitCode && jtestCountFailed) {
-                    process.exit(1);
-                }
-            };
-            process.on("exit", jtestOnExit);
-        }
-
-// Init jtestItList.
-
-        jtestItList = [];
-        testFunction();
-
-// Wait for jtestItList to resolve.
-
-        result = await Promise.all(jtestItList);
-
-// Print test results.
-
-        console.error(
-            "\n  " + (Date.now() - jtestTimeStart) + "ms"
-            + " - test describe - " + description
-        );
-        result.forEach(function ([
-            err, description
-        ]) {
-            if (err) {
-                jtestCountFailed += 1;
-                console.error(
-                    "    \u001b[31m\u2718 it " + description + "\n"
-                    + err.stack
-                    + "\u001b[39m"
-                );
-                return;
-            }
-            console.error(
-                "    \u001b[32m\u2714 it " + description + "\u001b[39m"
-            );
-        });
-    }
-
-    function jtestIt(description, testFunction) {
-        jtestCountTotal += 1;
-        jtestItList.push(new Promise(async function (resolve) {
-            let err;
-            try {
-                await testFunction();
-            } catch (errCaught) {
-                err = errCaught;
-            }
-            resolve([
-                err, description
-            ]);
-        }));
-    }
 
     jtestDescribe("coverage - merge empty arrays", function () {
     /**
@@ -331,7 +331,9 @@ debugInline();
     });
 
     jtestDescribe("coverage - merge multiple files", function () {
-        jtestIt("merge multiple node-sqlite coverage files`", async function () {
+        jtestIt((
+            "merge multiple node-sqlite coverage files`"
+        ), async function () {
             let data1 = await Promise.all([
                 "test_v8_coverage_node_sqlite_merged.json",
                 "test_v8_coverage_node_sqlite_9884_1633662346346_0.json",
