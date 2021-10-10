@@ -163,7 +163,7 @@ debugInline();
         )
     );
 
-    jstestDescribe("coverage - merge empty arrays", function () {
+    jstestDescribe("v8-coverage-merge non-empty arrays", function () {
     /**
      * Generate a Mocha test suite for the provided
      * implementation of `v8-coverage-tools`.
@@ -173,6 +173,59 @@ debugInline();
         ), function () {
             assertJsonEqual(coverageProcessListMerge([]), {
                 result: []
+            });
+        });
+        jstestIt("funcCovs.length === 1", function () {
+            assertJsonEqual(coverageProcessListMerge([
+                {
+                    result: [
+                        {
+                            functions: [
+                                {
+                                    functionName: "test",
+                                    isBlockCoverage: true,
+                                    ranges: [
+                                        {
+                                            count: 2,
+                                            endOffset: 4,
+                                            startOffset: 0
+                                        }
+                                    ]
+                                }
+                            ],
+                            moduleUrl: "/lib.js",
+                            scriptId: "1"
+                        }
+                    ]
+                },
+                {
+                    result: [
+                        {
+                            functions: [],
+                            moduleUrl: "/lib.js",
+                            scriptId: "2"
+                        }
+                    ]
+                }
+            ]), {
+                result: [
+                    {
+                        functions: [
+                            {
+                                functionName: "test",
+                                isBlockCoverage: true,
+                                ranges: [
+                                    {
+                                        count: 2,
+                                        endOffset: 4,
+                                        startOffset: 0
+                                    }
+                                ]
+                            }
+                        ],
+                        scriptId: "0"
+                    }
+                ]
             });
         });
     });
