@@ -353,11 +353,85 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         return aa.offset - bb.offset;
     });
 
-    queueList.some(function ({
-        offset,
-        trees
-    }) {
-    });
+    //!! queueList.push(undefined);
+    //!! queueList.some(function (
+        //!! nextEvent
+    //!! //!! {
+        //!! //!! offset,
+        //!! //!! trees
+    //!! //!! }
+    //!! ) {
+        //!! let trees = queuePendingTrees;
+        //!! event = nextEvent;
+        //!! if (trees !== undefined) {
+            //!! if (nextEvent === undefined) {
+                //!! queuePendingTrees = undefined;
+
+//!! // new StartEvent().
+
+                //!! event = {
+                    //!! offset: queuePendingOffset,
+                    //!! trees
+                //!! };
+            //!! } else if (queuePendingOffset < nextEvent.offset) {
+                //!! queuePendingTrees = undefined;
+
+//!! // new StartEvent().
+
+                //!! event = {
+                    //!! offset: queuePendingOffset,
+                    //!! trees
+                //!! };
+            //!! } else if (queuePendingOffset === nextEvent.offset) {
+                //!! queuePendingTrees = undefined;
+                //!! trees.forEach(function (tree) {
+                    //!! nextEvent.trees.push(tree);
+                //!! });
+            //!! }
+        //!! }
+        //!! if (event === undefined) {
+            //!! return true;
+        //!! }
+        //!! if (openRange !== undefined && openRange.end <= event.offset) {
+            //!! resultChildren.push(nextChild(openRange, parentToNestedMap));
+            //!! openRange = undefined;
+        //!! }
+        //!! if (openRange === undefined) {
+            //!! openRangeEnd = event.offset + 1;
+            //!! event.trees.forEach(function ({
+                //!! parentIndex,
+                //!! tree
+            //!! }) {
+                //!! openRangeEnd = Math.max(openRangeEnd, tree.end);
+                //!! insertChild(parentToNestedMap, parentIndex, tree);
+            //!! });
+            //!! queuePendingOffset = openRangeEnd;
+            //!! openRange = {
+                //!! end: openRangeEnd,
+                //!! start: event.offset
+            //!! };
+        //!! } else {
+            //!! event.trees.forEach(function ({
+                //!! parentIndex,
+                //!! tree
+            //!! }) {
+                //!! if (tree.end > openRange.end) {
+                    //!! right = coverageRangeTreeSplit(tree, openRange.end);
+                    //!! if (queuePendingTrees === undefined) {
+                        //!! queuePendingTrees = [];
+                    //!! }
+
+//!! // new RangeTreeWithParent().
+
+                    //!! queuePendingTrees.push({
+                        //!! parentIndex,
+                        //!! tree: right
+                    //!! });
+                //!! }
+                //!! insertChild(parentToNestedMap, parentIndex, tree);
+            //!! });
+        //!! }
+    //!! });
 
     while (true) {
         event = next();
@@ -398,6 +472,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
             });
         }
     }
+
     if (openRange !== undefined) {
         resultChildren.push(nextChild(openRange, parentToNestedMap));
     }
