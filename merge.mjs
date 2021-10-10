@@ -310,33 +310,6 @@ function coverageProcessListMerge(processCovs) {
         });
         return root;
     }
-    function mergeRangeList(parentTrees) {
-
-// This function will return RangeTree object with <parentTrees> merged into
-// property-children.
-
-
-// @precondition Same `start` and `end` for all the parentTrees
-
-        return (
-            parentTrees.length <= 1
-            ? parentTrees[0]
-
-// new RangeTree().
-
-            : {
-
-// Merge parentTrees into property-children.
-
-                children: coverageRangeTreeChildrenMerge(parentTrees),
-                delta: parentTrees.reduce(function (aa, bb) {
-                    return aa + bb.delta;
-                }, 0),
-                end: parentTrees[0].end,
-                start: parentTrees[0].start
-            }
-        );
-    }
     function coverageRangeTreeToRanges(tree) {
 
 // Get the range coverages corresponding to the tree.
@@ -429,6 +402,33 @@ function coverageProcessListMerge(processCovs) {
             }
         }
         return ranges;
+    }
+    function mergeRangeList(parentTrees) {
+
+// This function will return RangeTree object with <parentTrees> merged into
+// property-children.
+
+
+// @precondition Same `start` and `end` for all the parentTrees
+
+        return (
+            parentTrees.length <= 1
+            ? parentTrees[0]
+
+// new RangeTree().
+
+            : {
+
+// Merge parentTrees into property-children.
+
+                children: coverageRangeTreeChildrenMerge(parentTrees),
+                delta: parentTrees.reduce(function (aa, bb) {
+                    return aa + bb.delta;
+                }, 0),
+                end: parentTrees[0].end,
+                start: parentTrees[0].start
+            }
+        );
     }
     function mergeScripList(scriptCovs) {
 
