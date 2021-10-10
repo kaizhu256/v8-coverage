@@ -261,34 +261,6 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         }
         nested.push(tree);
     }
-    function next() {
-        let trees = queuePendingTrees;
-        if (queueListIi < queueList.length) {
-            [
-                nextOffset, nextTrees
-            ] = queueList[queueListIi];
-        }
-        if (trees === undefined) {
-            queueListIi += 1;
-            return;
-        }
-        if (
-            queueListIi >= queueList.length
-            || queuePendingOffset < nextOffset
-        ) {
-            queuePendingTrees = undefined;
-            nextOffset = queuePendingOffset;
-            nextTrees = trees;
-            return;
-        }
-        if (queuePendingOffset === nextOffset) {
-            queuePendingTrees = undefined;
-            trees.forEach(function (tree) {
-                nextTrees.push(tree);
-            });
-        }
-        queueListIi += 1;
-    }
     function nextChild(openRange, parentToNestedMap) {
         let matchingTrees = [];
         parentToNestedMap.forEach(function (nested) {
@@ -312,6 +284,33 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         });
         parentToNestedMap.clear();
         return coverageRangeTreeListMerge(matchingTrees);
+    }
+    function nextXxx() {
+        if (queueListIi < queueList.length) {
+            [
+                nextOffset, nextTrees
+            ] = queueList[queueListIi];
+        }
+        if (queuePendingTrees === undefined) {
+            queueListIi += 1;
+            return;
+        }
+        if (
+            queueListIi >= queueList.length
+            || queuePendingOffset < nextOffset
+        ) {
+            nextOffset = queuePendingOffset;
+            nextTrees = queuePendingTrees;
+            queuePendingTrees = undefined;
+            return;
+        }
+        if (queuePendingOffset === nextOffset) {
+            queuePendingTrees.forEach(function (tree) {
+                nextTrees.push(tree);
+            });
+            queuePendingTrees = undefined;
+        }
+        queueListIi += 1;
     }
     parentTrees.forEach(function (parentTree, parentIndex) {
         parentTree.children.forEach(function (child) {
@@ -345,7 +344,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         return aa[0] - bb[0];
     });
     while (true) {
-        next();
+        nextXxx();
         if (queueListIi > queueList.length) {
             break;
         }
