@@ -43,7 +43,7 @@ function coverageProcessListMerge(processCovs) {
 // }
 
         if (funcCovs.length === 1) {
-            return coverageFunctionNormalize(funcCovs[0]);
+            return normalizeFunc(funcCovs[0]);
         }
 
 // assert: `funcCovs[0].ranges.length > 0`
@@ -89,68 +89,6 @@ function coverageProcessListMerge(processCovs) {
 // assert: `merged` is normalized
 
         return merged;
-    }
-    function coverageFunctionNormalize(funcCov) {
-
-// Normalizes a function coverage.
-//
-// Sorts the ranges (pre-order sort).
-// TODO: Tree-based normalization of the ranges. //jslint-quiet
-//
-// @param funcCov Function coverage to normalize.
-
-        funcCov.ranges = coverageRangeTreeToRanges(
-            coverageRangeTreeFromSortedRanges(
-                funcCov.ranges.sort(coverageRangeListCompare)
-            )
-        );
-        return funcCov;
-    }
-    function coverageProcessNormalize(processCov) {
-
-// Normalizes a process coverage.
-//
-// Sorts the scripts alphabetically by `url`.
-// Reassigns script ids: the script at index `0` receives `"0"`, the script at
-// index `1` receives `"1"` etc.
-// This does not normalize the script coverages.
-//
-// @param processCov Process coverage to normalize.
-
-        Object.entries(processCov.result.sort(function (aa, bb) {
-
-// Compares two script coverages.
-//
-// The result corresponds to the comparison of their `url` value
-// (alphabetical sort).
-
-            return (
-                aa.url < bb.url
-                ? -1
-                : aa.url > bb.url
-                ? 1
-                : 0
-            );
-        })).forEach(function ([
-            scriptId, scriptCov
-        ]) {
-            scriptCov.scriptId = scriptId.toString(10);
-        });
-        return processCov;
-    }
-    function coverageProcessNormalizeDeep(processCov) {
-
-// Normalizes a process coverage deeply.
-//
-// Normalizes the script coverages deeply, then normalizes the process coverage
-// itself.
-//
-// @param processCov Process coverage to normalize.
-
-        processCov.result.forEach(function (scriptCov) {
-            coverageScriptNormalizeDeep(scriptCov);
-        });
-        return coverageProcessNormalize(processCov);
     }
     function coverageRangeListCompare(aa, bb) {
 
@@ -488,7 +426,7 @@ function coverageProcessListMerge(processCovs) {
                 tree, 0
             ]
         ];
-        function coverageRangeTreeNormalize(tree) {
+        function normalizeRange(tree) {
 
 // @internal
 
@@ -508,9 +446,9 @@ function coverageProcessListMerge(processCovs) {
                     tail.length = 0;
                 }
 
-// Recurse coverageRangeTreeNormalize().
+// Recurse normalizeRange().
 
-                coverageRangeTreeNormalize(head);
+                normalizeRange(head);
                 children.push(head);
             }
             tree.children.forEach(function (child) {
@@ -544,7 +482,7 @@ function coverageProcessListMerge(processCovs) {
             }
             tree.children = children;
         }
-        coverageRangeTreeNormalize(tree);
+        normalizeRange(tree);
         while (stack.length > 0) {
             [
                 cur, parentCount
@@ -587,7 +525,7 @@ function coverageProcessListMerge(processCovs) {
 // }
 
         if (scriptCovs.length === 1) {
-            return coverageScriptNormalizeDeep(scriptCovs[0]);
+            return normalizeScriptDeep(scriptCovs[0]);
         }
         scriptCovs.forEach(function (scriptCov) {
             scriptCov.functions.forEach(function (funcCov) {
@@ -616,13 +554,75 @@ function coverageProcessListMerge(processCovs) {
 
             functions.push(coverageFunctionListMerge(funcCovs));
         });
-        return coverageScriptNormalize({
+        return normalizeScript({
             functions,
             scriptId: scriptCovs[0].scriptId,
             url: scriptCovs[0].url
         });
     }
-    function coverageScriptNormalize(scriptCov) {
+    function normalizeFunc(funcCov) {
+
+// Normalizes a function coverage.
+//
+// Sorts the ranges (pre-order sort).
+// TODO: Tree-based normalization of the ranges. //jslint-quiet
+//
+// @param funcCov Function coverage to normalize.
+
+        funcCov.ranges = coverageRangeTreeToRanges(
+            coverageRangeTreeFromSortedRanges(
+                funcCov.ranges.sort(coverageRangeListCompare)
+            )
+        );
+        return funcCov;
+    }
+    function normalizeProcess(processCov) {
+
+// Normalizes a process coverage.
+//
+// Sorts the scripts alphabetically by `url`.
+// Reassigns script ids: the script at index `0` receives `"0"`, the script at
+// index `1` receives `"1"` etc.
+// This does not normalize the script coverages.
+//
+// @param processCov Process coverage to normalize.
+
+        Object.entries(processCov.result.sort(function (aa, bb) {
+
+// Compares two script coverages.
+//
+// The result corresponds to the comparison of their `url` value
+// (alphabetical sort).
+
+            return (
+                aa.url < bb.url
+                ? -1
+                : aa.url > bb.url
+                ? 1
+                : 0
+            );
+        })).forEach(function ([
+            scriptId, scriptCov
+        ]) {
+            scriptCov.scriptId = scriptId.toString(10);
+        });
+        return processCov;
+    }
+    function normalizeProcessDeep(processCov) {
+
+// Normalizes a process coverage deeply.
+//
+// Normalizes the script coverages deeply, then normalizes the process coverage
+// itself.
+//
+// @param processCov Process coverage to normalize.
+
+        processCov.result.forEach(function (scriptCov) {
+            normalizeScriptDeep(scriptCov);
+        });
+        return normalizeProcess(processCov);
+    }
+    function normalizeScript(scriptCov) {
 
 // Normalizes a script coverage.
 //
@@ -641,7 +641,7 @@ function coverageProcessListMerge(processCovs) {
         });
         return scriptCov;
     }
-    function coverageScriptNormalizeDeep(scriptCov) {
+    function normalizeScriptDeep(scriptCov) {
 
 // Normalizes a script coverage deeply.
 //
@@ -651,9 +651,9 @@ function coverageProcessListMerge(processCovs) {
 // @param scriptCov Script coverage to normalize.
 
         scriptCov.functions.forEach(function (funcCov) {
-            coverageFunctionNormalize(funcCov);
+            normalizeFunc(funcCov);
         });
-        return coverageScriptNormalize(scriptCov);
+        return normalizeScript(scriptCov);
     }
     if (processCovs.length === 0) {
         return {
@@ -661,7 +661,7 @@ function coverageProcessListMerge(processCovs) {
         };
     }
     if (processCovs.length === 1) {
-        return coverageProcessNormalizeDeep(processCovs[0]);
+        return normalizeProcessDeep(processCovs[0]);
     }
     processCovs.forEach(function (processCov) {
         processCov.result.forEach(function (scriptCov) {
@@ -679,7 +679,7 @@ function coverageProcessListMerge(processCovs) {
 
         result.push(coverageScriptListMerge(scripts));
     });
-    return coverageProcessNormalize({
+    return normalizeProcess({
         result
     });
 }
