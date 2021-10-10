@@ -6,21 +6,18 @@ shRunWithCoverage node --unhandled-rejections=strict test.mjs
 function coverageProcessListMerge(processCovs) {
 
 // Merges a list of process coverages.
-//
 // The result is normalized.
 // The input values may be mutated, it is not safe to use them after passing
 // them to this function.
 // The computation is synchronous.
-//
 // @param processCovs Process coverages to merge.
 // @return Merged process coverage.
 
-    let result = [];
-    let urlToScriptMap = new Map();
+    let result = [];            // Merges a list of process coverages
+    let urlToScriptDict = new Map();
     function compareRangeList(aa, bb) {
 
 // Compares two range coverages.
-//
 // The ranges are first ordered by ascending `startOffset` and then by
 // descending `endOffset`.
 // This corresponds to a pre-order tree traversal.
@@ -35,28 +32,27 @@ function coverageProcessListMerge(processCovs) {
 // This function will return <resultChildren> with <parentTrees> merged.
 
         let openRange;
-        let parentToNestedMap = new Map();
+        let parentToNestedDict = new Map();
         let queueList;
         let queueListIi = 0;
         let queueOffset;
         let queueTrees;
         let resultChildren = [];
-        let startToTreeMap = new Map();
+        let startToTreeDict = new Map();
         function childInsert(parentIi, child) {
 
-// This function will insert <child> into <parentToNestedMap>[<parentIi>].
+// This function will insert <child> into <parentToNestedDict>[<parentIi>].
 
-            let nested = parentToNestedMap.get(parentIi);
+            let nested = parentToNestedDict.get(parentIi);
             if (nested === undefined) {
                 nested = [];
-                parentToNestedMap.set(parentIi, nested);
+                parentToNestedDict.set(parentIi, nested);
             }
             nested.push(child);
         }
         function coverageRangeTreeSplit(tree, offset) {
 
 // This function will split <tree> along <offset> and return the right-side.
-//
 // @precondition `tree.start < offset && offset < tree.end`
 // @return RangeTree Right part
 
@@ -139,7 +135,7 @@ function coverageProcessListMerge(processCovs) {
             if (nextOffset === undefined) {
                 if (openRange !== undefined) {
 
-// Append nested-children from parentToNextMap (within openRange) to
+// Append nested-children from parentToNextDict (within openRange) to
 // resultChildren.
 
                     resultAppendNextChild();
@@ -148,7 +144,7 @@ function coverageProcessListMerge(processCovs) {
             }
             if (openRange !== undefined && openRange.end <= nextOffset) {
 
-// Append nested-children from parentToNextMap (within openRange) to
+// Append nested-children from parentToNextDict (within openRange) to
 // resultChildren.
 
                 resultAppendNextChild();
@@ -162,7 +158,7 @@ function coverageProcessListMerge(processCovs) {
                 }) {
                     openRangeEnd = Math.max(openRangeEnd, tree.end);
 
-// Insert children from nextTrees to parentToNextMap.
+// Insert children from nextTrees to parentToNextDict.
 
                     childInsert(parentIi, tree);
                 });
@@ -191,7 +187,7 @@ function coverageProcessListMerge(processCovs) {
                         });
                     }
 
-// Insert children from nextTrees to parentToNextMap.
+// Insert children from nextTrees to parentToNextDict.
 
                     childInsert(parentIi, tree);
                 });
@@ -202,7 +198,7 @@ function coverageProcessListMerge(processCovs) {
 // This function will append next child to <resultChildren>.
 
             let treesMatching = [];
-            parentToNestedMap.forEach(function (nested) {
+            parentToNestedDict.forEach(function (nested) {
                 if (
                     nested.length === 1
                     && nested[0].start === openRange.start
@@ -221,18 +217,18 @@ function coverageProcessListMerge(processCovs) {
                     });
                 }
             });
-            parentToNestedMap.clear();
+            parentToNestedDict.clear();
             resultChildren.push(mergeRangeList(treesMatching));
         }
 
-// Init startToTreeMap.
+// Init startToTreeDict.
 
         parentTrees.forEach(function (parentTree, parentIi) {
             parentTree.children.forEach(function (child) {
-                let trees = startToTreeMap.get(child.start);
+                let trees = startToTreeDict.get(child.start);
                 if (trees === undefined) {
                     trees = [];
-                    startToTreeMap.set(child.start, trees);
+                    startToTreeDict.set(child.start, trees);
                 }
 
 // new RangeTreeWithParent().
@@ -246,7 +242,7 @@ function coverageProcessListMerge(processCovs) {
 
 // new StartEventQueue().
 
-        queueList = Array.from(startToTreeMap).map(function ([
+        queueList = Array.from(startToTreeDict).map(function ([
             startOffset, trees
         ]) {
 
@@ -313,7 +309,6 @@ function coverageProcessListMerge(processCovs) {
     function coverageRangeTreeToRanges(tree) {
 
 // Get the range coverages corresponding to the tree.
-//
 // The ranges are pre-order sorted.
 
         let count;
@@ -433,10 +428,8 @@ function coverageProcessListMerge(processCovs) {
     function normalizeFunc(funcCov) {
 
 // Normalizes a function coverage.
-//
 // Sorts the ranges (pre-order sort).
 // TODO: Tree-based normalization of the ranges. //jslint-quiet
-//
 // @param funcCov Function coverage to normalize.
 
         funcCov.ranges = coverageRangeTreeToRanges(
@@ -449,18 +442,15 @@ function coverageProcessListMerge(processCovs) {
     function normalizeProcess(processCov) {
 
 // Normalizes a process coverage.
-//
 // Sorts the scripts alphabetically by `url`.
 // Reassigns script ids: the script at index `0` receives `"0"`, the script at
 // index `1` receives `"1"` etc.
 // This does not normalize the script coverages.
-//
 // @param processCov Process coverage to normalize.
 
         Object.entries(processCov.result.sort(function (aa, bb) {
 
 // Compares two script coverages.
-//
 // The result corresponds to the comparison of their `url` value
 // (alphabetical sort).
 
@@ -478,33 +468,16 @@ function coverageProcessListMerge(processCovs) {
         });
         return processCov;
     }
-    function normalizeProcessDeep(processCov) {
-
-// Normalizes a process coverage deeply.
-//
-// Normalizes the script coverages deeply, then normalizes the process coverage
-// itself.
-//
-// @param processCov Process coverage to normalize.
-
-        processCov.result.forEach(function (scriptCov) {
-            normalizeScriptDeep(scriptCov);
-        });
-        return normalizeProcess(processCov);
-    }
     function normalizeScript(scriptCov) {
 
 // Normalizes a script coverage.
-//
 // Sorts the function by root range (pre-order sort).
 // This does not normalize the function coverages.
-//
 // @param scriptCov Script coverage to normalize.
 
         scriptCov.functions.sort(function (aa, bb) {
 
 // Compares two function coverages.
-//
 // The result corresponds to the comparison of the root ranges.
 
             return compareRangeList(aa.ranges[0], bb.ranges[0]);
@@ -514,10 +487,8 @@ function coverageProcessListMerge(processCovs) {
     function normalizeScriptDeep(scriptCov) {
 
 // Normalizes a script coverage deeply.
-//
 // Normalizes the function coverages deeply, then normalizes the script coverage
 // itself.
-//
 // @param scriptCov Script coverage to normalize.
 
         scriptCov.functions.forEach(function (funcCov) {
@@ -531,37 +502,44 @@ function coverageProcessListMerge(processCovs) {
         };
     }
     if (processCovs.length === 1) {
-        return normalizeProcessDeep(processCovs[0]);
+
+// function normalizeProcessDeep(processCovs[0]) {
+// Normalizes a process coverage deeply.
+// Normalizes the script coverages deeply, then normalizes the process coverage
+// itself.
+// @param processCovs[0] Process coverage to normalize.
+
+        processCovs[0].result.forEach(function (scriptCov) {
+            normalizeScriptDeep(scriptCov);
+        });
+        return normalizeProcess(processCovs[0]);
     }
     processCovs.forEach(function (processCov) {
         processCov.result.forEach(function (scriptCov) {
-            let scriptCovs = urlToScriptMap.get(scriptCov.url);
+            let scriptCovs = urlToScriptDict.get(scriptCov.url);
             if (scriptCovs === undefined) {
                 scriptCovs = [];
-                urlToScriptMap.set(scriptCov.url, scriptCovs);
+                urlToScriptDict.set(scriptCov.url, scriptCovs);
             }
             scriptCovs.push(scriptCov);
         });
     });
-    urlToScriptMap.forEach(function (scriptCovs) {
+    urlToScriptDict.forEach(function (scriptCovs) {
 
 // assert: `scriptCovs.length > 0`
 
-//     function mergeScriptList(scriptCovs) {
-//
+// function mergeScriptList(scriptCovs) {
 // Merges a list of matching script coverages.
-//
 // Scripts are matching if they have the same `url`.
 // The result is normalized.
 // The input values may be mutated, it is not safe to use them after passing
 // them to this function.
 // The computation is synchronous.
-//
 // @param scriptCovs Process coverages to merge.
 // @return Merged script coverage, or `undefined` if the input list was empty.
 
         let functions = [];
-        let rangeToFuncMap = new Map();
+        let rangeToFuncDict = new Map();
 
 // Probably deadcode.
 // if (scriptCovs.length === 0) {
@@ -585,28 +563,25 @@ function coverageProcessListMerge(processCovs) {
                     funcCov.ranges[0].startOffset
                     + ";" + funcCov.ranges[0].endOffset
                 );
-                funcCovs = rangeToFuncMap.get(rootRange);
+                funcCovs = rangeToFuncDict.get(rootRange);
                 if (funcCovs === undefined) {
                     funcCovs = [];
-                    rangeToFuncMap.set(rootRange, funcCovs);
+                    rangeToFuncDict.set(rootRange, funcCovs);
                 }
                 funcCovs.push(funcCov);
             });
         });
-        rangeToFuncMap.forEach(function (funcCovs) {
+        rangeToFuncDict.forEach(function (funcCovs) {
 
 // assert: `funcCovs.length > 0`
 
 // function mergeFuncList(funcCovs) {
-//
 // Merges a list of matching function coverages.
-//
 // Functions are matching if their root ranges have the same span.
 // The result is normalized.
 // The input values may be mutated, it is not safe to use them after passing
 // them to this function.
 // The computation is synchronous.
-//
 // @param funcCovs Function coverages to merge.
 // @return Merged function coverage, or `undefined` if the input list was empty.
 
