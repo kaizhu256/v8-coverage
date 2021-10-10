@@ -155,8 +155,8 @@ debugInline();
 (async function () {
     let {
         //!! coverageFunctionListMerge,
-        coverageProcessListMerge,
-        coverageScriptListMerge
+        coverageProcessListMerge
+        //!! coverageScriptListMerge
     } = coverageMerge;
     let testCoverageMergeData = JSON.parse(
         await moduleFs.promises.readFile(
@@ -287,21 +287,22 @@ debugInline();
                 ]
             });
         });
-        jstestIt((
-            "accepts arrays with a single item for `coverageScriptListMerge`"
-        ), function () {
-            assertJsonEqual(coverageScriptListMerge([
-                {
-                    functions: JSON.parse(functionsInput),
-                    moduleUrl: "/lib.js",
-                    scriptId: "123"
-                }
-            ]), {
-                functions: JSON.parse(functionsExpected),
-                moduleUrl: "/lib.js",
-                scriptId: "123"
-            });
-        });
+        //!! jstestIt((
+            //!! "accepts arrays with a single item for
+            //!! `coverageScriptListMerge`"
+        //!! ), function () {
+            //!! assertJsonEqual(coverageScriptListMerge([
+                //!! {
+                    //!! functions: JSON.parse(functionsInput),
+                    //!! moduleUrl: "/lib.js",
+                    //!! scriptId: "123"
+                //!! }
+            //!! ]), {
+                //!! functions: JSON.parse(functionsExpected),
+                //!! moduleUrl: "/lib.js",
+                //!! scriptId: "123"
+            //!! });
+        //!! });
         //!! jstestIt((
             //!! "accepts arrays with a single item for
             //!! `coverageFunctionListMerge`"
