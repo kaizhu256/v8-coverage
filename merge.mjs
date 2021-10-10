@@ -193,13 +193,16 @@ function coverageRangeListCompare(aa, bb) {
 }
 
 function coverageRangeTreeChildrenMerge(parentTrees) {
+
+// This function will return <children> with <parentTrees> merged.
+
+    let children = [];
     let openRange;
     let parentToNestedMap = new Map();
     let queueList;
     let queueListIi = 0;
     let queueOffset;
     let queueTrees;
-    let result = [];
     let startToTreeMap = new Map();
     function childInsert(parentToNestedMap, parentIi, tree) {
         let nested = parentToNestedMap.get(parentIi);
@@ -339,7 +342,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
     }
     function resultAppendNextChild() {
 
-// This function will append next child to <result>.
+// This function will append next child to <children>.
 
         let treesMatching = [];
         parentToNestedMap.forEach(function (nested) {
@@ -362,7 +365,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
             }
         });
         parentToNestedMap.clear();
-        result.push(coverageRangeTreeListMerge(treesMatching));
+        children.push(coverageRangeTreeListMerge(treesMatching));
     }
     parentTrees.forEach(function (parentTree, parentIi) {
         parentTree.children.forEach(function (child) {
@@ -400,7 +403,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
             break;
         }
     }
-    return result;
+    return children;
 }
 
 function coverageRangeTreeFromSortedRanges(ranges) {
