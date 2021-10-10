@@ -266,7 +266,8 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         if (pendingTrees === undefined) {
             queueNextIndex += 1;
             return nextEvent;
-        } else if (nextEvent === undefined) {
+        }
+        if (nextEvent === undefined) {
             queuePendingTrees = undefined;
 
 // new StartEvent().
@@ -275,27 +276,25 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
                 offset: queuePendingOffset,
                 trees: pendingTrees
             };
-        } else {
-            if (queuePendingOffset < nextEvent.offset) {
-                queuePendingTrees = undefined;
+        }
+        if (queuePendingOffset < nextEvent.offset) {
+            queuePendingTrees = undefined;
 
 // new StartEvent().
 
-                return {
-                    offset: queuePendingOffset,
-                    trees: pendingTrees
-                };
-            } else {
-                if (queuePendingOffset === nextEvent.offset) {
-                    queuePendingTrees = undefined;
-                    pendingTrees.forEach(function (tree) {
-                        nextEvent.trees.push(tree);
-                    });
-                }
-                queueNextIndex += 1;
-                return nextEvent;
-            }
+            return {
+                offset: queuePendingOffset,
+                trees: pendingTrees
+            };
         }
+        if (queuePendingOffset === nextEvent.offset) {
+            queuePendingTrees = undefined;
+            pendingTrees.forEach(function (tree) {
+                nextEvent.trees.push(tree);
+            });
+        }
+        queueNextIndex += 1;
+        return nextEvent;
     }
     function nextChild(openRange, parentToNestedMap) {
         let matchingTrees = [];
