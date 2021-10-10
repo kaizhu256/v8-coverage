@@ -352,6 +352,13 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
     }).sort(function (aa, bb) {
         return aa.offset - bb.offset;
     });
+
+    //!! queueList.forEach(function ({
+        //!! offset,
+        //!! trees
+    //!! }) {
+    //!! });
+
     while (true) {
         event = next();
         if (event === undefined) {
