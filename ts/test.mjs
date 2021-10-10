@@ -350,7 +350,7 @@ debugInline();
                 ".test_v8_coverage_node_sqlite_merged.json",
                 data1
             );
-            //!! assertOrThrow(data1 === data2, "data1 !== data2");
+            assertOrThrow(data1 === data2, "data1 !== data2");
         });
     });
 }());
