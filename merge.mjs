@@ -480,6 +480,7 @@ function coverageProcessListMerge(processCovs) {
 // assert: `funcCovs.length > 0`
 
 // function mergeFuncList(funcCovs) {
+//
 // Merges a list of matching function coverages.
 //
 // Functions are matching if their root ranges have the same span.
