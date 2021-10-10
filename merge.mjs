@@ -193,14 +193,13 @@ function coverageRangeListCompare(aa, bb) {
 }
 
 function coverageRangeTreeChildrenMerge(parentTrees) {
-    let eventNext;
     let nextOffset;
     let nextTrees;
     let openRange;
     let openRangeEnd;
     let parentToNestedMap = new Map();
     let queueList;
-    let queueNextIndex = 0;
+    let queueListIi = 0;
     let queuePendingOffset;
     let queuePendingTrees;
     let resultChildren = [];
@@ -264,26 +263,22 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
     }
     function next() {
         let trees = queuePendingTrees;
-        eventNext = queueList[queueNextIndex];
-        if (eventNext) {
-            nextOffset = eventNext.offset;
-            nextTrees = eventNext.trees;
+        if (queueListIi < queueList.length) {
+            [
+                nextOffset, nextTrees
+            ] = queueList[queueListIi];
         }
         if (trees === undefined) {
-            queueNextIndex += 1;
+            queueListIi += 1;
             return;
         }
-        if (eventNext === undefined || queuePendingOffset < nextOffset) {
+        if (
+            queueListIi >= queueList.length
+            || queuePendingOffset < nextOffset
+        ) {
             queuePendingTrees = undefined;
-
-// new StartEvent().
-
-            eventNext = {
-                offset: queuePendingOffset,
-                trees
-            };
-            nextOffset = eventNext.offset;
-            nextTrees = eventNext.trees;
+            nextOffset = queuePendingOffset;
+            nextTrees = trees;
             return;
         }
         if (queuePendingOffset === nextOffset) {
@@ -292,7 +287,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
                 nextTrees.push(tree);
             });
         }
-        queueNextIndex += 1;
+        queueListIi += 1;
     }
     function nextChild(openRange, parentToNestedMap) {
         let matchingTrees = [];
@@ -343,16 +338,15 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
 
 // new StartEvent().
 
-        return {
-            offset: startOffset,
-            trees
-        };
+        return [
+            startOffset, trees
+        ];
     }).sort(function (aa, bb) {
-        return aa.offset - bb.offset;
+        return aa[0] - bb[0];
     });
     while (true) {
         next();
-        if (eventNext === undefined) {
+        if (queueListIi > queueList.length) {
             break;
         }
         if (openRange !== undefined && openRange.end <= nextOffset) {
