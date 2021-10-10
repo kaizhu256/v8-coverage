@@ -26,6 +26,9 @@ let jstestCountTotal = 0;
 let jstestItList = [];
 let jstestOnExit;
 let jstestTimeStart = Date.now();
+let {
+    v8CoverageListMerge
+} = coverageMerge;
 
 function assertJsonEqual(aa, bb) {
 
@@ -153,9 +156,6 @@ function objectDeepCopyWithKeysSorted(obj) {
 debugInline();
 
 (async function () {
-    let {
-        v8CoverageListMerge
-    } = coverageMerge;
     let testCoverageMergeData = JSON.parse(
         await moduleFs.promises.readFile(
             "test_coverage_merge_data.json",
@@ -163,11 +163,52 @@ debugInline();
         )
     );
 
-    jstestDescribe("v8-coverage-merge non-empty arrays", function () {
+    jstestDescribe("v8-coverage-merge - simple tests", function () {
     /**
      * Generate a Mocha test suite for the provided
      * implementation of `v8-coverage-tools`.
      */
+        let functionsExpected = JSON.stringify([
+            {
+                functionName: "test",
+                isBlockCoverage: true,
+                ranges: [
+                    {
+                        count: 2,
+                        endOffset: 4,
+                        startOffset: 0
+                    },
+                    {
+                        count: 1,
+                        endOffset: 3,
+                        startOffset: 1
+                    }
+                ]
+            }
+        ]);
+        let functionsInput = JSON.stringify([
+            {
+                functionName: "test",
+                isBlockCoverage: true,
+                ranges: [
+                    {
+                        count: 2,
+                        endOffset: 4,
+                        startOffset: 0
+                    },
+                    {
+                        count: 1,
+                        endOffset: 2,
+                        startOffset: 1
+                    },
+                    {
+                        count: 1,
+                        endOffset: 3,
+                        startOffset: 2
+                    }
+                ]
+            }
+        ]);
         jstestIt((
             "accepts empty arrays for `v8CoverageListMerge`"
         ), function () {
@@ -228,50 +269,6 @@ debugInline();
                 ]
             });
         });
-    });
-
-    jstestDescribe("coverage - merge non-empty arrays", function () {
-        let functionsExpected = JSON.stringify([
-            {
-                functionName: "test",
-                isBlockCoverage: true,
-                ranges: [
-                    {
-                        count: 2,
-                        endOffset: 4,
-                        startOffset: 0
-                    },
-                    {
-                        count: 1,
-                        endOffset: 3,
-                        startOffset: 1
-                    }
-                ]
-            }
-        ]);
-        let functionsInput = JSON.stringify([
-            {
-                functionName: "test",
-                isBlockCoverage: true,
-                ranges: [
-                    {
-                        count: 2,
-                        endOffset: 4,
-                        startOffset: 0
-                    },
-                    {
-                        count: 1,
-                        endOffset: 2,
-                        startOffset: 1
-                    },
-                    {
-                        count: 1,
-                        endOffset: 3,
-                        startOffset: 2
-                    }
-                ]
-            }
-        ]);
         jstestIt((
             "accepts arrays with a single item for `v8CoverageListMerge`"
         ), function () {
@@ -351,7 +348,7 @@ debugInline();
         });
     });
 
-    jstestDescribe("coverage - merge multiple files", function () {
+    jstestDescribe("coverage - merge node-sqlite coverage files", function () {
         jstestIt((
             "merge multiple node-sqlite coverage files"
         ), function () {
