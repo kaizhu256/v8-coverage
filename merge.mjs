@@ -320,7 +320,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
         }
         if (openRange === undefined) {
             openRangeEnd = nextOffset + 1;
-            nextTrees.forEach(function ({ //jslint-quiet
+            nextTrees.forEach(function ({
                 parentIi,
                 tree
             }) {
@@ -333,7 +333,7 @@ function coverageRangeTreeChildrenMerge(parentTrees) {
                 start: nextOffset
             };
         } else {
-            nextTrees.forEach(function ({ //jslint-quiet
+            nextTrees.forEach(function ({
                 parentIi,
                 tree
             }) {
